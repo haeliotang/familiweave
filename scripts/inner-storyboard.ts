@@ -1,0 +1,22 @@
+import { innerPlan, innerStoryboardMarkdown, type InnerFeeling } from '../src/inner'
+
+const args = process.argv.slice(2)
+const usage = '用法：pnpm inner:storyboard --fragment "一段梦/画面/感觉" [--feeling longing|unease|calm|grief|anger|numbness] [--json]'
+
+if (args.includes('--help') || args.includes('-h')) {
+  process.stdout.write(`${usage}\n`)
+  process.exit(0)
+}
+
+const fragmentFlag = args.indexOf('--fragment')
+const fragment = fragmentFlag >= 0 ? args[fragmentFlag + 1] : args.filter(arg => !arg.startsWith('--')).join(' ')
+if (!fragment) {
+  process.stderr.write(`${usage}\n`)
+  process.exit(2)
+}
+
+const feelingFlag = args.indexOf('--feeling')
+const feeling = feelingFlag >= 0 ? args[feelingFlag + 1] as InnerFeeling : undefined
+const plan = innerPlan({ fragment, feeling })
+if (args.includes('--json')) process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`)
+else process.stdout.write(`${innerStoryboardMarkdown(plan)}\n`)

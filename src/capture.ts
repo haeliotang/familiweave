@@ -26,7 +26,7 @@ export function isCaptureProvenance(value: unknown): value is CaptureProvenance 
   const capture = value as Partial<CaptureProvenance>
   return capture.version === 'capture-v1'
     && typeof capture.captureId === 'string' && capture.captureId.length > 0
-    && ['procedural', 'genie4', 'marble', 'captured'].includes(capture.rendererKind ?? '')
+    && ['procedural', 'genie4', 'marble', 'captured', 'symbolic'].includes(capture.rendererKind ?? '')
     && typeof capture.mimeType === 'string' && capture.mimeType.length > 0
     && typeof capture.durationSec === 'number' && Number.isFinite(capture.durationSec) && capture.durationSec > 0
     && typeof capture.sha256 === 'string' && sha256Pattern.test(capture.sha256)

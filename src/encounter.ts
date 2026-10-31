@@ -1,6 +1,7 @@
 import type { CaptureProvenance } from './capture'
 import { cueFromMemory, type Cue } from './cue'
 import { directorPlanForCue, type DirectorPlan, type RendererKind } from './director'
+import type { InnerPlan } from './inner'
 import { limitMemoryText } from './memory-text'
 import { currentPerformanceVersion } from './performance-catalog'
 import { currentSceneVersion, sceneForEncounter, type SceneId } from './scene-catalog'
@@ -31,6 +32,7 @@ export interface Encounter {
   rendererKind?: RendererKind
   directorPlan?: DirectorPlan
   capture?: CaptureProvenance
+  innerPlan?: InnerPlan
 }
 
 export function createEncounter(memory: string, previous: Encounter[] = []): Encounter {

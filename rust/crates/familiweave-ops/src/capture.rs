@@ -14,6 +14,7 @@ pub enum RendererKind {
     Genie4,
     Marble,
     Captured,
+    Symbolic,
 }
 
 impl FromStr for RendererKind {
@@ -25,6 +26,7 @@ impl FromStr for RendererKind {
             "genie4" => Ok(Self::Genie4),
             "marble" => Ok(Self::Marble),
             "captured" => Ok(Self::Captured),
+            "symbolic" => Ok(Self::Symbolic),
             other => Err(format!("unsupported renderer kind: {other}")),
         }
     }

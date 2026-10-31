@@ -45,6 +45,14 @@ worldRenderers.register({
 })
 
 worldRenderers.register({
+  kind: 'symbolic',
+  label: '象征空间',
+  status: 'not_configured',
+  capabilities: { interactive: true, nativeAudio: true, capture: true },
+  reason: 'InnerPlan 已落地，象征空间渲染器正在开发；当前不把梦境/感觉发往任何模型。',
+})
+
+worldRenderers.register({
   kind: 'captured',
   label: '捕获回放',
   status: 'available',

@@ -7,7 +7,7 @@ import { cueFromMemory, spokenLine, type Cue } from './cue'
 // and consumed by the procedural renderer; a future Genie 4 / Marble / captured
 // renderer can consume the same plan.
 
-export type RendererKind = 'procedural' | 'genie4' | 'marble' | 'captured'
+export type RendererKind = 'procedural' | 'genie4' | 'marble' | 'captured' | 'symbolic'
 
 export type BeatAction = 'idle' | 'walk' | 'turn_back' | 'look' | 'repair' | 'pickup' | 'talk'
 

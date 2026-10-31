@@ -1,4 +1,5 @@
 import { isCaptureProvenance, type CaptureProvenance } from './capture'
+import type { InnerPlan } from './inner'
 import type { Encounter } from './encounter'
 import { manifestContent } from './manifest'
 
@@ -12,7 +13,7 @@ export type ApiEpisode = {
     avatarVersion?: string; performanceVersion?: string; sceneVersion?: string; seed?: number; manifestHash?: string
     degraded?: boolean; degradationReason?: string | null; audioObservation?: { signalStatus?: string }
     personalizationLevel?: Encounter['personalizationLevel']
-    rendererKind?: Encounter['rendererKind']; directorPlan?: Encounter['directorPlan']; capture?: CaptureProvenance
+    rendererKind?: Encounter['rendererKind']; directorPlan?: Encounter['directorPlan']; capture?: CaptureProvenance; innerPlan?: InnerPlan
     [key: string]: unknown
   }
 }
@@ -29,5 +30,5 @@ export async function fromApi(item: ApiEpisode): Promise<Encounter> {
     scene: item.manifest.sceneId, durationSec: item.manifest.durationSec, createdAt: item.createdAt,
     sceneVersion: item.manifest.sceneVersion, manifestHash: item.manifest.manifestHash, manifestVerified, personalizationLevel: item.manifest.personalizationLevel,
     performanceVersion: item.manifest.performanceVersion, avatarVersion: item.manifest.avatarVersion, evidenceId: item.manifest.evidenceId, retracted: item.retracted, degraded: item.manifest.degraded, degradationReason: item.manifest.degradationReason || undefined, audioSignalStatus: item.manifest.audioObservation?.signalStatus,
-    rendererKind: item.manifest.rendererKind, directorPlan: item.manifest.directorPlan, capture }
+    rendererKind: item.manifest.rendererKind, directorPlan: item.manifest.directorPlan, capture, innerPlan: item.manifest.innerPlan }
 }
