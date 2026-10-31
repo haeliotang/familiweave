@@ -40,9 +40,9 @@
 
 - 已引入 `EpisodePlan` 信封（`kind: 'inner' | 'procedural'`），manifest 写入 `plan`。
 - `fromApi` 优先读取 `plan`；旧 `directorPlan` / `innerPlan` 在读取层转换为信封，旧字段仍可读。
-- 服务端当前新建 episode 写入 `plan` 与 `directorPlan`（过渡期双写）；下一步只写 `plan`。
+- 服务端新建 procedural episode 已只写 `plan`；旧 `directorPlan` 仅在读取层兼容。
 - 测试：新 episode、旧 episode、inner plan 映射。
-- 剩余：inner 服务端写入路径；移除旧字段写入（R4）。
+- 剩余：inner 服务端写入路径；旧字段最终删除（R4）。
 
 ### Phase R2：渲染器与 UI 收口
 
@@ -51,8 +51,9 @@
 - 统一 episode footer：时长、渲染器、出处、离开。
 - 测试：symbolic 渲染与退出；旧 episode 回放；未知渲染器提示。
 
-### Phase R3：性能
+### Phase R3：性能（守卫已落地）
 
+- 已新增 `pnpm check:symbolic-path`：检查 scene 分包未预加载、主入口不超过 320,000 字节；当前通过。
 - 确认 symbolic 路径不加载 Three.js、不下载模型、不初始化音频。
 - 主包拆分：`InnerPlan`/symbolic 与旧三维渲染器分包；旧资源按需加载。
 - 资产与模型缓存策略；Rust capture hash 用于大文件时避免 Node 重复读取。

@@ -7,17 +7,16 @@ import { episodeManifest } from './episode-manifest'
 it('records the procedural renderer and a privacy-preserving director plan in the hashed manifest', () => {
   const manifest = episodeManifest('synthetic', 1, null, 'wait', 0)
   expect(manifest.rendererKind).toBe('procedural')
-  expect(manifest.directorPlan).toMatchObject({
-    version: 'director-v1',
+  expect(manifest.plan).toMatchObject({
+    version: 'episode-plan-v1',
+    kind: 'procedural',
     rendererKind: 'procedural',
-    cue: 'wait',
-    durationSec: 75,
-    safety: { noRealPersonLikeness: true, fictionalLabel: true, cloudUpload: 'disabled', referenceFrame: 'none' },
+    director: { version: 'director-v1', rendererKind: 'procedural', cue: 'wait', durationSec: 75, safety: { noRealPersonLikeness: true, fictionalLabel: true, cloudUpload: 'disabled', referenceFrame: 'none' } },
   })
-  expect(manifest.plan).toMatchObject({ version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural' })
-  expect(manifest.directorPlan.line.text).toBe('不用急，我走慢一点。')
-  expect(manifest.directorPlan.beats[0].startSec).toBe(0)
-  expect(manifest.directorPlan.beats.at(-1)!.endSec).toBe(75)
+  expect(manifest.plan?.kind).toBe('procedural')
+  expect(manifest.plan?.kind === 'procedural' && manifest.plan.director.line.text).toBe('不用急，我走慢一点。')
+  expect(manifest.plan?.kind === 'procedural' && manifest.plan.director.beats[0].startSec).toBe(0)
+  expect(manifest.plan?.kind === 'procedural' && manifest.plan.director.beats.at(-1)!.endSec).toBe(75)
   expect(manifest.manifestHash).toBe(createHash('sha256').update(manifestContent(manifest)).digest('hex'))
 })
 
@@ -29,7 +28,6 @@ it('records a provider-neutral capture for non-deterministic renderers', () => {
   }
   const manifest = episodeManifest('synthetic', 1, null, 'wait', 0, undefined, { rendererKind: 'captured', capture })
   expect(manifest.rendererKind).toBe('captured')
-  expect(manifest.directorPlan.rendererKind).toBe('captured')
   expect(manifest.capture).toEqual(capture)
   expect(manifest.manifestHash).toBe(createHash('sha256').update(manifestContent(manifest)).digest('hex'))
 })

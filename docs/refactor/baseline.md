@@ -30,3 +30,5 @@
 - 捕获 hash 使用 Rust 流式读取大文件，避免 Node 重复读入内存。
 
 测量脚本：[`scripts/measure-baseline.ts`](../../scripts/measure-baseline.ts)。
+
+路径守卫：`pnpm check:symbolic-path` 检查 scene 分包未预加载、主入口不超过 320,000 字节；当前通过。

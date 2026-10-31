@@ -228,6 +228,7 @@ pnpm check:local
 pnpm exec vitest run --maxWorkers=2
 pnpm build
 pnpm rust:test
+pnpm check:symbolic-path
 ```
 
 数据库集成测试需要单独设置 `TEST_DATABASE_URL`，未设置时对应测试会跳过。请使用可丢弃的测试数据库，测试会创建、修改和清理数据。
