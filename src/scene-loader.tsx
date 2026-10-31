@@ -1,9 +1,7 @@
-import { resolvePerformanceVersion } from './performance-catalog'
-import { sceneLayout } from './scene-catalog'
-import { Component, lazy, Suspense, type ReactNode } from 'react'
+import { Component, Suspense, type ReactNode } from 'react'
 import type { Encounter } from './encounter'
-
-const Scene = lazy(() => import('./scene').then(module => ({ default: module.Scene })))
+import { worldRenderers } from './world-renderer'
+import './world-renderers'
 
 class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
@@ -15,12 +13,14 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
 }
 
 export function SceneView({ encounter, replay }: { encounter: Encounter; replay: number }) {
-  try { sceneLayout(encounter.sceneVersion, encounter.scene, encounter.seed) }
-  catch { return <div className="scene-placeholder" role="alert">{encounter.sceneVersion ? '这次相遇的场景版本暂不支持，无法还原。' : '这次旧相遇未保存场景版本，无法还原当时的场景。'}</div> }
-  try { resolvePerformanceVersion(encounter.performanceVersion) }
-  catch { return <div className="scene-placeholder" role="alert">这次相遇的动作版本暂不支持，无法还原。</div> }
+  const renderer = worldRenderers.resolve(encounter.rendererKind)
+  if (!renderer) return <div className="scene-placeholder" role="alert">{`这次相遇使用了未知的渲染器（${encounter.rendererKind}），请更新后再打开。`}</div>
+  if (renderer.status !== 'available' || !renderer.Component) return <div className="scene-placeholder" role="alert">{`${renderer.label} 尚未就绪：${renderer.reason ?? '当前版本不支持该渲染器。'}`}</div>
   if (encounter.id !== 'demo' && !encounter.manifestVerified) return <div className="scene-placeholder" role="alert">这次相遇的记录校验未通过，暂时无法播放。</div>
+  const invalid = renderer.validate?.(encounter)
+  if (invalid) return <div className="scene-placeholder" role="alert">{invalid}</div>
+  const Renderer = renderer.Component
   return <SceneBoundary key={encounter.id}><Suspense fallback={<div className="scene-placeholder" role="status">正在打开场景…</div>}>
-    <Scene key={`${encounter.id}-${replay}-${encounter.retracted}`} encounter={encounter} />
+    <Renderer key={`${encounter.id}-${replay}-${encounter.retracted}`} encounter={encounter} replay={replay} />
   </Suspense></SceneBoundary>
 }

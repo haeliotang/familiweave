@@ -9,6 +9,6 @@ export function encounterCaption(encounter: Encounter, seconds: number) {
   if (encounter.performanceVersion === 'character-timeline-v4' && encounter.cue === 'general' && seconds < 43) return seconds < 31 ? '拿起桌上的小物件，停了一会儿。' : seconds < 32.3 ? '把小物件放回桌上。' : '停下来，望了望远处。'
   if (encounter.cue === 'repair' && resolvePerformanceVersion(encounter.performanceVersion) !== 'character-timeline-v1' && seconds < 43) return seconds < 33.2 ? '停下来，蹲下查看身旁的小木箱。' : '查看过木箱，起身歇一会儿。'
   if (seconds < 43) return encounter.cue === 'wait' ? '走出几步，又停下，回头等了一会儿。' : encounter.cue === 'repair' ? '停下来，耐心地把手里的东西修好。' : '停下来，望了望远处。'
-  if (seconds < 55) return `“${spokenLine(encounter.cue)}”`
+  if (seconds < 55) return `“${encounter.directorPlan?.cue === encounter.cue ? encounter.directorPlan.line.text : spokenLine(encounter.cue)}”`
   return '那个人继续往前。你可以在这里多待一会儿。'
 }

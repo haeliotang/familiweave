@@ -10,6 +10,13 @@ it('changes the v2 repair caption when the complete action ends and preserves th
   expect(encounterCaption({ ...encounter, performanceVersion: undefined }, 40)).toContain('修好')
 })
 
+it('uses the recorded director line and falls back when the cue is overridden', () => {
+  const encounter = demoEncounter()
+  const directed = { ...encounter, directorPlan: { ...encounter.directorPlan!, line: { ...encounter.directorPlan!.line, text: '自定义台词' } } }
+  expect(encounterCaption(directed, 50)).toContain('自定义台词')
+  expect(encounterCaption({ ...directed, cue: 'repair' }, 50)).toContain('再试试')
+})
+
 it('describes taking and replacing only in the new general performance', () => {
   const encounter = { ...demoEncounter(), cue: 'general' as const, performanceVersion: 'character-timeline-v4' }
   expect(encounterCaption(encounter, 30)).toContain('拿起')

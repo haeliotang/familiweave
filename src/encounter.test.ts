@@ -18,6 +18,12 @@ describe('encounter', () => {
   it('requires a memory for a personal encounter', () => {
     expect(() => createEncounter('  ')).toThrow()
   })
+
+  it('records the procedural renderer and a matching director plan', () => {
+    const encounter = createEncounter('他总会回头等我')
+    expect(encounter.rendererKind).toBe('procedural')
+    expect(encounter.directorPlan).toMatchObject({ version: 'director-v1', cue: 'wait', rendererKind: 'procedural' })
+  })
 })
 
 it('keeps 500 Unicode characters without cutting a supplementary character in half', () => {

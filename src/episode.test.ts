@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { expect, it } from 'vitest'
+import { directorPlanForCue } from './director'
 import { fromApi, type ApiEpisode } from './episode'
 import { manifestContent } from './manifest'
 
@@ -10,6 +11,16 @@ it('retains saved versions and seed, verifies the complete server manifest, and 
   expect(await fromApi(episode)).toMatchObject({ seed: 12345, sceneVersion: 'procedural-path-v1', performanceVersion: 'character-timeline-v2', manifestVerified: true })
   expect(await fromApi({ ...episode, manifest: { ...manifest, seed: 12346 } })).toMatchObject({ manifestVerified: false })
   expect(await fromApi({ ...episode, manifest: { ...manifest, audioPlan: { voiceVersion: 'changed' } } })).toMatchObject({ manifestVerified: false })
+})
+
+it('retains the recorded renderer and director plan and verifies them in the manifest hash', async () => {
+  const directorPlan = directorPlanForCue('wait')
+  const manifest: ApiEpisode['manifest'] = { cue: 'wait', sceneId: 'riverside', durationSec: 75, seed: 7, rendererKind: 'procedural', directorPlan }
+  manifest.manifestHash = createHash('sha256').update(manifestContent(manifest)).digest('hex')
+  const result = await fromApi({ episodeId: 'directed', status: 'prototype', createdAt: '2026-10-31', manifest })
+  expect(result.rendererKind).toBe('procedural')
+  expect(result.directorPlan).toEqual(directorPlan)
+  expect(result.manifestVerified).toBe(true)
 })
 
 it('preserves a legacy record without inventing a seed, version or fingerprint', async () => {
