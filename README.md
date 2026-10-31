@@ -39,6 +39,7 @@ procedural / genie4 / marble / captured
 ```
 
 - **导演层是核心**：把少量输入变成可版本化的计划，而不是直接堆场景或堆模型。
+- **可先导出故事板**：不调用任何世界模型，也能把记忆导出为节拍、台词、分层提示词与安全约束，用于人工评审和未来的 Genie 实验。
 - **渲染层可替换**：手工三维只是当前实现；Genie 4 等生成式世界模型可用时，接入新的 `Component` 并注册，不需要改 `SceneView`、manifest 或旧 episode。
 - **可追溯**：每个新 episode 记录场景、人物、声音、表演与导演计划的版本；旧 episode 保留原有版本字段。非确定性渲染器以捕获成片作为版本资产。
 
@@ -123,6 +124,17 @@ pnpm dev
 
 开发模式使用 PGlite，无需额外启动 PostgreSQL 或 Docker。数据库写入 `.local-db/`，上传资料写入 `.local-assets/`。这两个目录、模型缓存和本地环境配置均不纳入 Git。公开素材与合成样本位于 `public/` 和 `artifacts/`，不要将私人资料放入这些目录。
 
+### 导演分镜
+
+不调用任何世界模型，也可以把一句记忆导出为可评审的分镜与提示词：
+
+```sh
+pnpm storyboard --memory "他走路时总会回头等我"
+pnpm storyboard --memory "他走路时总会回头等我" --json > storyboard.json
+```
+
+输出包含 0–75 秒节拍、台词、世界/人物/行为/声音/镜头/参考帧提示词、负面约束与隐私安全字段，不包含记忆原文。
+
 ### 检查与构建
 
 ```sh
@@ -139,12 +151,13 @@ pnpm build
 
 ## 项目结构
 
-- [`src/director.ts`](src/director.ts)：把一句记忆变成可版本化、带隐私约束的导演计划。
+- [`src/director.ts`](src/director.ts)：把一句记忆变成可版本化、带隐私约束的导演计划与分层提示词。
+- [`src/storyboard.ts`](src/storyboard.ts)：把导演计划导出为分镜数据与 Markdown。
 - [`src/world-renderer.ts`](src/world-renderer.ts)：`WorldRenderer` 运行时接口与注册表。
 - [`src/world-renderers.tsx`](src/world-renderers.tsx)：已注册的渲染器；`procedural` 可用，`genie4` / `marble` / `captured` 预留。
 - [`src/`](src/)：页面、三维场景、人物表演、声音与播放控制。
 - [`server/`](server/)：资料处理、匿名会话、准备任务、历史、删除和数据库迁移。
-- [`scripts/`](scripts/)：模型安装、素材处理与本地验证工具。
+- [`scripts/`](scripts/)：模型安装、素材处理、导演分镜与本地验证工具。
 - [`public/assets/`](public/assets/)：带版本的公开人物、动作与合成语音资源。
 - [`docs/verification/`](docs/verification/)：验证过程、截图、发现的问题及其证据边界。
 - [`docs/direction/`](docs/direction/)：2026-10 世界模型方向调整的调研、方案与验证计划。

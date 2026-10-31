@@ -26,6 +26,17 @@ export interface DirectorInput {
   referenceFrame?: 'none' | 'synthetic' | 'user_photo'
 }
 
+export interface PromptPack {
+  world: string
+  character: string
+  behavior: string
+  dialogue: string
+  ambience: string
+  camera: string
+  reference: string
+  negative: string[]
+}
+
 export interface DirectorPlan {
   version: 'director-v1'
   rendererKind: RendererKind
@@ -33,6 +44,7 @@ export interface DirectorPlan {
   durationSec: 75
   beats: Beat[]
   line: { cue: Cue; text: string; source: 'template'; mustNotInventMemory: true }
+  promptPack: PromptPack
   worldPrompt: string
   safety: {
     noRealPersonLikeness: true
@@ -63,20 +75,26 @@ function behaviorFor(cue: Cue) {
   return 'walks slowly, picks up a small object, then looks toward the viewer'
 }
 
-function worldPrompt(cue: Cue, safety: DirectorPlan['safety']) {
+export function promptPackFor(cue: Cue, safety: DirectorPlan['safety']): PromptPack {
   const reference = safety.referenceFrame === 'none'
     ? 'No reference image is provided; use a text-only prompt.'
     : safety.referenceFrame === 'synthetic'
       ? 'A synthetic, non-identifying reference frame is provided for environment and layout.'
       : 'A reference image is provided with explicit consent; use it only for environment and layout. Do not reproduce the real person’s face, body, or voice, and keep the character fictional.'
-  return [
-    'A quiet, stylized encounter in a neutral outdoor place at late afternoon, about 75 seconds.',
-    'One adult character with a fictional appearance that is not a likeness of any real person.',
-    `The character ${behaviorFor(cue)}.`,
-    'Natural, restrained movement and micro-expressions; ambient wind and footsteps; no music; no on-screen text.',
-    'Single continuous shot; the viewer may approach, look around, sit, or leave.',
+  return {
+    world: 'A quiet, stylized encounter in a neutral outdoor place at late afternoon, about 75 seconds.',
+    character: 'One adult character with a fictional appearance that is not a likeness of any real person. Keep the same fictional character for the whole session.',
+    behavior: `The character ${behaviorFor(cue)}.`,
+    dialogue: `The character may say one short line in Mandarin: “${spokenLine(cue)}” No other dialogue, and do not invent memories or past events.`,
+    ambience: 'Ambient wind, soft footsteps and cloth movement; no music.',
+    camera: 'A single continuous third-person shot at human eye level; the viewer may approach, look around, sit, or leave.',
     reference,
-  ].join(' ')
+    negative: ['no real-person likeness or voice cloning', 'no invented memories or claims about a deceased person', 'no on-screen text', 'no face morphing or duplicate character'],
+  }
+}
+
+function combinePrompts(prompts: PromptPack) {
+  return [prompts.world, prompts.character, prompts.behavior, prompts.dialogue, prompts.ambience, prompts.camera, prompts.reference, ...prompts.negative].join(' ')
 }
 
 export type DirectorOptions = Omit<DirectorInput, 'memory'>
@@ -94,6 +112,7 @@ export function directorPlanForCue(cue: Cue, input: DirectorOptions = {}): Direc
     cloudUpload: consent ? 'explicit_consent' : 'disabled',
     referenceFrame,
   }
+  const promptPack = promptPackFor(cue, safety)
   return {
     version: 'director-v1',
     rendererKind: input.rendererKind ?? 'procedural',
@@ -108,7 +127,8 @@ export function directorPlanForCue(cue: Cue, input: DirectorOptions = {}): Direc
       { startSec: 72, endSec: 75, action: 'idle', intent: '慢慢离开画面' },
     ],
     line: { cue, text: spokenLine(cue), source: 'template', mustNotInventMemory: true },
-    worldPrompt: worldPrompt(cue, safety),
+    promptPack,
+    worldPrompt: combinePrompts(promptPack),
     safety,
   }
 }

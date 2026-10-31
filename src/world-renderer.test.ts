@@ -30,6 +30,18 @@ describe('world renderer registry', () => {
     expect(worldRenderers.resolve('unknown' as RendererKind)).toBeUndefined()
   })
 
+  it('keeps every registered renderer contract-complete for future adapters', () => {
+    for (const renderer of worldRenderers.list()) {
+      expect(renderer.label.length).toBeGreaterThan(0)
+      if (renderer.status === 'available') {
+        expect(renderer.Component).toBeTypeOf('function')
+        expect(renderer.validate).toBeTypeOf('function')
+      } else {
+        expect(renderer.reason?.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
   it('keeps the latest registration for a kind so HMR can re-register descriptors', () => {
     const registry = new WorldRendererRegistry()
     registry.register({ kind: 'procedural', label: 'first', status: 'available' })
