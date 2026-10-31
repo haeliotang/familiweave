@@ -23,6 +23,7 @@ describe('encounter', () => {
     const encounter = createEncounter('他总会回头等我')
     expect(encounter.rendererKind).toBe('procedural')
     expect(encounter.directorPlan).toMatchObject({ version: 'director-v1', cue: 'wait', rendererKind: 'procedural' })
+    expect(encounter.plan).toMatchObject({ version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural' })
   })
 })
 

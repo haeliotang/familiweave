@@ -1,4 +1,6 @@
 import { isCaptureProvenance, type CaptureProvenance } from './capture'
+import type { EpisodePlan } from './episode-plan'
+import { planFromManifest } from './episode-plan'
 import type { InnerPlan } from './inner'
 import type { Encounter } from './encounter'
 import { manifestContent } from './manifest'
@@ -13,7 +15,7 @@ export type ApiEpisode = {
     avatarVersion?: string; performanceVersion?: string; sceneVersion?: string; seed?: number; manifestHash?: string
     degraded?: boolean; degradationReason?: string | null; audioObservation?: { signalStatus?: string }
     personalizationLevel?: Encounter['personalizationLevel']
-    rendererKind?: Encounter['rendererKind']; directorPlan?: Encounter['directorPlan']; capture?: CaptureProvenance; innerPlan?: InnerPlan
+    rendererKind?: Encounter['rendererKind']; directorPlan?: Encounter['directorPlan']; capture?: CaptureProvenance; innerPlan?: InnerPlan; plan?: EpisodePlan
     [key: string]: unknown
   }
 }
@@ -26,9 +28,12 @@ export async function fromApi(item: ApiEpisode): Promise<Encounter> {
     manifestVerified = actual === item.manifest.manifestHash
   }
   const capture = isCaptureProvenance(item.manifest.capture) ? item.manifest.capture : undefined
+  const plan = planFromManifest(item.manifest)
+  const innerPlan = plan?.kind === 'inner' ? plan.inner : item.manifest.innerPlan
+  const directorPlan = plan?.kind === 'procedural' ? plan.director : item.manifest.directorPlan
   return { id: item.episodeId, seed: item.manifest.seed ?? NaN, memory: '', cue: item.manifest.cue,
     scene: item.manifest.sceneId, durationSec: item.manifest.durationSec, createdAt: item.createdAt,
     sceneVersion: item.manifest.sceneVersion, manifestHash: item.manifest.manifestHash, manifestVerified, personalizationLevel: item.manifest.personalizationLevel,
     performanceVersion: item.manifest.performanceVersion, avatarVersion: item.manifest.avatarVersion, evidenceId: item.manifest.evidenceId, retracted: item.retracted, degraded: item.manifest.degraded, degradationReason: item.manifest.degradationReason || undefined, audioSignalStatus: item.manifest.audioObservation?.signalStatus,
-    rendererKind: item.manifest.rendererKind, directorPlan: item.manifest.directorPlan, capture, innerPlan: item.manifest.innerPlan }
+    rendererKind: item.manifest.rendererKind, directorPlan, capture, innerPlan, plan }
 }

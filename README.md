@@ -239,6 +239,7 @@ pnpm rust:test
 ## 项目地图
 
 - [`src/inner.ts`](src/inner.ts)：内在景观的 `InnerPlan`、母题/影子/节拍/提示词与安全字段。
+- [`src/episode-plan.ts`](src/episode-plan.ts)：统一的 `EpisodePlan` 信封与旧字段读取适配。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：合成的相遇与空间示例入口。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声象征空间原型。
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。

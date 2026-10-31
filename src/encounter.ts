@@ -2,6 +2,7 @@ import type { CaptureProvenance } from './capture'
 import { cueFromMemory, type Cue } from './cue'
 import { directorPlanForCue, type DirectorPlan, type RendererKind } from './director'
 import type { InnerPlan } from './inner'
+import type { EpisodePlan } from './episode-plan'
 import { limitMemoryText } from './memory-text'
 import { currentPerformanceVersion } from './performance-catalog'
 import { currentSceneVersion, sceneForEncounter, type SceneId } from './scene-catalog'
@@ -33,6 +34,7 @@ export interface Encounter {
   directorPlan?: DirectorPlan
   capture?: CaptureProvenance
   innerPlan?: InnerPlan
+  plan?: EpisodePlan
 }
 
 export function createEncounter(memory: string, previous: Encounter[] = []): Encounter {
@@ -40,6 +42,7 @@ export function createEncounter(memory: string, previous: Encounter[] = []): Enc
   if (!normalized) throw new Error('请先写下一句记忆，或进入示例体验。')
   const seed = Math.floor(Math.random() * 0xffffffff)
   const cue = cueFromMemory(normalized)
+  const directorPlan = directorPlanForCue(cue)
   return {
     id: crypto.randomUUID(), seed, memory: normalized,
     cue,
@@ -50,11 +53,13 @@ export function createEncounter(memory: string, previous: Encounter[] = []): Enc
     durationSec: 75,
     createdAt: new Date().toISOString(),
     rendererKind: 'procedural',
-    directorPlan: directorPlanForCue(cue),
+    directorPlan,
+    plan: { version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural', director: directorPlan },
   }
 }
 
 export function demoEncounter(): Encounter {
+  const directorPlan = directorPlanForCue('general')
   return {
     id: 'demo', seed: 1, memory: '', cue: 'general', scene: 'riverside',
     performanceVersion: currentPerformanceVersion,
@@ -62,6 +67,7 @@ export function demoEncounter(): Encounter {
     avatarVersion: currentAvatarVersion,
     durationSec: 75, createdAt: new Date().toISOString(),
     rendererKind: 'procedural',
-    directorPlan: directorPlanForCue('general'),
+    directorPlan,
+    plan: { version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural', director: directorPlan },
   }
 }

@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { expect, it } from 'vitest'
 import type { CaptureProvenance } from './capture'
 import { directorPlanForCue } from './director'
+import { innerPlan } from './inner'
 import { fromApi, type ApiEpisode } from './episode'
 import { manifestContent } from './manifest'
 
@@ -21,6 +22,7 @@ it('retains the recorded renderer and director plan and verifies them in the man
   const result = await fromApi({ episodeId: 'directed', status: 'prototype', createdAt: '2026-10-31', manifest })
   expect(result.rendererKind).toBe('procedural')
   expect(result.directorPlan).toEqual(directorPlan)
+  expect(result.plan).toMatchObject({ version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural' })
   expect(result.manifestVerified).toBe(true)
 })
 
@@ -33,6 +35,14 @@ it('retains a valid capture but drops malformed capture metadata', async () => {
   const result = await fromApi({ episodeId: 'captured', status: 'prototype', createdAt: '2026-11-01', manifest })
   expect(result.capture).toEqual(capture)
   expect((await fromApi({ episodeId: 'broken', status: 'prototype', createdAt: '2026-11-01', manifest: { ...manifest, capture: { version: 'capture-v1' } as never } })).capture).toBeUndefined()
+})
+
+it('maps an inner plan into the unified episode envelope', async () => {
+  const inner = innerPlan({ fragment: '一条走廊尽头有一扇门，门外是水。' })
+  const plan = { version: 'episode-plan-v1' as const, kind: 'inner' as const, rendererKind: 'symbolic' as const, inner }
+  const result = await fromApi({ episodeId: 'inner', status: 'prototype', createdAt: '2026-11-01', manifest: { cue: 'general', sceneId: 'riverside', durationSec: 75, rendererKind: 'symbolic', innerPlan: inner, plan } })
+  expect(result.plan).toEqual(plan)
+  expect(result.innerPlan).toEqual(inner)
 })
 
 it('preserves a legacy record without inventing a seed, version or fingerprint', async () => {

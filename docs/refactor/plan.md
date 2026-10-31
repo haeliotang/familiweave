@@ -36,11 +36,13 @@
 - 已确认 scene 分包未在 `index.html` 预加载。
 - 剩余：symbolic 浏览器首屏与 75/180 秒稳定性实测。
 
-### Phase R1：计划与 manifest 统一
+### Phase R1：计划与 manifest 统一（基础部分已落地）
 
-- 引入统一的 episode plan 信封（`kind: 'inner' | 'procedural'`），保留旧字段的读取适配。
-- 新 manifest 只写 `innerPlan`；旧 manifest 在读取层转换。
-- 测试：新 episode、旧 episode、混合历史回放。
+- 已引入 `EpisodePlan` 信封（`kind: 'inner' | 'procedural'`），manifest 写入 `plan`。
+- `fromApi` 优先读取 `plan`；旧 `directorPlan` / `innerPlan` 在读取层转换为信封，旧字段仍可读。
+- 服务端当前新建 episode 写入 `plan` 与 `directorPlan`（过渡期双写）；下一步只写 `plan`。
+- 测试：新 episode、旧 episode、inner plan 映射。
+- 剩余：inner 服务端写入路径；移除旧字段写入（R4）。
 
 ### Phase R2：渲染器与 UI 收口
 
