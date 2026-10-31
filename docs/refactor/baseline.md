@@ -32,3 +32,18 @@
 测量脚本：[`scripts/measure-baseline.ts`](../../scripts/measure-baseline.ts)。
 
 路径守卫：`pnpm check:symbolic-path` 检查 scene 分包未预加载、主入口不超过 320,000 字节；当前通过。
+
+## 浏览器基线（本地 headless，2026-11-01）
+
+环境：Chrome 156 headless，`pnpm dev` + `pnpm dev:local-api`，本地 Vite 开发服务。命令：`pnpm measure:browser`（需 Chrome 以 `--remote-debugging-port=9222` 启动）。
+
+| 指标 | 结果 |
+| --- | ---: |
+| DOMContentLoaded | 63 ms |
+| load | 64 ms |
+| first paint | 68 ms |
+| first contentful paint | 116 ms |
+| symbolic 空间挂载 | true |
+| 2 秒帧采样 | 121 帧，平均 16.57 ms，P95 16.70 ms |
+
+限制：这是本地 headless 开发服务，不是手机、真实网络或生产构建；2 秒采样不能代表完整 75 秒相遇或 180 秒空间的稳定性，也不替代真实设备验收。

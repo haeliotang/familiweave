@@ -15,6 +15,7 @@
     "inner:storyboard": "tsx scripts/inner-storyboard.ts",
     "measure:build": "tsx scripts/measure-baseline.ts",
     "check:symbolic-path": "tsx scripts/check-symbolic-path.ts",
+    "measure:browser": "tsx scripts/measure-browser.ts",
     "eval:validate": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- eval-validate",
     "capture:hash": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-hash",
     "capture:verify": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-verify",
