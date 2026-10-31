@@ -44,11 +44,11 @@
 - 测试：新 episode、旧 episode、inner plan 映射。
 - 剩余：inner 服务端写入路径；旧字段最终删除（R4）。
 
-### Phase R2：渲染器与 UI 收口
+### Phase R2：渲染器与 UI 收口（默认入口已落地）
 
-- `symbolic` 为默认入口；`procedural` 只作为兼容渲染器。
-- 移除 `main.tsx` 中旧方向专属的反馈、纠正、线索、历史文案分支。
-- 统一 episode footer：时长、渲染器、出处、离开。
+- 首页默认是内在景观输入：写下画面/感觉，选择相遇或空间，直接进入；旧三维输入收进“兼容入口”折叠区。
+- `symbolic` 成为默认入口；`procedural` 只作为兼容渲染器。
+- 剩余：移除旧方向专属的反馈、纠正、线索、历史文案分支；统一 episode footer。
 - 测试：symbolic 渲染与退出；旧 episode 回放；未知渲染器提示。
 
 ### Phase R3：性能（守卫已落地）

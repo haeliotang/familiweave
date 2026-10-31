@@ -112,12 +112,9 @@ symbolic（本地原型） / procedural / genie4（以后）
 | 声音 | 无声原型；声音在后续迭代加入 |
 | 安全 | 不解释、不评分、不诊断；离开随时可用 |
 
-网页上有两个入口：
+首页现在默认是内在景观入口：写下一段梦、画面、地点或感觉，选择 **75 秒相遇** 或 **180 秒空间**，即可进入。也可以使用示例按钮快速查看两种形式。
 
-- **「进入内在景观（示例）」**：75 秒的相遇，有起承转合与影子。
-- **「进入一个空间（示例）」**：180 秒的空间，没有必须发生的事；可以待着、看、离开。
-
-两者都不解释、不诊断，也没有声音。仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。
+两种形式都不解释、不诊断，也没有声音。仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。三维输入与资料处理保留在“兼容入口”折叠区。
 
 这只是本地原型，不是治疗、不是潜意识读取，也不是已经验证有效的体验。
 
@@ -240,8 +237,9 @@ pnpm check:symbolic-path
 ## 项目地图
 
 - [`src/inner.ts`](src/inner.ts)：内在景观的 `InnerPlan`、母题/影子/节拍/提示词与安全字段。
-- [`src/episode-plan.ts`](src/episode-plan.ts)：统一的 `EpisodePlan` 信封与旧字段读取适配。
-- [`src/inner-encounter.ts`](src/inner-encounter.ts)：合成的相遇与空间示例入口。
+- [`src/episode-plan.ts`](src/episode-plan.ts)：统一的 `EpisodePlan` 信封与读取适配。
+- [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
+- [`src/inner-entry.tsx`](src/inner-entry.tsx)：默认的内在景观输入表单。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声象征空间原型。
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划。

@@ -50,3 +50,15 @@ describe('inner plan', () => {
     expect(JSON.stringify(anger)).not.toMatch(/depressed|anxious|trauma|disorder/i)
   })
 })
+
+it('creates a local inner encounter from the default entry without a server round trip', async () => {
+  const { createInnerEncounter } = await import('./inner-encounter')
+  const encounter = createInnerEncounter({ fragment: '一条走廊尽头有一扇门', feeling: 'unease' })
+  expect(encounter.rendererKind).toBe('symbolic')
+  expect(encounter.id.startsWith('demo-inner-')).toBe(true)
+  expect(encounter.innerPlan?.format).toBe('encounter')
+  expect(encounter.plan).toMatchObject({ version: 'episode-plan-v1', kind: 'inner', rendererKind: 'symbolic' })
+  const space = createInnerEncounter({ fragment: '一片有水的空地', format: 'space' })
+  expect(space.innerPlan?.format).toBe('space')
+  expect(space.durationSec).toBe(180)
+})

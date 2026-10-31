@@ -10,6 +10,7 @@ import { demoEncounter } from './encounter'
 import { api, submitEvidence } from './api'
 import { SceneView } from './scene-loader'
 import { demoInnerEncounter, demoInnerSpaceEncounter } from './inner-encounter'
+import { InnerEntry } from './inner-entry'
 import { Feedback } from './feedback'
 import { EvidenceCorrection } from './evidence-correction'
 import { DeletionStatus } from './deletion-status'
@@ -187,9 +188,13 @@ function App() {
       <button className="text-button" disabled={busy} onClick={() => void clear()}>删除服务端的这份资料</button>
       {error && <p className="error" role="alert">{error}</p>}
     </section> : !current ? <section className="intro">
-      <p className="eyebrow">一次想象中的相遇</p>
-      <h1>记得一点，<br />就从这里开始。</h1>
-      <p className="lead">写下一句你记得的细节。我们会把它放进一段虚构的相遇里；这里不会声称知道那个人真实的近况。</p>
+      <p className="eyebrow">一个象征空间 · 不解释</p>
+      <h1>写下一个画面，<br />不急着解释它。</h1>
+      <p className="lead">一段梦、一个地点、一种说不清的感觉。Familiweave 会把它变成一段可进入、可退出的空间；不分析，也不告诉你它“意味着什么”。</p>
+      <InnerEntry onStart={setCurrent} />
+      <details className="legacy-entry">
+      <summary>兼容入口：本地三维示例</summary>
+      <p className="note">这里保留旧的三维原型与资料处理；新体验请使用上面的象征空间。</p>
       {reviewAssetId ? <TranscriptReview key={reviewAssetId} assetId={reviewAssetId} busy={busy} onContinue={() => void begin(true)} /> : photoPrompt ? <section aria-labelledby="photo-question">
         <h2 id="photo-question">你记得那个人的一个小习惯吗？</h2>
         <p>照片暂时不能告诉我们那个人的习惯。你可以自愿补一句记忆，也可以先看一段一般的想象场景。</p>
@@ -220,6 +225,7 @@ function App() {
       {encounters.length > 0 && <div className="history"><h2>以前的相遇</h2>{encounters.map(item => <button className="history-item" key={item.id} disabled={busy} onClick={() => setCurrent(item)}>{new Date(item.createdAt).toLocaleString('zh-CN')} · {sceneLabels[item.scene]}{item.retracted ? ' · 线索已撤回' : ''}</button>)}</div>}
       {personId && <button className="text-button" disabled={busy} onClick={() => void clear()}>删除服务端的这份资料</button>}
       <p className="note">当前为本地开发原型。文件只保存在本机私有目录；记忆录音可在本机转写，核对后用于线索。照片和本人录音尚不会提取个人线索。请暂勿输入真实私密资料。</p>
+      </details>
     </section> : <section className="view">
       <div className="view-header"><button className="quiet" onClick={() => setCurrent(null)}>← 返回</button><span>{current.rendererKind === 'symbolic' ? current.innerPlan?.format === 'space' ? '内在景观 · 空间示例' : '内在景观 · 相遇示例' : current.id === 'demo' ? '无个人资料的示例' : current.personalizationLevel === 'generic' ? '一般想象场景 · 未使用个人线索' : '由你的记忆启发 · 虚构场景原型'}</span></div>
       <SceneView encounter={current} replay={replay} />
