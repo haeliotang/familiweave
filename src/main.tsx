@@ -1,5 +1,4 @@
 import { sceneLabels } from './scene-catalog'
-import { audioObservationMessage } from './audio-observation-message'
 import { PreparationProgress, savedPreparation, savePreparation, type PendingPreparation } from './preparation-progress'
 import { limitMemoryText, memoryCharacterCount } from './memory-text'
 import { fromApi, type ApiEpisode } from './episode'
@@ -11,8 +10,6 @@ import { api, submitEvidence } from './api'
 import { SceneView } from './scene-loader'
 import { demoInnerEncounter, demoInnerSpaceEncounter } from './inner-encounter'
 import { InnerEntry } from './inner-entry'
-import { Feedback } from './feedback'
-import { EvidenceCorrection } from './evidence-correction'
 import { DeletionStatus } from './deletion-status'
 import { AudioRecorder } from './audio-recorder'
 import { AssetReview } from './asset-review'
@@ -227,13 +224,9 @@ function App() {
       <p className="note">当前为本地开发原型。文件只保存在本机私有目录；记忆录音可在本机转写，核对后用于线索。照片和本人录音尚不会提取个人线索。请暂勿输入真实私密资料。</p>
       </details>
     </section> : <section className="view">
-      <div className="view-header"><button className="quiet" onClick={() => setCurrent(null)}>← 返回</button><span>{current.rendererKind === 'symbolic' ? current.innerPlan?.format === 'space' ? '内在景观 · 空间示例' : '内在景观 · 相遇示例' : current.id === 'demo' ? '无个人资料的示例' : current.personalizationLevel === 'generic' ? '一般想象场景 · 未使用个人线索' : '由你的记忆启发 · 虚构场景原型'}</span></div>
+      <div className="view-header"><button className="quiet" onClick={() => setCurrent(null)}>← 返回</button><span>{current.rendererKind === 'symbolic' ? current.innerPlan?.format === 'space' ? '内在景观 · 空间' : '内在景观 · 相遇' : '本地三维兼容回放'}</span></div>
       <SceneView encounter={current} replay={replay} />
-      {current.rendererKind !== 'symbolic' && <p className="voice-note">本次人物外观是虚构创作；合成语音使用新音色，不模仿上传录音。</p>}
-      {current.rendererKind !== 'symbolic' && current.id !== 'demo' && current.personalizationLevel === 'generic' && <p className="note" role="status">这次没有使用可用的个人线索，是一段一般的想象场景。你可以返回，自愿补一句记忆。</p>}
-      {current.degraded && current.degradationReason === 'audio_analysis_unavailable' ? <p className="note" role="status">这段录音暂未分析成功，本次使用预设声音。可以返回资料页重新检查录音。</p> : current.audioSignalStatus && <p className="note">{audioObservationMessage(current.audioSignalStatus)}</p>}
-      <div className="view-footer"><span>{current.rendererKind === 'symbolic' ? current.innerPlan?.format === 'space' ? '一个可以待着的空间 · 不解释、不诊断' : '一段象征空间 · 不解释、不诊断' : current.retracted ? '这处线索已撤回；旧相遇仅供回看。' : current.cue === 'wait' ? '线索：回头等待' : current.cue === 'repair' ? '线索：修补物件' : '一般想象场景'}</span><div className="actions"><button className="quiet" onClick={() => setReplay(value => value + 1)}>{current.rendererKind === 'symbolic' ? '重新进入' : '重新观看'}</button>{current.rendererKind !== 'symbolic' && current.id !== 'demo' && <><EvidenceCorrection evidenceId={current.evidenceId} retracted={current.retracted} busy={busy} onRetract={() => void retract()} /><button className="quiet" disabled={busy} onClick={() => void hide()}>移除这次回看</button><button disabled={busy} onClick={() => void begin(true)}>再相遇</button></>}</div></div>
-      {current.rendererKind !== 'symbolic' && current.id !== 'demo' && <Feedback key={current.id} episodeId={current.id} />}
+      <div className="view-footer"><span>{current.rendererKind === 'symbolic' ? current.innerPlan?.format === 'space' ? '一个可以待着的空间 · 不解释、不诊断' : '一段象征空间 · 不解释、不诊断' : '本地三维兼容回放'}</span><div className="actions"><button className="quiet" onClick={() => setReplay(value => value + 1)}>{current.rendererKind === 'symbolic' ? '重新进入' : '重新观看'}</button></div></div>
       {current.rendererKind === 'symbolic' && <p className="note">{current.innerPlan?.format === 'space' ? '这是一个可以待着的空间；没有必须发生的事，随时可以离开。' : '这是无声的象征空间原型；不解释、不诊断，随时可以离开。'}</p>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>}
