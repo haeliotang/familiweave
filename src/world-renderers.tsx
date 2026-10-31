@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import { CapturedRenderer, validateCaptured } from './captured-renderer'
+import { SymbolicRenderer, validateSymbolic } from './symbolic-renderer'
 import type { Encounter } from './encounter'
 import { resolvePerformanceVersion } from './performance-catalog'
 import { sceneLayout } from './scene-catalog'
@@ -47,9 +48,10 @@ worldRenderers.register({
 worldRenderers.register({
   kind: 'symbolic',
   label: '象征空间',
-  status: 'not_configured',
-  capabilities: { interactive: true, nativeAudio: true, capture: true },
-  reason: 'InnerPlan 已落地，象征空间渲染器正在开发；当前不把梦境/感觉发往任何模型。',
+  status: 'available',
+  capabilities: { interactive: true, nativeAudio: false, capture: false },
+  validate: validateSymbolic,
+  Component: SymbolicRenderer,
 })
 
 worldRenderers.register({

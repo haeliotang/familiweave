@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { CaptureProvenance } from './capture'
 import type { RendererKind } from './director'
 import { demoEncounter } from './encounter'
+import { demoInnerEncounter } from './inner-encounter'
 import { WorldRendererRegistry, worldRenderers } from './world-renderer'
 import './world-renderers'
 
@@ -35,6 +36,13 @@ describe('world renderer registry', () => {
     const procedural = worldRenderers.get('procedural')!
     expect(procedural.validate!({ ...demoEncounter(), sceneVersion: 'future-scene' })).toContain('场景版本')
     expect(procedural.validate!({ ...demoEncounter(), performanceVersion: 'future-performance' })).toContain('动作版本')
+  })
+
+  it('exposes the symbolic renderer as a working local prototype', () => {
+    const symbolic = worldRenderers.get('symbolic')!
+    expect(symbolic).toMatchObject({ kind: 'symbolic', status: 'available', capabilities: { interactive: true, nativeAudio: false, capture: false } })
+    expect(symbolic.validate!(demoInnerEncounter())).toBeUndefined()
+    expect(symbolic.Component).toBeTypeOf('function')
   })
 
   it('does not silently fall back to procedural for an unavailable or unknown kind', () => {

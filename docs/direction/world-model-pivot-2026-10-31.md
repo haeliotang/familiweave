@@ -4,7 +4,7 @@
 
 ## 方向更新（2026-11-01）
 
-项目主方向已从“缺席关系”进一步转向：**为不可言说的内在经验，提供一个可进入、可退出、可自己解释的象征空间**。缺席关系保留为入口之一；世界模型调研仍作为渲染层依据。内在景观的 `InnerPlan`、`docs/inner/` 与 `pnpm inner:storyboard` 已落地，`symbolic` 渲染器仍待实现。
+项目主方向已从“缺席关系”进一步转向：**为不可言说的内在经验，提供一个可进入、可退出、可自己解释的象征空间**。缺席关系保留为入口之一；世界模型调研仍作为渲染层依据。内在景观的 `InnerPlan`、`docs/inner/` 与 `pnpm inner:storyboard` 已落地，`symbolic` 程序化渲染器已提供 75 秒无声原型。
 
 ## 摘要
 
@@ -157,7 +157,7 @@ Genie 4 没有 API 时，先做 **operator-assisted** 适配：导演层生成�
 当前进展（2026-11-01）：Phase 0 的八项准备已落地本地版本。
 
 - 导演层：`src/director.ts` / `src/storyboard.ts` / `src/cue.ts` + `PromptPack`、`pnpm storyboard`、27 条线索语料。
-- 渲染层：`src/world-renderer.ts` / `src/world-renderers.tsx` + `WorldRenderSession` / `RendererCapabilities`；`procedural` 与 `captured` 可用，`genie4` 等待 API。
+- 渲染层：`src/world-renderer.ts` / `src/world-renderers.tsx` + `WorldRenderSession` / `RendererCapabilities`；`procedural`、`captured`、`symbolic` 可用，`genie4` 等待 API。
 - Episode：manifest 与客户端 `Encounter` 带 `rendererKind` / `directorPlan` / 可选 `capture`；旧 episode 按 procedural 处理。
 - 隐私：`src/consent.ts` 的用途绑定同意记录；无同意参考帧会被拒绝；Genie 适配器同样拒绝。
 - 评估：Rust `familiweave-ops`（`rust/`）提供实验日志校验与汇总；6 个实验模板、9 项评分表、`pnpm eval:validate`。

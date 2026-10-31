@@ -16,7 +16,7 @@ export function SceneView({ encounter, replay }: { encounter: Encounter; replay:
   const renderer = worldRenderers.resolve(encounter.rendererKind)
   if (!renderer) return <div className="scene-placeholder" role="alert">{`这次相遇使用了未知的渲染器（${encounter.rendererKind}），请更新后再打开。`}</div>
   if (renderer.status !== 'available' || !renderer.Component) return <div className="scene-placeholder" role="alert">{`${renderer.label} 尚未就绪：${renderer.reason ?? '当前版本不支持该渲染器。'}`}</div>
-  if (encounter.id !== 'demo' && !encounter.manifestVerified) return <div className="scene-placeholder" role="alert">这次相遇的记录校验未通过，暂时无法播放。</div>
+  if (!encounter.id.startsWith('demo') && !encounter.manifestVerified) return <div className="scene-placeholder" role="alert">这次相遇的记录校验未通过，暂时无法播放。</div>
   const invalid = renderer.validate?.(encounter)
   if (invalid) return <div className="scene-placeholder" role="alert">{invalid}</div>
   const Renderer = renderer.Component

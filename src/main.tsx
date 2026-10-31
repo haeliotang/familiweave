@@ -9,6 +9,7 @@ import type { Encounter } from './encounter'
 import { demoEncounter } from './encounter'
 import { api, submitEvidence } from './api'
 import { SceneView } from './scene-loader'
+import { demoInnerEncounter } from './inner-encounter'
 import { Feedback } from './feedback'
 import { EvidenceCorrection } from './evidence-correction'
 import { DeletionStatus } from './deletion-status'
@@ -195,7 +196,7 @@ function App() {
         <label htmlFor="photo-memory">一句记忆（可以留空）</label>
         <textarea id="photo-memory" disabled={busy} value={memory} onChange={event => setMemory(limitMemoryText(event.target.value))} placeholder="比如：他总会回头等走在后面的人。" />
         <p>{memoryCharacterCount(memory)} / 500 字符</p>
-        {error && <p className="error" role="alert">{error}</p>}
+      {error && <p className="error" role="alert">{error}</p>}
         <div className="actions"><button disabled={busy || !memory.trim()} onClick={() => void begin(false, 'memory')}>用这句记忆继续</button><button className="quiet" disabled={busy} onClick={() => void begin(false, 'generic')}>不补充，先看一般场景</button><button className="quiet" disabled={busy} onClick={() => setPhotoPrompt(false)}>返回资料</button></div>
       </section> : <>
       <label htmlFor="memory">你记得的一个小细节</label>
@@ -212,7 +213,7 @@ function App() {
       </div>
       {error && <p className="error" role="alert">{error}</p>}
       {!busy && <DeletionStatus />}
-      <div className="actions"><button disabled={busy} onClick={() => void begin()}>{busy ? '准备中…' : '去看看'}</button><button className="quiet" disabled={busy} onClick={() => setCurrent(demoEncounter())}>先看示例</button></div>
+      <div className="actions"><button disabled={busy} onClick={() => void begin()}>{busy ? '准备中…' : '去看看'}</button><button className="quiet" disabled={busy} onClick={() => setCurrent(demoEncounter())}>先看示例</button><button className="quiet" disabled={busy} onClick={() => setCurrent(demoInnerEncounter())}>进入内在景观（示例）</button></div>
       </>}
       {personId && !reviewAssetId && <AssetReview key={personId} personId={personId} revision={assetRevision} busy={busy} onReview={setReviewAssetId} onProcessing={value => { submitting.current = value; setBusy(value) }} onContinue={() => void begin(true)} />}
       {reviewAssetId && error && <p className="error" role="alert">{error}</p>}
@@ -220,13 +221,14 @@ function App() {
       {personId && <button className="text-button" disabled={busy} onClick={() => void clear()}>删除服务端的这份资料</button>}
       <p className="note">当前为本地开发原型。文件只保存在本机私有目录；记忆录音可在本机转写，核对后用于线索。照片和本人录音尚不会提取个人线索。请暂勿输入真实私密资料。</p>
     </section> : <section className="view">
-      <div className="view-header"><button className="quiet" onClick={() => setCurrent(null)}>← 返回</button><span>{current.id === 'demo' ? '无个人资料的示例' : current.personalizationLevel === 'generic' ? '一般想象场景 · 未使用个人线索' : '由你的记忆启发 · 虚构场景原型'}</span></div>
+      <div className="view-header"><button className="quiet" onClick={() => setCurrent(null)}>← 返回</button><span>{current.rendererKind === 'symbolic' ? '内在景观 · 合成示例' : current.id === 'demo' ? '无个人资料的示例' : current.personalizationLevel === 'generic' ? '一般想象场景 · 未使用个人线索' : '由你的记忆启发 · 虚构场景原型'}</span></div>
       <SceneView encounter={current} replay={replay} />
-      <p className="voice-note">本次人物外观是虚构创作；合成语音使用新音色，不模仿上传录音。</p>
-      {current.id !== 'demo' && current.personalizationLevel === 'generic' && <p className="note" role="status">这次没有使用可用的个人线索，是一段一般的想象场景。你可以返回，自愿补一句记忆。</p>}
+      {current.rendererKind !== 'symbolic' && <p className="voice-note">本次人物外观是虚构创作；合成语音使用新音色，不模仿上传录音。</p>}
+      {current.rendererKind !== 'symbolic' && current.id !== 'demo' && current.personalizationLevel === 'generic' && <p className="note" role="status">这次没有使用可用的个人线索，是一段一般的想象场景。你可以返回，自愿补一句记忆。</p>}
       {current.degraded && current.degradationReason === 'audio_analysis_unavailable' ? <p className="note" role="status">这段录音暂未分析成功，本次使用预设声音。可以返回资料页重新检查录音。</p> : current.audioSignalStatus && <p className="note">{audioObservationMessage(current.audioSignalStatus)}</p>}
-      <div className="view-footer"><span>{current.retracted ? '这处线索已撤回；旧相遇仅供回看。' : current.cue === 'wait' ? '线索：回头等待' : current.cue === 'repair' ? '线索：修补物件' : '一般想象场景'}</span><div className="actions"><button className="quiet" onClick={() => setReplay(value => value + 1)}>重新观看</button>{current.id !== 'demo' && <><EvidenceCorrection evidenceId={current.evidenceId} retracted={current.retracted} busy={busy} onRetract={() => void retract()} /><button className="quiet" disabled={busy} onClick={() => void hide()}>移除这次回看</button><button disabled={busy} onClick={() => void begin(true)}>再相遇</button></>}</div></div>
-      {current.id !== 'demo' && <Feedback key={current.id} episodeId={current.id} />}
+      <div className="view-footer"><span>{current.rendererKind === 'symbolic' ? '一段象征空间 · 不解释、不诊断' : current.retracted ? '这处线索已撤回；旧相遇仅供回看。' : current.cue === 'wait' ? '线索：回头等待' : current.cue === 'repair' ? '线索：修补物件' : '一般想象场景'}</span><div className="actions"><button className="quiet" onClick={() => setReplay(value => value + 1)}>{current.rendererKind === 'symbolic' ? '重新进入' : '重新观看'}</button>{current.rendererKind !== 'symbolic' && current.id !== 'demo' && <><EvidenceCorrection evidenceId={current.evidenceId} retracted={current.retracted} busy={busy} onRetract={() => void retract()} /><button className="quiet" disabled={busy} onClick={() => void hide()}>移除这次回看</button><button disabled={busy} onClick={() => void begin(true)}>再相遇</button></>}</div></div>
+      {current.rendererKind !== 'symbolic' && current.id !== 'demo' && <Feedback key={current.id} episodeId={current.id} />}
+      {current.rendererKind === 'symbolic' && <p className="note">这是无声的象征空间原型；不解释、不诊断，随时可以离开。</p>}
       {error && <p className="error" role="alert">{error}</p>}
     </section>}
   </main>

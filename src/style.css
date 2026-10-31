@@ -42,3 +42,43 @@ textarea { display: block; width: 100%; min-height: 130px; padding: 18px; border
 .captured-episode { width: 100%; overflow: hidden; border-radius: 20px; background: #101512 }
 .captured-video { display: block; width: 100%; max-height: min(58vw, 590px); min-height: 300px; background: #101512 }
 .captured-caption { margin: 0; padding: 12px 16px; color: #d9e2da; background: #2d3832; font-size: 13px; line-height: 1.6 }
+/* Symbolic-space prototype: a deliberately non-literal, non-interpretive scene. */
+.symbolic-episode { position: relative; width: 100%; height: min(58vw, 590px); min-height: 350px; overflow: hidden; border-radius: 20px; background: #0d1718; color: #eef3ee; isolation: isolate }
+.symbolic-sky { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 18%, rgba(206, 219, 208, .38), transparent 58%), linear-gradient(180deg, #1a2b2d 0%, #172326 48%, #0d1718 100%); transition: filter 1.2s ease }
+.motif-water .symbolic-sky { background: radial-gradient(ellipse at 62% 20%, rgba(178, 208, 204, .35), transparent 55%), linear-gradient(180deg, #1c3033 0%, #16282b 52%, #0b1618 100%) }
+.motif-door .symbolic-sky { background: radial-gradient(ellipse at 50% 12%, rgba(231, 203, 166, .28), transparent 55%), linear-gradient(180deg, #2b2923 0%, #1d1d1a 55%, #0f1110 100%) }
+.motif-house .symbolic-sky { background: radial-gradient(ellipse at 38% 15%, rgba(224, 202, 175, .3), transparent 55%), linear-gradient(180deg, #2a2823 0%, #1d1c19 52%, #10110f 100%) }
+.motif-forest .symbolic-sky { background: radial-gradient(ellipse at 52% 16%, rgba(184, 204, 178, .28), transparent 55%), linear-gradient(180deg, #1d2a23 0%, #17231d 52%, #0c1410 100%) }
+.motif-station .symbolic-sky { background: radial-gradient(ellipse at 50% 20%, rgba(205, 206, 190, .28), transparent 55%), linear-gradient(180deg, #262a28 0%, #1b1f1d 52%, #0d1110 100%) }
+.motif-mirror .symbolic-sky { background: radial-gradient(ellipse at 50% 18%, rgba(205, 219, 221, .32), transparent 55%), linear-gradient(180deg, #243033 0%, #1a2426 52%, #0b1112 100%) }
+.motif-corridor .symbolic-sky { background: radial-gradient(ellipse at 50% 18%, rgba(208, 201, 186, .28), transparent 55%), linear-gradient(180deg, #272a27 0%, #1b1e1b 52%, #0c0f0d 100%) }
+.motif-field .symbolic-sky { background: radial-gradient(ellipse at 50% 15%, rgba(220, 217, 179, .28), transparent 58%), linear-gradient(180deg, #2b2e23 0%, #20241b 52%, #10130e 100%) }
+.symbolic-horizon { position: absolute; left: 0; right: 0; bottom: 36%; height: 1px; background: rgba(232, 240, 230, .28); filter: blur(.4px) }
+.symbolic-water { position: absolute; left: 0; right: 0; bottom: 0; height: 36%; background: repeating-linear-gradient(180deg, rgba(180, 214, 208, .13) 0, rgba(180, 214, 208, .13) 1px, transparent 1px, transparent 13px), linear-gradient(180deg, rgba(15, 35, 36, .55), #081112); animation: symbolic-water 9s linear infinite; opacity: .9 }
+.motif-door .symbolic-water, .motif-house .symbolic-water, .motif-corridor .symbolic-water { opacity: .25 }
+.symbolic-door { position: absolute; left: 61%; bottom: 36%; width: 9%; height: 31%; background: linear-gradient(180deg, rgba(226, 210, 185, .22), rgba(15, 20, 18, .95)); border: 1px solid rgba(232, 240, 230, .22); box-shadow: 0 0 42px rgba(233, 221, 190, .18); transition: transform 1.4s ease, filter 1.4s ease }
+.phase-notice .symbolic-door { transform: scale(1.04) }
+.phase-approach .symbolic-door { transform: scale(1.12) translateY(-2%) }
+.phase-transform .symbolic-door { transform: scale(1.2); filter: brightness(1.35) }
+.phase-leave .symbolic-door { transform: scale(1.02); filter: brightness(.75) }
+.symbolic-figure { position: absolute; left: 29%; bottom: 36%; width: 8%; height: 25%; border-radius: 48% 48% 18% 18%; background: rgba(5, 12, 11, .82); box-shadow: 0 18px 40px rgba(0, 0, 0, .35); transition: left 1.6s ease, opacity 1.2s ease, transform 1.6s ease; animation: symbolic-breathe 6s ease-in-out infinite }
+.phase-approach .symbolic-figure { left: 42% }
+.phase-pause .symbolic-figure { left: 44% }
+.phase-transform .symbolic-figure { left: 52%; transform: scale(.92); opacity: .6 }
+.phase-leave .symbolic-figure { left: 72%; opacity: .2 }
+.figure-child { width: 5%; height: 15% }
+.figure-animal { width: 12%; height: 10%; border-radius: 50% 50% 30% 30% }
+.figure-stranger { width: 9%; height: 28% }
+.figure-none { opacity: 0 }
+.symbolic-fog { position: absolute; inset: -12%; background: radial-gradient(ellipse at 30% 70%, rgba(221, 229, 219, .1), transparent 55%), radial-gradient(ellipse at 72% 38%, rgba(221, 229, 219, .08), transparent 52%); animation: symbolic-fog 16s ease-in-out infinite alternate; pointer-events: none }
+.symbolic-progress { position: absolute; left: 18px; right: 18px; top: 16px; height: 2px; background: rgba(230, 238, 228, .15); border-radius: 2px; overflow: hidden }
+.symbolic-progress span { display: block; height: 100%; background: rgba(230, 238, 228, .55); transition: width .1s linear }
+.symbolic-controls { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 10px; padding: 14px; background: linear-gradient(0deg, rgba(6, 12, 11, .72), transparent) }
+.symbolic-controls button, .symbolic-end button, .symbolic-left button { color: #e8eee5; background: rgba(23, 35, 32, .72); border: 1px solid rgba(224, 235, 224, .22) }
+.symbolic-end, .symbolic-left { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(7, 13, 12, .66); text-align: center; padding: 24px }
+.symbolic-left-copy { display: flex; flex-direction: column; align-items: center; gap: 14px }
+.symbolic-left-copy p, .symbolic-end p { margin: 0; font-family: serif; font-size: clamp(18px, 2.4vw, 26px); color: #e9efe6 }
+@keyframes symbolic-water { from { background-position: 0 0, 0 0 } to { background-position: 0 26px, 0 0 } }
+@keyframes symbolic-fog { from { transform: translate3d(-2%, 0, 0) } to { transform: translate3d(2%, -1%, 0) } }
+@keyframes symbolic-breathe { 0%, 100% { box-shadow: 0 18px 40px rgba(0, 0, 0, .35) } 50% { box-shadow: 0 22px 52px rgba(0, 0, 0, .5) } }
+@media (prefers-reduced-motion: reduce) { .symbolic-water, .symbolic-fog, .symbolic-figure { animation: none } .symbolic-door, .symbolic-figure { transition: none } }

@@ -55,7 +55,7 @@ InnerPlan
         │
         ▼
 世界渲染器
-symbolic（开发中） / procedural / genie4（以后）
+symbolic（本地原型） / procedural / genie4（以后）
         │
         ▼
 75 秒内在相遇 + 捕获与出处
@@ -80,8 +80,8 @@ Familiweave 的前一个版本围绕“一个不在场的人”展开：用行�
 | --- | --- |
 | 可运行原型 | 六个程序场景、两个成人基础人物、八个动作、约 75 秒相遇（旧方向基线） |
 | 内在导演层 | `InnerPlan`：母题、影子、75 秒节拍、空间/声音/光/镜头提示词、安全字段 |
-| 内在分镜 | `pnpm inner:storyboard --fragment "…"` |
-| 象征渲染器 | 已注册为 `symbolic`，当前 `not_configured`；尚未渲染画面 |
+| 内在分镜 | `pnpm inner:storyboard --fragment "…"`；网页示例可进入 |
+| 象征渲染器 | `symbolic` 本地原型可用：75 秒、无音频、可进入/停留/离开；不解释 |
 | 渲染层 | `WorldRenderer` 注册表；`procedural` / `captured` 可用，`genie4` 等待 API |
 | 捕获与出处 | `CaptureProvenance` 写入 manifest；可回放有 URL 的捕获 |
 | 同意与隐私 | 用途绑定 consent；真实资料与梦/感觉默认不上传 |
@@ -90,7 +90,7 @@ Familiweave 的前一个版本围绕“一个不在场的人”展开：用行�
 | API 准备 | [Genie 4 开放检查清单](docs/api/genie-4-readiness.md) |
 | 交付边界 | 2026-10-01 本地范围完成；真机、生产部署、临床与真人体验未验证 |
 
-当前可运行的是旧方向的本地基线：程序场景、固定人物素材、骨骼动画与本地语音。新 episode 的 manifest 已记录 `rendererKind`、`directorPlan` 和可选的 `capture`；内在景观的 `innerPlan` 已进入类型层，渲染器仍待实现。
+当前可运行两条线：旧方向的本地三维基线，以及新的“内在景观”示例。新 episode 的 manifest 已记录 `rendererKind`、`directorPlan` 和可选的 `capture`；内在景观的 `innerPlan` 已进入类型层，`symbolic` 程序化渲染器提供 75 秒的无声原型。
 
 ## 现在可以体验什么
 
@@ -105,6 +105,8 @@ Familiweave 的前一个版本围绕“一个不在场的人”展开：用行�
 | 记录 | 准备进度、失败重试、历史回看、再次相遇、线索纠正、可跳过的反馈与资料删除 |
 
 也可以直接进入无个人资料的示例。建议从合成记忆开始，例如：“他走路时总会回头等我。”
+
+页面上的 **“进入内在景观（示例）”** 会打开一段合成的象征空间：走廊、门、水、一个影子，以及“靠近/停留/离开”。它不解释、不诊断，也没有声音。
 
 当前内容为 **六个场景、两个人物、八个动作**。“拿起物件”包含拿起、停留和放回桌面；手部观感与全组合质量仍在完善。默认人物使用较小的纹理包，已有相遇绑定人物、场景、声音和表演版本，后续改动保留旧版本资源供回看。
 
@@ -225,11 +227,13 @@ pnpm rust:test
 ## 项目地图
 
 - [`src/inner.ts`](src/inner.ts)：内在景观的 `InnerPlan`、母题/影子/节拍/提示词与安全字段。
+- [`src/inner-encounter.ts`](src/inner-encounter.ts)：合成的内在景观示例入口。
+- [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：75 秒无声象征空间原型（可进入/停留/离开）。
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。
 - [`src/director.ts`](src/director.ts)：缺席关系的导演计划、分层提示词与隐私/同意字段。
 - [`src/storyboard.ts`](src/storyboard.ts)：缺席关系的分镜导出。
 - [`src/world-renderer.ts`](src/world-renderer.ts)：`WorldRenderer`、`WorldRenderSession` 与能力声明。
-- [`src/world-renderers.tsx`](src/world-renderers.tsx)：已注册渲染器（procedural / captured / symbolic 预留）。
+- [`src/world-renderers.tsx`](src/world-renderers.tsx)：已注册渲染器（procedural / captured / symbolic）。
 - [`src/capture.ts`](src/capture.ts)：捕获成片的出处与指纹。
 - [`src/consent.ts`](src/consent.ts)：用途绑定的云端同意记录。
 - [`src/genie/`](src/genie/)：Genie 4 适配器接口与未配置占位实现（不联网）。
@@ -248,7 +252,7 @@ pnpm rust:test
 ## 路线图
 
 - **Phase 0（已完成）**：导演层、`InnerPlan`、`WorldRenderer` 接口、manifest 接入、提示词/分镜、捕获 schema、同意记录、Rust 评估工具、行为线索语料、Genie 适配器骨架与 API 清单。
-- **Phase 1（当前）**：实现 `symbolic` 程序化渲染器与内在景观入口；75 秒可进入、可退出，不做解释。
+- **Phase 1（当前）**：`symbolic` 程序化渲染器与内在景观入口已可用；下一步补充安全评审、可选声音与更完整的非解释性交互。
 - **Phase 2（验证通过）**：捕获回放、旧版本、删除、同意流程、成本模型与小样本体验测试。
 - **Phase 3（Genie 4 / 备选）**：Genie 4 可用后用世界模型渲染梦逻辑；Marble、Reactor 或开源模型作为备选。
 
