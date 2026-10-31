@@ -12,5 +12,6 @@ dist/
 .aws/
 .codex/
 .DS_Store
+.pnpm-store/
 rust/target/
 target/

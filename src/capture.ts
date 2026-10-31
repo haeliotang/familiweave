@@ -1,4 +1,4 @@
-import type { RendererKind } from './director'
+import type { RendererKind } from './encounter'
 
 // Provider-neutral capture record. Non-deterministic world models cannot be
 // replayed from a seed, so the episode keeps the captured media fingerprint and

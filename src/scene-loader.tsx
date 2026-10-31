@@ -21,6 +21,6 @@ export function SceneView({ encounter, replay }: { encounter: Encounter; replay:
   if (invalid) return <div className="scene-placeholder" role="alert">{invalid}</div>
   const Renderer = renderer.Component
   return <SceneBoundary key={encounter.id}><Suspense fallback={<div className="scene-placeholder" role="status">正在打开场景…</div>}>
-    <Renderer key={`${encounter.id}-${replay}-${encounter.retracted}`} encounter={encounter} replay={replay} />
+    <Renderer key={`${encounter.id}-${replay}`} encounter={encounter} replay={replay} />
   </Suspense></SceneBoundary>
 }

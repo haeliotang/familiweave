@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { CaptureProvenance } from './capture'
-import type { RendererKind } from './director'
+import type { RendererKind } from './encounter'
 import type { Encounter } from './encounter'
 
 // Runtime seam for the symbolic-space direction. Symbolic and captured

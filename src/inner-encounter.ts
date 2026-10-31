@@ -8,9 +8,6 @@ export function demoInnerEncounter(): Encounter {
   return {
     id: 'demo-inner',
     seed: 1,
-    memory: '',
-    cue: 'general',
-    scene: 'riverside',
     durationSec: 75,
     createdAt: new Date().toISOString(),
     rendererKind: 'symbolic',
@@ -24,9 +21,6 @@ export function demoInnerSpaceEncounter(): Encounter {
   return {
     id: 'demo-inner-space',
     seed: 2,
-    memory: '',
-    cue: 'general',
-    scene: 'riverside',
     durationSec: 180,
     createdAt: new Date().toISOString(),
     rendererKind: 'symbolic',
@@ -42,9 +36,6 @@ export function createInnerEncounter(input: { fragment: string; feeling?: InnerF
   return {
     id: `demo-inner-${crypto.randomUUID()}`,
     seed: Math.floor(Math.random() * 0xffffffff),
-    memory: '',
-    cue: 'general',
-    scene: 'riverside',
     durationSec: inner.durationSec,
     createdAt: new Date().toISOString(),
     rendererKind: 'symbolic',

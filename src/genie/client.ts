@@ -1,9 +1,9 @@
 import { isCloudConsentRecord, type CloudConsentRecord } from '../consent'
-import type { DirectorPlan } from '../director'
+import type { InnerPlan } from '../inner'
 import type { WorldRenderSession } from '../world-renderer'
 
 export interface GenieSessionRequest {
-  plan: DirectorPlan
+  plan: InnerPlan
   /** Required before any user-provided reference leaves the device. */
   consent?: CloudConsentRecord
   referenceFrameUrl?: string

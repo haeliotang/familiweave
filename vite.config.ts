@@ -6,6 +6,5 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     fs: { deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/.local-assets/**', '**/.local-db/**', '**/.models/**'] },
-    proxy: { '/v1': 'http://127.0.0.1:3001' },
   },
 })

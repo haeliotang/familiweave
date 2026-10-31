@@ -6,9 +6,9 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-Bk3IX2tz.js` | 236,650 | 主入口（移除程序渲染器后） |
+| `index-CwJoV3VI.js` | 236,509 | 主入口（symbolic-only，无服务端） |
 | `index-B_0zMHBf.css` | 8,938 | 样式 |
-| 合计 | 245,588 | 两个产物；无 scene 分包 |
+| 合计 | 245,447 | 两个产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。
@@ -34,7 +34,7 @@
 
 ## 浏览器基线（本地 headless，2026-11-01）
 
-环境：Chrome 156 headless，`pnpm dev` + `pnpm dev:local-api`，本地 Vite 开发服务，CDP 禁用缓存。命令：`pnpm measure:browser`（需 Chrome 以 `--remote-debugging-port=9222` 启动）。
+环境：Chrome 156 headless，`pnpm dev`，本地 Vite 开发服务，CDP 禁用缓存。命令：`pnpm measure:browser`（需 Chrome 以 `--remote-debugging-port=9222` 启动）。
 
 | 指标 | 结果 |
 | --- | ---: |

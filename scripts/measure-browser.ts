@@ -1,5 +1,5 @@
-// Local-only browser measurement. Requires `pnpm dev`, `pnpm dev:local-api`
-// and a Chrome instance started with --remote-debugging-port=9222.
+// Local-only browser measurement. Requires `pnpm dev` and a Chrome instance
+// started with --remote-debugging-port=9222.
 const cdp = 'http://127.0.0.1:9222'
 const targets = await (await fetch(`${cdp}/json`)).json() as Array<{ type: string; webSocketDebuggerUrl: string; url: string }>
 const page = targets.find(target => target.type === 'page')

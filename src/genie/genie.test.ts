@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { grantCloudConsent } from '../consent'
-import { directorPlan } from '../director'
+import { innerPlan } from '../inner'
 import { GenieConsentRequiredError, GenieNotConfiguredError, notConfiguredGenieClient } from './client'
 import { genieReadiness, readGenieConfig } from './config'
 
@@ -20,7 +20,7 @@ describe('Genie adapter readiness', () => {
   })
 
   it('rejects a reference frame without a purpose-bound consent record', async () => {
-    const plan = directorPlan({ memory: '他总会回头等我' })
+    const plan = innerPlan({ fragment: '一条走廊尽头有一扇门' })
     await expect(notConfiguredGenieClient().createSession({ plan, referenceFrameUrl: '/private/frame.jpg' })).rejects.toBeInstanceOf(GenieConsentRequiredError)
     await expect(notConfiguredGenieClient().createSession({
       plan,

@@ -1,73 +1,18 @@
 import type { CaptureProvenance } from './capture'
-import { cueFromMemory, type Cue } from './cue'
-import { directorPlanForCue, type DirectorPlan, type RendererKind } from './director'
 import type { InnerPlan } from './inner'
 import type { EpisodePlan } from './episode-plan'
-import { limitMemoryText } from './memory-text'
-import { currentPerformanceVersion } from './performance-catalog'
-import { currentSceneVersion, sceneForEncounter, type SceneId } from './scene-catalog'
-import { currentAvatarVersion, avatarVersionForEncounter } from './avatar-catalog'
 
-export { cueFromMemory, spokenLine } from './cue'
-export type { Cue } from './cue'
+export type RendererKind = 'genie4' | 'marble' | 'captured' | 'symbolic'
 
 export interface Encounter {
   id: string
   seed: number
-  memory: string
-  cue: Cue
-  scene: SceneId
   durationSec: number
   createdAt: string
-  sceneVersion?: string
+  rendererKind?: RendererKind
   manifestHash?: string
   manifestVerified?: boolean
-  performanceVersion?: string
-  avatarVersion?: string
-  evidenceId?: string
-  retracted?: boolean
-  degraded?: boolean
-  degradationReason?: string
-  audioSignalStatus?: string
-  personalizationLevel?: 'generic' | 'memory_based' | 'audio_rate_based' | 'memory_and_audio_rate_based'
-  rendererKind?: RendererKind
-  directorPlan?: DirectorPlan
   capture?: CaptureProvenance
   innerPlan?: InnerPlan
   plan?: EpisodePlan
-}
-
-export function createEncounter(memory: string, previous: Encounter[] = []): Encounter {
-  const normalized = limitMemoryText(memory.trim())
-  if (!normalized) throw new Error('请先写下一句记忆，或进入示例体验。')
-  const seed = Math.floor(Math.random() * 0xffffffff)
-  const cue = cueFromMemory(normalized)
-  const directorPlan = directorPlanForCue(cue)
-  return {
-    id: crypto.randomUUID(), seed, memory: normalized,
-    cue,
-    scene: sceneForEncounter(previous.length),
-    performanceVersion: currentPerformanceVersion,
-    sceneVersion: currentSceneVersion,
-    avatarVersion: avatarVersionForEncounter(previous.length),
-    durationSec: 75,
-    createdAt: new Date().toISOString(),
-    rendererKind: 'procedural',
-    directorPlan,
-    plan: { version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural', director: directorPlan },
-  }
-}
-
-export function demoEncounter(): Encounter {
-  const directorPlan = directorPlanForCue('general')
-  return {
-    id: 'demo', seed: 1, memory: '', cue: 'general', scene: 'riverside',
-    performanceVersion: currentPerformanceVersion,
-    sceneVersion: currentSceneVersion,
-    avatarVersion: currentAvatarVersion,
-    durationSec: 75, createdAt: new Date().toISOString(),
-    rendererKind: 'procedural',
-    directorPlan,
-    plan: { version: 'episode-plan-v1', kind: 'procedural', rendererKind: 'procedural', director: directorPlan },
-  }
 }

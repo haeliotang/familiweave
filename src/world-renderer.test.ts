@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CaptureProvenance } from './capture'
-import type { RendererKind } from './director'
-import { demoEncounter } from './encounter'
+import type { RendererKind } from './encounter'
 import { demoInnerEncounter } from './inner-encounter'
 import { WorldRendererRegistry, worldRenderers } from './world-renderer'
 import './world-renderers'
@@ -23,12 +22,12 @@ describe('world renderer registry', () => {
   it('plays captured episodes only when valid provenance and a URL exist', () => {
     const captured = worldRenderers.get('captured')!
     expect(captured).toMatchObject({ kind: 'captured', status: 'available', capabilities: { interactive: false, nativeAudio: true, capture: false } })
-    expect(captured.validate!(demoEncounter())).toContain('没有可回放')
+    expect(captured.validate!(demoInnerEncounter())).toContain('没有可回放')
     const capture: CaptureProvenance = {
       version: 'capture-v1', captureId: 'capture-1', rendererKind: 'captured', mimeType: 'video/mp4',
       durationSec: 75, sha256: 'a'.repeat(64), url: '/synthetic-capture.mp4', synthId: true, createdAt: '2026-11-01T00:00:00Z',
     }
-    expect(captured.validate!({ ...demoEncounter(), capture })).toBeUndefined()
+    expect(captured.validate!({ ...demoInnerEncounter(), capture })).toBeUndefined()
   })
 
   it('exposes the symbolic renderer as a working local prototype', () => {

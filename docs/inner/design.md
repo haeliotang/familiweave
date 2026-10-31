@@ -25,7 +25,7 @@ InnerPlan
         │
         ▼
 WorldRenderer
-symbolic（相遇/空间） / procedural / genie4（以后）
+symbolic（相遇/空间） / genie4（以后）
         │
         ▼
 75 秒内在相遇 + 捕获与出处

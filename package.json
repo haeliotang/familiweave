@@ -5,12 +5,8 @@
   "packageManager": "pnpm@10.32.1",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "dev:api": "tsx watch server/start.ts",
-    "dev:local-api": "tsx watch server/start-local.ts",
-    "start": "node --import tsx server/start.ts",
     "build": "tsc -b && vite build",
     "test": "vitest run",
-    "check:local": "node --import tsx scripts/check-local-runtime.ts",
     "inner:storyboard": "tsx scripts/inner-storyboard.ts",
     "measure:build": "tsx scripts/measure-baseline.ts",
     "check:symbolic-path": "tsx scripts/check-symbolic-path.ts",
@@ -20,28 +16,18 @@
     "capture:hash": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-hash",
     "capture:verify": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-verify",
     "genie:status": "cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- genie-status",
-    "rust:test": "cargo test --manifest-path rust/Cargo.toml",
-    "test:pg": "vitest run server/postgres.test.ts",
-    "db:migrate": "tsx server/migrate.ts"
+    "rust:test": "cargo test --manifest-path rust/Cargo.toml"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
-    "fastify": "^5.12.5",
-    "pg": "^8.23.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "sharp": "^0.35.5",
-    "sherpa-onnx-node": "^1.13.8",
-    "three": "^0.180.0",
     "vite": "^7.1.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.5.8",
-    "@types/pg": "^8.23.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "@types/three": "^0.180.0",
     "tsx": "^4.23.15",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
