@@ -6,10 +6,10 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `scene-_rTCuAO2.js` | 610,979 | 三维场景分包；`dist/index.html` 未预加载 |
-| `index-DVX_F2hm.js` | 278,561 | 主入口 |
+| `scene-BRK6_ZGy.js` | 610,979 | 三维场景分包；`dist/index.html` 未预加载 |
+| `index-HME2wX4n.js` | 279,190 | 主入口（R1 后） |
 | `index-C8-aiCn_.css` | 8,318 | 样式 |
-| 合计 | 897,858 | 三个产物 |
+| 合计 | 898,487 | 三个产物 |
 
 - `sceneChunk.preloadedInHtml = false`：symbolic 路径不应要求下载 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。
