@@ -57,7 +57,7 @@
 - 已新增 `pnpm check:symbolic-path`：检查 scene 分包未预加载、主入口不超过 320,000 字节；当前通过。
 - 已新增 `pnpm measure:browser`：本地 headless Chrome 记录首屏与 2 秒帧采样；结果见 [R0 构建基线](baseline.md)。
 - 确认 symbolic 路径不加载 Three.js、不下载模型、不初始化音频。
-- 剩余：完整 75 秒相遇与 180 秒空间的稳定性/交互延迟实测，真实设备与生产构建。
+- 已完成本地 headless 完整 75 秒相遇与 180 秒空间帧采样；真实设备、生产构建与交互压力仍未验证。
 - 主包拆分：`InnerPlan`/symbolic 与旧三维渲染器分包；旧资源按需加载。
 - 资产与模型缓存策略；Rust capture hash 用于大文件时避免 Node 重复读取。
 - 记录基线并设预算：首屏 JS、场景分包、75 秒内帧稳定性、捕获 hash 时间。具体数值以测量结果为准，不在计划里伪造。
