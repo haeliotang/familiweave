@@ -114,7 +114,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 
 首页现在默认是内在景观入口：写下一段梦、画面、地点或感觉，选择 **75 秒相遇** 或 **180 秒空间**，即可进入。也可以使用示例按钮快速查看两种形式。
 
-两种形式都不解释、不诊断，也没有声音。仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。三维输入与资料处理保留在“兼容入口”折叠区。
+两种形式都不解释、不诊断，也没有声音。仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。
 
 这只是本地原型，不是治疗、不是潜意识读取，也不是已经验证有效的体验。
 
@@ -240,6 +240,7 @@ pnpm check:symbolic-path
 - [`src/episode-plan.ts`](src/episode-plan.ts)：统一的 `EpisodePlan` 信封与读取适配。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
 - [`src/inner-entry.tsx`](src/inner-entry.tsx)：默认的内在景观输入表单。
+- [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口；不连接资料准备流程。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声象征空间原型。
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划。

@@ -25,6 +25,8 @@ async function evaluate(expression: string, awaitPromise = false) {
   return result.result.value
 }
 await send('Page.enable')
+await send('Network.enable')
+await send('Network.setCacheDisabled', { cacheDisabled: true })
 await send('Runtime.enable')
 await send('Page.navigate', { url: 'http://127.0.0.1:5173/' })
 await new Promise(resolve => setTimeout(resolve, 2500))
@@ -35,7 +37,7 @@ const navigation = await evaluate(`(() => {
 const paints = await evaluate(`performance.getEntriesByType('paint').map(entry => ({ name: entry.name, startTime: Math.round(entry.startTime) }))`)
 const initialText = await evaluate(`document.body.innerText.slice(0, 120)`)
 const clicked = await evaluate(`(() => {
-  const button = [...document.querySelectorAll('button')].find(item => item.textContent?.includes('进入一个空间'))
+  const button = [...document.querySelectorAll('button')].find(item => item.textContent?.includes('空间示例'))
   button?.click()
   return Boolean(button)
 })()`)
