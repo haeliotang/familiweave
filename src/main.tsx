@@ -1,4 +1,3 @@
-import { sceneLabels } from './scene-catalog'
 import { PreparationProgress, savedPreparation, savePreparation, type PendingPreparation } from './preparation-progress'
 import { limitMemoryText, memoryCharacterCount } from './memory-text'
 import { fromApi, type ApiEpisode } from './episode'
@@ -27,7 +26,6 @@ function App() {
   const [inputVersion, setInputVersion] = useState(0)
   const [assetRevision, setAssetRevision] = useState(0)
   const [personId, setPersonId] = useState<string | null>(null)
-  const [encounters, setEncounters] = useState<Encounter[]>([])
   const [current, setCurrent] = useState<Encounter | null>(null)
   const [replay, setReplay] = useState(0)
   const [busy, setBusy] = useState(true)
@@ -43,8 +41,6 @@ function App() {
         else if (!session.ok) throw new Error('无法连接本地服务。')
         const persons = await api<{ persons: Array<{ personId: string }> }>('/v1/persons')
         const id = persons.persons[0]?.personId || null
-        const history = id ? await api<{ episodes: ApiEpisode[] }>(`/v1/persons/${id}/episodes`) : { episodes: [] }
-        const restored = await Promise.all(history.episodes.filter(item => item.status === 'prototype').map(fromApi))
         const assets = id ? await api<{ assets: Array<{ assetId: string; kind: string; state: string; reviewState: string }> }>(`/v1/persons/${id}/assets`) : { assets: [] }
         const saved = savedPreparation()
         const queued = id && saved?.personId !== id ? await api<{ preparations: Array<{ preparationId: string; createdAt: string }> }>(`/v1/persons/${id}/preparations`) : { preparations: [] }
@@ -58,7 +54,6 @@ function App() {
             setPending(pending)
           } else savePreparation(null)
           setReviewAssetId(assets.assets.find(asset => asset.kind === 'user_memory_audio' && asset.state === 'ready' && asset.reviewState === 'pending')?.assetId || null)
-          setEncounters(restored)
         }
       } catch (cause) {
         if (active) setError(cause instanceof Error ? cause.message : '本地服务不可用。')
@@ -123,7 +118,6 @@ function App() {
     if (episode.status !== 'prototype') throw new Error('相遇尚未准备好。')
     const encounter = await fromApi({ episodeId, status: episode.status, manifest: episode.manifest, createdAt: new Date().toISOString() })
     if (signal.aborted) return
-    setEncounters(items => [encounter, ...items.filter(item => item.id !== episodeId)])
     setCurrent(encounter)
     setPending(null)
     savePreparation(null)
@@ -139,7 +133,6 @@ function App() {
       setPending(null)
       savePreparation(null)
       setReviewAssetId(null)
-      setEncounters([])
       setCurrent(null)
       setMemory('')
       setPhotos([])
@@ -149,32 +142,6 @@ function App() {
       setInputVersion(value => value + 1)
       setError('')
     } catch (cause) { setError(cause instanceof Error ? cause.message : '暂时无法删除。') }
-    finally { submitting.current = false; setBusy(false) }
-  }
-
-  async function retract() {
-    if (!current?.evidenceId || submitting.current) return
-    submitting.current = true
-    setBusy(true)
-    try {
-      await api(`/v1/evidence/${current.evidenceId}/retract`, { method: 'POST' })
-      setEncounters(items => items.map(item => item.evidenceId === current.evidenceId ? { ...item, retracted: true } : item))
-      setCurrent({ ...current, retracted: true })
-      setError('')
-    } catch (cause) { setError(cause instanceof Error ? cause.message : '暂时无法纠正。') }
-    finally { submitting.current = false; setBusy(false) }
-  }
-
-  async function hide() {
-    if (!current || submitting.current) return
-    submitting.current = true
-    setBusy(true)
-    try {
-      await api(`/v1/episodes/${current.id}/hide`, { method: 'POST' })
-      setEncounters(items => items.filter(item => item.id !== current.id))
-      setCurrent(null)
-      setError('')
-    } catch (cause) { setError(cause instanceof Error ? cause.message : '暂时无法移除。') }
     finally { submitting.current = false; setBusy(false) }
   }
 
@@ -219,7 +186,6 @@ function App() {
       </>}
       {personId && !reviewAssetId && <AssetReview key={personId} personId={personId} revision={assetRevision} busy={busy} onReview={setReviewAssetId} onProcessing={value => { submitting.current = value; setBusy(value) }} onContinue={() => void begin(true)} />}
       {reviewAssetId && error && <p className="error" role="alert">{error}</p>}
-      {encounters.length > 0 && <div className="history"><h2>以前的相遇</h2>{encounters.map(item => <button className="history-item" key={item.id} disabled={busy} onClick={() => setCurrent(item)}>{new Date(item.createdAt).toLocaleString('zh-CN')} · {sceneLabels[item.scene]}{item.retracted ? ' · 线索已撤回' : ''}</button>)}</div>}
       {personId && <button className="text-button" disabled={busy} onClick={() => void clear()}>删除服务端的这份资料</button>}
       <p className="note">当前为本地开发原型。文件只保存在本机私有目录；记忆录音可在本机转写，核对后用于线索。照片和本人录音尚不会提取个人线索。请暂勿输入真实私密资料。</p>
       </details>
