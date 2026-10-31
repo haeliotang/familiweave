@@ -50,7 +50,7 @@
 1. 确认账户、区域、价格、条款与配额；记录到本文件。
 2. 配置 `GENIE_API_KEY` / `GENIE_BASE_URL` / `GENIE_MODEL_ID`，不提交密钥。
 3. 实现 `GenieClient.createSession`，返回 `WorldRenderSession`；先接一条最小链路。
-4. 用 `pnpm storyboard` 导出的提示词跑 X1–X6，记录实验日志。
+4. 用 `pnpm inner:storyboard` 导出的提示词跑 X1–X6，记录实验日志。
 5. 通过 `pnpm eval:validate` 汇总；达到门槛后才把 `genie4` 渲染器改为 `available`。
 6. 未通过时保持 `requires_api_access`，不把实验性输出放进默认体验。
 

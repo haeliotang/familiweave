@@ -11,7 +11,6 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "check:local": "node --import tsx scripts/check-local-runtime.ts",
-    "storyboard": "tsx scripts/director-storyboard.ts",
     "inner:storyboard": "tsx scripts/inner-storyboard.ts",
     "measure:build": "tsx scripts/measure-baseline.ts",
     "check:symbolic-path": "tsx scripts/check-symbolic-path.ts",

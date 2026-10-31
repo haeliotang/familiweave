@@ -156,7 +156,7 @@ Genie 4 没有 API 时，先做 **operator-assisted** 适配：导演层生成�
 
 当前进展（2026-11-01）：Phase 0 的八项准备已落地本地版本。
 
-- 导演层：`src/director.ts` / `src/storyboard.ts` / `src/cue.ts` + `PromptPack`、`pnpm storyboard`、27 条线索语料。
+- 导演层：`src/inner.ts` / `src/episode-plan.ts` + `InnerPlan`、`pnpm inner:storyboard`。
 - 渲染层：`src/world-renderer.ts` / `src/world-renderers.tsx` + `WorldRenderSession` / `RendererCapabilities`；`procedural`、`captured`、`symbolic` 可用，`genie4` 等待 API。
 - Episode：manifest 与客户端 `Encounter` 带 `rendererKind` / `directorPlan` / 可选 `capture`；旧 episode 按 procedural 处理。
 - 隐私：`src/consent.ts` 的用途绑定同意记录；无同意参考帧会被拒绝；Genie 适配器同样拒绝。
@@ -170,7 +170,7 @@ Genie 4 没有 API 时，先做 **operator-assisted** 适配：导演层生成�
 1. 免费申请 Genie 4 / Project Genie 等待名单；按已确认决定，**暂不订阅 Ultra、不做付费样片**，持续监控 Gemini API / AI Studio 的早期访问入口。
 2. 冻结当前版本为 `v0.1-local` 基线，保留可运行 fallback；**停止新增手工场景/人物/动作资产**，现有资产只作为 fallback 与对照基线。
 3. 渲染器契约：`RendererKind` / `WorldRenderer` / `WorldRenderSession` / `RendererCapabilities` 与 conformance 测试。
-4. 导演提示管线：一句记忆 → 节拍 + 台词 + `PromptPack` + 参考帧策略；`pnpm storyboard` 导出 JSON/Markdown。
+4. 导演提示管线：一段梦/画面/感觉 → `InnerPlan` + 象征空间提示词；`pnpm inner:storyboard` 导出 JSON/Markdown。
 5. 捕获与出处：`CaptureProvenance` 写入 manifest，`captured` 渲染器可回放有 URL 的捕获。
 6. 同意与隐私流：用途绑定 consent、参考帧拒绝、上传默认关闭；删除路径沿用现有 person 删除。
 7. 评估工具：6 个生成实验、9 项评分、实验日志 schema 与校验 CLI。

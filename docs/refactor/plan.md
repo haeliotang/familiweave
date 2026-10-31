@@ -67,7 +67,8 @@
 - 已删除 `feedback` / `evidence-correction`、旧资料准备 UI 组件与旧历史/反馈/纠正状态。
 - `main.tsx` 已重写为纯象征空间入口，不再连接服务端资料准备流程。
 - 已移除 `procedural` 渲染器注册与 `src/scene.tsx`；构建不再产生 610 KB 场景分包，主包 236,650 B。
-- 剩余：旧场景/人物资产、旧 director/storyboard/cue 模块、旧服务端资料准备与相关测试；更新项目地图只保留当前核心。
+- 已删除旧三维前端模块与测试（character/pickup/scene 辅助等），`src/` 从 70+ 文件降到 39 个；`pnpm storyboard` 与旧 storyboard 脚本已移除。
+- 剩余：147 MB quaternius 资产、旧 director/cue/scene-catalog/performance-catalog/avatar-catalog、旧服务端资料准备与相关测试。
 
 ## 5. 性能测量项
 
