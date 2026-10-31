@@ -9,7 +9,7 @@ export type ApiEpisode = {
   createdAt: string
   retracted?: boolean
   manifest: {
-    cue: Encounter['cue']; sceneId: Encounter['scene']; durationSec: 75; evidenceId?: string
+    cue: Encounter['cue']; sceneId: Encounter['scene']; durationSec: number; evidenceId?: string
     avatarVersion?: string; performanceVersion?: string; sceneVersion?: string; seed?: number; manifestHash?: string
     degraded?: boolean; degradationReason?: string | null; audioObservation?: { signalStatus?: string }
     personalizationLevel?: Encounter['personalizationLevel']

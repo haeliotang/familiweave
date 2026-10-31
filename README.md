@@ -25,7 +25,7 @@ Familiweave 不解释这些经验，也不声称知道它们“真正意味着�
 | 形式 | 结构 | 当前状态 |
 | --- | --- | --- |
 | 相遇 | 75 秒弧线，可进入/停留/离开 | 当前原型 |
-| 空间 | 没有明确起承转合，可以待着 | 计划 |
+| 空间 | 没有明确起承转合，可以待着 | 当前原型 |
 | 仪式 | 短、可重复、有明确开始与结束 | 计划 |
 | 物件 | 把一段内在经验做成可带走的视觉/声音物 | 计划 |
 | 档案 | 把碎片放成一片可浏览的地形，不要求相遇 | 计划 |
@@ -86,7 +86,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 
 | 部分 | 状态 |
 | --- | --- |
-| 可运行原型 | 内在景观 · 相遇形式：75 秒象征空间（无声） |
+| 可运行原型 | 内在景观 · 相遇与空间两种形式（无声） |
 | 内在导演层 | `InnerPlan`：母题、影子、75 秒节拍、空间/声音/光/镜头提示词、安全字段 |
 | 内在分镜 | `pnpm inner:storyboard --fragment "…"`；网页示例可进入 |
 | 象征渲染器 | `symbolic` 本地原型可用：75 秒、无音频、可进入/停留/离开；不解释 |
@@ -98,7 +98,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 | API 准备 | [Genie 4 开放检查清单](docs/api/genie-4-readiness.md) |
 | 验证边界 | 当前为本地研究原型；真机、生产部署、量化音频、临床与真人体验未验证 |
 
-当前可运行的是内在景观示例。`innerPlan` 进入类型层，`symbolic` 程序化渲染器提供 75 秒的无声原型；捕获、同意与出处沿用同一套 episode 记录。
+当前可运行的是内在景观的相遇与空间示例。`innerPlan` 进入类型层，`symbolic` 程序化渲染器提供 75 秒相遇与 180 秒空间两种无声原型；捕获、同意与出处沿用同一套 episode 记录。
 
 ## 当前可以体验什么
 
@@ -108,13 +108,16 @@ symbolic（本地原型） / procedural / genie4（以后）
 | 空间 | 走廊、门、水、房子、森林、车站、镜子、田野等母题组合 |
 | 影子 | shadow / stranger / child / animal / none；非身份、非诊断 |
 | 节拍 | 75 秒：进入 → 注意 → 靠近 → 停留 → 变化 → 离开 |
-| 交互 | 靠近、停留/继续、离开、重新进入 |
+| 交互 | 靠近、停留/继续、离开、重新进入；空间没有强制结束 |
 | 声音 | 无声原型；声音在后续迭代加入 |
 | 安全 | 不解释、不评分、不诊断；离开随时可用 |
 
-网页上的 **「进入内在景观（示例）」** 会打开一段合成的 75 秒相遇。它不解释、不诊断，也没有声音。
+网页上有两个入口：
 
-空间、仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。
+- **「进入内在景观（示例）」**：75 秒的相遇，有起承转合与影子。
+- **「进入一个空间（示例）」**：180 秒的空间，没有必须发生的事；可以待着、看、离开。
+
+两者都不解释、不诊断，也没有声音。仪式、物件与档案形式尚未实现；它们会复用同一套 `InnerPlan` / `WorldRenderer` / capture 核心。
 
 这只是本地原型，不是治疗、不是潜意识读取，也不是已经验证有效的体验。
 
@@ -204,10 +207,11 @@ pnpm dev
 
 ```sh
 pnpm inner:storyboard --fragment "我总梦见一条走廊尽头有一扇门，门外是水。"
+pnpm inner:storyboard --fragment "一片有水的空地，远处有一扇门。" --format space
 pnpm inner:storyboard --fragment "我总梦见一条走廊尽头有一扇门，门外是水。" --json > inner.json
 ```
 
-输出包含母题、影子、75 秒节拍、空间/声音/光/镜头提示词与安全约束，不包含输入原文，也不做解释。
+输出包含形式、母题、影子、节拍（相遇 75 秒 / 空间 180 秒）、空间/声音/光/镜头提示词与安全约束，不包含输入原文，也不做解释。
 
 ### 评估日志
 
@@ -235,8 +239,8 @@ pnpm rust:test
 ## 项目地图
 
 - [`src/inner.ts`](src/inner.ts)：内在景观的 `InnerPlan`、母题/影子/节拍/提示词与安全字段。
-- [`src/inner-encounter.ts`](src/inner-encounter.ts)：合成的内在景观示例入口。
-- [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：75 秒无声象征空间原型（可进入/停留/离开）。
+- [`src/inner-encounter.ts`](src/inner-encounter.ts)：合成的相遇与空间示例入口。
+- [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声象征空间原型。
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划。
 - [`src/world-renderer.ts`](src/world-renderer.ts)：`WorldRenderer`、`WorldRenderSession` 与能力声明。
@@ -255,7 +259,7 @@ pnpm rust:test
 ## 路线图
 
 - **Phase 0（已完成）**：`InnerPlan`、`WorldRenderer` 接口、manifest 接入、提示词/分镜、捕获 schema、同意记录、Rust 评估工具、Genie 适配器骨架与 API 清单。
-- **Phase 1（当前）**：`symbolic` 相遇形式与入口已可用；下一步补安全评审、可选声音，并扩展空间/仪式/物件/档案形式。
+- **Phase 1（当前）**：`symbolic` 的相遇与空间形式已可用；下一步补安全评审、可选声音，并扩展仪式/物件/档案形式。
 - **Phase 2（验证通过）**：捕获回放、删除、同意流程、成本模型与小样本体验测试。
 - **Phase 3（Genie 4 / 备选）**：Genie 4 可用后用世界模型渲染梦逻辑；Marble、Reactor 或开源模型作为备选。
 

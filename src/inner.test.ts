@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { innerPlan, innerStoryboardMarkdown } from './inner'
+import { innerPlan, innerSpace, innerStoryboardMarkdown } from './inner'
 
 describe('inner plan', () => {
   it('turns a fragment into a bounded symbolic space without interpreting it', () => {
     const plan = innerPlan({ fragment: '我总梦见一条走廊尽头有一扇门，门外是水。', feeling: 'unease' })
     expect(plan.version).toBe('inner-v1')
+    expect(plan.format).toBe('encounter')
     expect(plan.motifs).toEqual(['water', 'door', 'corridor'])
     expect(plan.durationSec).toBe(75)
     expect(plan.beats[0].startSec).toBe(0)
@@ -28,6 +29,18 @@ describe('inner plan', () => {
     expect(plan.motifs).toEqual(['corridor', 'door', 'water'])
     expect(plan.figure).toBe('shadow')
     expect(() => innerPlan({ fragment: '   ' })).toThrow()
+  })
+
+  it('creates a space without a required arc, figure or ending', () => {
+    const space = innerSpace({ fragment: '一片有水的空地，远处有一扇门。', feeling: 'calm' })
+    expect(space.format).toBe('space')
+    expect(space.durationSec).toBe(180)
+    expect(space.figure).toBe('none')
+    expect(space.beats).toEqual([{ startSec: 0, endSec: 180, action: 'pause', intent: '可以待着；没有必须发生的事' }])
+    expect(space.prompts.figure).toContain('No figure is required')
+    expect(space.prompts.camera).toContain('no required arc')
+    expect(innerStoryboardMarkdown(space)).toContain('- 形式：space')
+    expect(innerStoryboardMarkdown(space)).toContain('| 0–180s | pause |')
   })
 
   it('changes atmosphere without turning a feeling into a diagnosis', () => {

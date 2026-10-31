@@ -16,7 +16,7 @@ export interface Encounter {
   memory: string
   cue: Cue
   scene: SceneId
-  durationSec: 75
+  durationSec: number
   createdAt: string
   sceneVersion?: string
   manifestHash?: string

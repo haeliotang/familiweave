@@ -25,7 +25,7 @@ InnerPlan
         │
         ▼
 WorldRenderer
-symbolic（开发中） / procedural / genie4（以后）
+symbolic（相遇/空间） / procedural / genie4（以后）
         │
         ▼
 75 秒内在相遇 + 捕获与出处
@@ -59,5 +59,5 @@ symbolic（开发中） / procedural / genie4（以后）
 ## 7. 当前实现边界
 
 - `src/inner.ts` 已提供 `InnerPlan`、母题/影子/节拍/提示词/安全字段与 `pnpm inner:storyboard`。
-- `symbolic` 程序化渲染器已提供 75 秒无声原型：可进入、靠近、停留、离开；不解释、不诊断。
+- `symbolic` 程序化渲染器已提供 75 秒相遇与 180 秒空间两种无声原型：可进入、靠近、停留、离开；不解释、不诊断。
 - 没有临床验证、没有真人试验、没有“潜意识读取”能力。

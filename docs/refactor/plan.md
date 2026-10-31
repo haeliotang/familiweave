@@ -29,11 +29,12 @@
 
 ## 4. 阶段
 
-### Phase R0：冻结与基线（当前）
+### Phase R0：冻结与基线（已完成基础部分）
 
 - 冻结旧模块，不新增功能。
-- 记录 `pnpm build` 的主包/场景包大小与 75 秒 symbolic 稳定性。
-- 为 symbolic 主链补一个不依赖 Three.js 的加载检查。
+- 已记录 `pnpm build` 的主包/场景包大小：见 [R0 构建基线](baseline.md)。
+- 已确认 scene 分包未在 `index.html` 预加载。
+- 剩余：symbolic 浏览器首屏与 75/180 秒稳定性实测。
 
 ### Phase R1：计划与 manifest 统一
 

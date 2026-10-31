@@ -1,3 +1,5 @@
+export type InnerFormat = 'encounter' | 'space'
+
 export type InnerMotif = 'corridor' | 'door' | 'water' | 'house' | 'forest' | 'station' | 'mirror' | 'field'
 
 export type InnerFeeling = 'longing' | 'unease' | 'calm' | 'grief' | 'anger' | 'numbness'
@@ -24,7 +26,8 @@ export interface InnerPromptPack {
 
 export interface InnerPlan {
   version: 'inner-v1'
-  durationSec: 75
+  format: InnerFormat
+  durationSec: number
   motifs: InnerMotif[]
   figure: InnerFigure
   beats: InnerBeat[]
@@ -56,19 +59,55 @@ const figureWords: Array<[InnerFigure, RegExp]> = [
   ['shadow', /影子|阴影|轮廓/],
 ]
 
-export function innerPlan(input: { fragment: string; feeling?: InnerFeeling }): InnerPlan {
-  const fragment = input.fragment.trim()
-  if (!fragment) throw new Error('请先写下一段梦、画面、感觉或反复出现的片段。')
+const safety: InnerPlan['safety'] = {
+  notDiagnosis: true,
+  noInterpretation: true,
+  userOwnsMeaning: true,
+  exitAlwaysAvailable: true,
+  noMemoriesClaimed: true,
+}
+
+function fragmentOf(fragment: string) {
+  const trimmed = fragment.trim()
+  if (!trimmed) throw new Error('请先写下一段梦、画面、感觉或反复出现的片段。')
+  return trimmed
+}
+
+function motifsOf(fragment: string) {
   const motifs = (Object.entries(motifWords) as Array<[InnerMotif, RegExp]>)
     .filter(([, pattern]) => pattern.test(fragment))
     .map(([motif]) => motif)
-  const selected = motifs.length ? motifs.slice(0, 3) : ['corridor', 'door', 'water'] as InnerMotif[]
+  return motifs.length ? motifs.slice(0, 3) : ['corridor', 'door', 'water'] as InnerMotif[]
+}
+
+function lightOf(feeling: InnerFeeling) {
+  if (feeling === 'calm') return 'Soft, even light with long shadows.'
+  if (feeling === 'grief') return 'Low, warm light; some areas stay dark.'
+  if (feeling === 'anger') return 'Hard directional light and deep contrast.'
+  if (feeling === 'numbness') return 'Flat, almost colorless light.'
+  return 'Unsteady light, as if weather is changing indoors.'
+}
+
+function negativePrompts() {
+  return [
+    'no diagnosis or psychological interpretation',
+    'no claims about the unconscious or repressed memories',
+    'no real-person likeness or voice cloning',
+    'no on-screen text',
+    'no engagement prompts or notifications',
+  ]
+}
+
+export function innerPlan(input: { fragment: string; feeling?: InnerFeeling }): InnerPlan {
+  const fragment = fragmentOf(input.fragment)
+  const motifs = motifsOf(fragment)
   const figure = figureWords.find(([, pattern]) => pattern.test(fragment))?.[0] ?? 'shadow'
   const feeling = input.feeling ?? 'unease'
   return {
     version: 'inner-v1',
+    format: 'encounter',
     durationSec: 75,
-    motifs: selected,
+    motifs,
     figure,
     beats: [
       { startSec: 0, endSec: 12, action: 'arrive', intent: '进入空间，先听与看，不急着理解' },
@@ -79,20 +118,41 @@ export function innerPlan(input: { fragment: string; feeling?: InnerFeeling }): 
       { startSec: 68, endSec: 75, action: 'leave', intent: '可以离开；离开也是这段经验的一部分' },
     ],
     prompts: {
-      space: `A symbolic, dreamlike space built from: ${selected.join(', ')}. Not a literal location; no readable text, no maps, no labels.`,
+      space: `A symbolic, dreamlike space built from: ${motifs.join(', ')}. Not a literal location; no readable text, no maps, no labels.`,
       figure: `A ${figure} presence at the edge of the space; it does not speak, judge, or explain. No real-person likeness, no identity, no diagnosis.`,
       sound: 'Low ambient sound, distant water/air/room tone; no music with a clear emotional instruction; no voice-over.',
-      light: feeling === 'calm' ? 'Soft, even light with long shadows.' : feeling === 'grief' ? 'Low, warm light; some areas stay dark.' : feeling === 'anger' ? 'Hard directional light and deep contrast.' : feeling === 'numbness' ? 'Flat, almost colorless light.' : 'Unsteady light, as if weather is changing indoors.',
+      light: lightOf(feeling),
       camera: 'Slow first-person drift; the viewer may stop, look, approach, or leave at any time. No jump cuts.',
-      negative: ['no diagnosis or psychological interpretation', 'no claims about the unconscious or repressed memories', 'no real-person likeness or voice cloning', 'no on-screen text', 'no engagement prompts or notifications'],
+      negative: negativePrompts(),
     },
-    safety: {
-      notDiagnosis: true,
-      noInterpretation: true,
-      userOwnsMeaning: true,
-      exitAlwaysAvailable: true,
-      noMemoriesClaimed: true,
+    safety,
+  }
+}
+
+/**
+ * A space is not an encounter: no required arc, no required figure, and no
+ * built-in ending. The viewer can stay, look, or leave at any time.
+ */
+export function innerSpace(input: { fragment: string; feeling?: InnerFeeling }): InnerPlan {
+  const fragment = fragmentOf(input.fragment)
+  const motifs = motifsOf(fragment)
+  const feeling = input.feeling ?? 'calm'
+  return {
+    version: 'inner-v1',
+    format: 'space',
+    durationSec: 180,
+    motifs,
+    figure: 'none',
+    beats: [{ startSec: 0, endSec: 180, action: 'pause', intent: '可以待着；没有必须发生的事' }],
+    prompts: {
+      space: `A symbolic, dreamlike space built from: ${motifs.join(', ')}. An ambient place to stay rather than a story; no readable text, no maps, no labels, no required event.`,
+      figure: 'No figure is required. If a presence appears, keep it peripheral, non-speaking, non-identifying, and non-diagnostic.',
+      sound: 'Low continuous ambient sound, distant water/air/room tone; no music with a clear emotional instruction; no voice-over.',
+      light: lightOf(feeling),
+      camera: 'Slow first-person drift with no required arc; the viewer may stay, look, sit, or leave at any time. No jump cuts.',
+      negative: negativePrompts(),
     },
+    safety,
   }
 }
 
@@ -102,6 +162,7 @@ export function innerStoryboardMarkdown(plan: InnerPlan): string {
     '# Inner storyboard',
     '',
     `- 版本：${plan.version}`,
+    `- 形式：${plan.format}`,
     `- 时长：${plan.durationSec} 秒`,
     `- 母题：${plan.motifs.join(' / ')}`,
     `- 影子：${plan.figure}`,

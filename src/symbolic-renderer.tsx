@@ -4,18 +4,22 @@ import type { Encounter } from './encounter'
 import type { WorldRendererProps } from './world-renderer'
 
 export function validateSymbolic(encounter: Encounter) {
-  if (!encounter.innerPlan) return '这次相遇没有内在景观计划，暂时无法进入。'
-  if (encounter.innerPlan.durationSec !== 75) return '内在景观时长不是 75 秒，暂时无法进入。'
+  const plan = encounter.innerPlan
+  if (!plan) return '这次相遇没有内在景观计划，暂时无法进入。'
+  if (plan.format !== 'encounter' && plan.format !== 'space') return '这次内在景观的形式暂不支持。'
+  if (!Number.isFinite(plan.durationSec) || plan.durationSec <= 0) return '这次内在景观的时长无效。'
   return undefined
 }
 
-export function symbolicPhase(seconds: number): InnerAction {
-  const t = Math.max(0, Math.min(75, seconds))
-  if (t < 12) return 'arrive'
-  if (t < 28) return 'notice'
-  if (t < 43) return 'approach'
-  if (t < 55) return 'pause'
-  if (t < 68) return 'transform'
+export function symbolicPhase(seconds: number, duration = 75, format: 'encounter' | 'space' = 'encounter'): InnerAction {
+  if (format === 'space') return 'pause'
+  const t = Math.max(0, Math.min(duration, seconds))
+  const at = (secondsAt75: number) => duration * secondsAt75 / 75
+  if (t < at(12)) return 'arrive'
+  if (t < at(28)) return 'notice'
+  if (t < at(43)) return 'approach'
+  if (t < at(55)) return 'pause'
+  if (t < at(68)) return 'transform'
   return 'leave'
 }
 
@@ -55,17 +59,18 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
     )
   }
 
-  const phase = symbolicPhase(seconds)
-  const done = seconds >= plan.durationSec
+  const isSpace = plan.format === 'space'
+  const phase = symbolicPhase(seconds, plan.durationSec, plan.format)
+  const done = !isSpace && seconds >= plan.durationSec
   return (
-    <div className={`symbolic-episode motif-${plan.motifs[0]} phase-${phase}`} role="img" aria-label="象征空间">
+    <div className={`symbolic-episode motif-${plan.motifs[0]} phase-${phase} format-${plan.format}`} role="img" aria-label="象征空间">
       <div className="symbolic-sky" />
       <div className="symbolic-horizon" />
       <div className="symbolic-water" />
       <div className="symbolic-door" />
       <div className={`symbolic-figure figure-${plan.figure}`} />
       <div className="symbolic-fog" />
-      <div className="symbolic-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>
+      {!isSpace && <div className="symbolic-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>}
       <div className="symbolic-controls">
         <button className="quiet" onClick={() => setSeconds(value => Math.min(plan.durationSec, value + 8))}>靠近一点</button>
         <button className="quiet" onClick={() => setPaused(value => !value)}>{paused ? '继续停留' : '停留'}</button>

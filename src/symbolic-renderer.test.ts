@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { demoInnerEncounter } from './inner-encounter'
+import { demoInnerEncounter, demoInnerSpaceEncounter } from './inner-encounter'
 import { symbolicPhase, validateSymbolic } from './symbolic-renderer'
 
 describe('symbolic renderer', () => {
-  it('requires an inner plan and a 75-second duration', () => {
+  it('requires a supported inner plan and a positive duration', () => {
     expect(validateSymbolic(demoInnerEncounter())).toBeUndefined()
+    expect(validateSymbolic(demoInnerSpaceEncounter())).toBeUndefined()
     expect(validateSymbolic({ ...demoInnerEncounter(), innerPlan: undefined })).toContain('没有内在景观计划')
-    expect(validateSymbolic({ ...demoInnerEncounter(), innerPlan: { ...demoInnerEncounter().innerPlan!, durationSec: 75 } })).toBeUndefined()
+    expect(validateSymbolic({ ...demoInnerEncounter(), innerPlan: { ...demoInnerEncounter().innerPlan!, durationSec: 0 } })).toContain('时长无效')
   })
 
   it('maps the 75 seconds to the six non-interpretive phases', () => {
@@ -17,5 +18,6 @@ describe('symbolic renderer', () => {
     expect(symbolicPhase(55)).toBe('transform')
     expect(symbolicPhase(68)).toBe('leave')
     expect(symbolicPhase(75)).toBe('leave')
+    expect(symbolicPhase(120, 180, 'space')).toBe('pause')
   })
 })
