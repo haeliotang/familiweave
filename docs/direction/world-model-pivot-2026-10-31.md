@@ -150,15 +150,29 @@ Genie 4 没有 API 时，先做 **operator-assisted** 适配：导演层生成�
 
 ### Phase 0：现在–约 2 周（不需要 Genie 4 访问）
 
-当前进展（2026-10-31）：已新增 `src/director.ts` / `src/cue.ts` / `src/storyboard.ts` 与测试，定义 `DirectorPlan` / `PromptPack` / `RendererKind` / 安全字段（默认不上传、无写实克隆、`user_photo` 无明确同意会被拒绝）；新增 `src/world-renderer.ts` + `src/world-renderers.tsx` 运行时注册表（`procedural` 可用，`genie4` 标记为等待 API，`marble` / `captured` 预留）；manifest 与客户端 `Encounter` 已带 `rendererKind` / `directorPlan`，`SceneView` 按注册表分发并执行 procedural 版本校验，字幕读取已记录的导演台词；旧 episode 无字段时按 procedural 处理。`pnpm storyboard --memory "…"` 可在不调用世界模型的情况下导出分镜/提示词。尚未接入真实 Genie/其他渲染器。构建、相关测试与既有准备/发布测试通过。
+当前进展（2026-11-01）：Phase 0 的八项准备已落地本地版本。
+
+- 导演层：`src/director.ts` / `src/storyboard.ts` / `src/cue.ts` + `PromptPack`、`pnpm storyboard`、27 条线索语料。
+- 渲染层：`src/world-renderer.ts` / `src/world-renderers.tsx` + `WorldRenderSession` / `RendererCapabilities`；`procedural` 与 `captured` 可用，`genie4` 等待 API。
+- Episode：manifest 与客户端 `Encounter` 带 `rendererKind` / `directorPlan` / 可选 `capture`；旧 episode 按 procedural 处理。
+- 隐私：`src/consent.ts` 的用途绑定同意记录；无同意参考帧会被拒绝；Genie 适配器同样拒绝。
+- 评估：Rust `familiweave-ops`（`rust/`）提供实验日志校验与汇总；6 个实验模板、9 项评分表、`pnpm eval:validate`。
+- Genie：`src/genie/` 客户端接口 + Rust `genie-status` 配置检查/未配置占位；不发起网络请求。
+- 捕获工具：Rust `capture-hash` 生成 `CaptureProvenance` JSON（SHA-256/时长/SynthID）。
+- 接入清单：`docs/api/genie-4-readiness.md`。
+
+尚未接入真实 Genie/其他渲染器；构建与相关测试通过。
 
 1. 免费申请 Genie 4 / Project Genie 等待名单；按已确认决定，**暂不订阅 Ultra、不做付费样片**，持续监控 Gemini API / AI Studio 的早期访问入口。
-2. 冻结当前版本为 `v0.1-local` 基线（提交/打标签），保留可运行 fallback；**停止新增手工场景/人物/动作资产**，现有资产只作为 fallback 与对照基线。
-3. 抽出 `RendererKind` / `WorldRenderer` 接口与当前 procedural 适配器；现有测试保持全绿。
-4. 导演提示管线已落地本地版本：一句记忆 → 节拍 + 台词 + `PromptPack` + 参考帧策略；`pnpm storyboard` 可导出 JSON/Markdown，接入 Gemini 3.8 Flash 只作为可选增强。
-5. **暂缓（等 API 或另行批准预算）**：Marble Pro 环境样片与 Reactor/LingBot 75 秒样片；保留为预算变化时的备选。
-6. 9 项验证评分表（见第六节）已写入；接入前先用 `pnpm storyboard` 做「提示词→分镜」人工评审。
-7. 更新隐私与伦理附录：默认不上传真实照片/录音；只有明确同意才允许上传；不做写实逝者克隆。
+2. 冻结当前版本为 `v0.1-local` 基线，保留可运行 fallback；**停止新增手工场景/人物/动作资产**，现有资产只作为 fallback 与对照基线。
+3. 渲染器契约：`RendererKind` / `WorldRenderer` / `WorldRenderSession` / `RendererCapabilities` 与 conformance 测试。
+4. 导演提示管线：一句记忆 → 节拍 + 台词 + `PromptPack` + 参考帧策略；`pnpm storyboard` 导出 JSON/Markdown。
+5. 捕获与出处：`CaptureProvenance` 写入 manifest，`captured` 渲染器可回放有 URL 的捕获。
+6. 同意与隐私流：用途绑定 consent、参考帧拒绝、上传默认关闭；删除路径沿用现有 person 删除。
+7. 评估工具：6 个生成实验、9 项评分、实验日志 schema 与校验 CLI。
+8. Genie 适配器骨架：配置/客户端接口、未配置占位、环境变量占位；不调用网络。API 清单见 `docs/api/genie-4-readiness.md`。
+9. 行为线索语料：等待/修理/一般/否定/矛盾的 27 条合成样本。
+10. **暂缓（等 API 或另行批准预算）**：Marble Pro 环境样片与 Reactor/LingBot 75 秒样片；保留为预算变化时的备选。
 
 ### Phase 1：拿到访问后（Project Genie/Ultra 或 API）
 

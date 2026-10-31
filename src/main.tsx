@@ -180,7 +180,7 @@ function App() {
   }
 
   return <main>
-    <header><span className="brand">普通朋友</span><span className="edition">体验原型 · 本地示例</span></header>
+    <header><span className="brand">Familiweave</span><span className="edition">体验原型 · 本地示例</span></header>
     {pending ? <section className="intro">
       <PreparationProgress key={pending.key} pending={pending} onReady={prepared} onDiscard={() => { setPending(null); savePreparation(null); setCurrent(null) }} />
       <button className="text-button" disabled={busy} onClick={() => void clear()}>删除服务端的这份资料</button>

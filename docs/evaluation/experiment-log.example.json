@@ -1,0 +1,25 @@
+{
+  "version": "experiment-log-v1",
+  "experiments": [
+    {
+      "id": "X1-wait-1",
+      "prompt": "他走路时总会回头等我",
+      "rendererKind": "genie4",
+      "model": "genie-4-preview",
+      "sampledAt": "2026-11-01T10:00:00Z",
+      "scores": {
+        "e1": 3,
+        "e2": 3,
+        "e3": 2,
+        "e4": 2,
+        "e5": 3,
+        "e6": 2,
+        "e7": 4,
+        "e8": 4,
+        "e9": 2
+      },
+      "notes": "合成记忆；示例数据，不是实测结论。",
+      "captureId": "capture-example"
+    }
+  ]
+}

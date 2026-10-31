@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import type { CaptureProvenance } from './capture'
 import type { RendererKind } from './director'
 import type { Encounter } from './encounter'
 
@@ -13,16 +14,50 @@ export interface WorldRendererProps {
   replay: number
 }
 
+export interface RendererCapabilities {
+  interactive: boolean
+  nativeAudio: boolean
+  capture: boolean
+}
+
+export type WorldInputEvent =
+  | { type: 'move'; forward: number; strafe: number }
+  | { type: 'look'; yaw: number; pitch: number }
+  | { type: 'prompt'; text: string }
+  | { type: 'approach' }
+  | { type: 'sit' }
+  | { type: 'stand' }
+  | { type: 'leave' }
+
+export interface WorldRenderSessionRequest {
+  encounter: Encounter
+}
+
+/** Streaming session contract reserved for API-backed renderers such as Genie 4. */
+export interface WorldRenderSession {
+  readonly kind: RendererKind
+  start(): Promise<void>
+  pause(): Promise<void>
+  resume(): Promise<void>
+  stop(): Promise<void>
+  input(event: WorldInputEvent): void
+  capture(): Promise<CaptureProvenance | null>
+  dispose(): Promise<void>
+}
+
 export interface WorldRenderer {
   kind: RendererKind
   label: string
   status: RendererStatus
+  capabilities: RendererCapabilities
   /** Shown in the UI when the renderer cannot be used yet. */
   reason?: string
   /** Returns a user-facing error when this episode cannot be rendered. */
   validate?: (encounter: Encounter) => string | undefined
   /** React entry point; only required when status is `available`. */
   Component?: ComponentType<WorldRendererProps>
+  /** Optional streaming entry point for renderers that expose a live API. */
+  createSession?: (request: WorldRenderSessionRequest) => Promise<WorldRenderSession>
 }
 
 export class WorldRendererRegistry {

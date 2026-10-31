@@ -12,3 +12,5 @@ dist/
 .aws/
 .codex/
 .DS_Store
+rust/target/
+target/

@@ -1,3 +1,4 @@
+import { grantCloudConsent, isCloudConsentRecord, type CloudConsentRecord } from './consent'
 import { cueFromMemory, spokenLine, type Cue } from './cue'
 
 // Phase 0 foundation for the "director + world renderer" direction.
@@ -22,7 +23,9 @@ export interface DirectorInput {
   rendererKind?: RendererKind
   /** Explicit consent is required before any real photo/recording leaves the device. */
   cloudUploadConsent?: boolean
-  /** `user_photo` is rejected unless `cloudUploadConsent` is true. */
+  /** Purpose-bound consent record; preferred over the boolean in new callers. */
+  cloudConsent?: CloudConsentRecord
+  /** `user_photo` is rejected unless explicit consent is present. */
   referenceFrame?: 'none' | 'synthetic' | 'user_photo'
 }
 
@@ -46,6 +49,7 @@ export interface DirectorPlan {
   line: { cue: Cue; text: string; source: 'template'; mustNotInventMemory: true }
   promptPack: PromptPack
   worldPrompt: string
+  consent: CloudConsentRecord | null
   safety: {
     noRealPersonLikeness: true
     fictionalLabel: true
@@ -100,7 +104,9 @@ function combinePrompts(prompts: PromptPack) {
 export type DirectorOptions = Omit<DirectorInput, 'memory'>
 
 export function directorPlanForCue(cue: Cue, input: DirectorOptions = {}): DirectorPlan {
-  const consent = input.cloudUploadConsent === true
+  if (input.cloudConsent && !isCloudConsentRecord(input.cloudConsent)) throw new Error('invalid_consent')
+  const consentRecord = input.cloudConsent ?? (input.cloudUploadConsent ? grantCloudConsent() : null)
+  const consent = consentRecord !== null
   const requested = input.referenceFrame ?? 'none'
   if (requested === 'user_photo' && !consent) throw new Error('user_photo_requires_explicit_consent')
   const referenceFrame: DirectorPlan['safety']['referenceFrame'] = !consent || requested === 'none'
@@ -129,6 +135,7 @@ export function directorPlanForCue(cue: Cue, input: DirectorOptions = {}): Direc
     line: { cue, text: spokenLine(cue), source: 'template', mustNotInventMemory: true },
     promptPack,
     worldPrompt: combinePrompts(promptPack),
+    consent: consentRecord,
     safety,
   }
 }

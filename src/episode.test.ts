@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { expect, it } from 'vitest'
+import type { CaptureProvenance } from './capture'
 import { directorPlanForCue } from './director'
 import { fromApi, type ApiEpisode } from './episode'
 import { manifestContent } from './manifest'
@@ -21,6 +22,17 @@ it('retains the recorded renderer and director plan and verifies them in the man
   expect(result.rendererKind).toBe('procedural')
   expect(result.directorPlan).toEqual(directorPlan)
   expect(result.manifestVerified).toBe(true)
+})
+
+it('retains a valid capture but drops malformed capture metadata', async () => {
+  const capture: CaptureProvenance = {
+    version: 'capture-v1', captureId: 'capture-1', rendererKind: 'captured', mimeType: 'video/mp4',
+    durationSec: 75, sha256: 'a'.repeat(64), url: '/synthetic-capture.mp4', synthId: true, createdAt: '2026-11-01T00:00:00Z',
+  }
+  const manifest: ApiEpisode['manifest'] = { cue: 'wait', sceneId: 'riverside', durationSec: 75, rendererKind: 'captured', capture }
+  const result = await fromApi({ episodeId: 'captured', status: 'prototype', createdAt: '2026-11-01', manifest })
+  expect(result.capture).toEqual(capture)
+  expect((await fromApi({ episodeId: 'broken', status: 'prototype', createdAt: '2026-11-01', manifest: { ...manifest, capture: { version: 'capture-v1' } as never } })).capture).toBeUndefined()
 })
 
 it('preserves a legacy record without inventing a seed, version or fingerprint', async () => {

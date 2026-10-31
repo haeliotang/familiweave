@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { grantCloudConsent } from './consent'
 import { directorPlan } from './director'
 
 describe('director plan', () => {
@@ -49,6 +50,19 @@ describe('director plan', () => {
     const plan = directorPlan({ memory: '她喜欢修东西', cloudUploadConsent: true, referenceFrame: 'synthetic' })
     expect(plan.safety.referenceFrame).toBe('synthetic')
     expect(plan.worldPrompt).toContain('synthetic, non-identifying reference frame')
+  })
+
+  it('records a purpose-bound consent record when a reference leaves the device', () => {
+    const consent = grantCloudConsent('2026-11-01T00:00:00Z')
+    const plan = directorPlan({ memory: '他总会回头等我', cloudConsent: consent, referenceFrame: 'user_photo' })
+    expect(plan.consent).toEqual(consent)
+    expect(plan.consent?.purpose).toBe('environment_layout_only')
+    expect(plan.safety.cloudUpload).toBe('explicit_consent')
+    expect(plan.worldPrompt).toContain('explicit consent')
+  })
+
+  it('rejects a malformed consent record instead of treating it as granted', () => {
+    expect(() => directorPlan({ memory: '他喜欢蓝色', cloudConsent: { version: 'consent-v1' } as never })).toThrow('invalid_consent')
   })
 
   it('keeps a requested renderer kind for later dispatch', () => {

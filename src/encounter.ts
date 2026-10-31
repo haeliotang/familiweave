@@ -1,3 +1,4 @@
+import type { CaptureProvenance } from './capture'
 import { cueFromMemory, type Cue } from './cue'
 import { directorPlanForCue, type DirectorPlan, type RendererKind } from './director'
 import { limitMemoryText } from './memory-text'
@@ -29,6 +30,7 @@ export interface Encounter {
   personalizationLevel?: 'generic' | 'memory_based' | 'audio_rate_based' | 'memory_and_audio_rate_based'
   rendererKind?: RendererKind
   directorPlan?: DirectorPlan
+  capture?: CaptureProvenance
 }
 
 export function createEncounter(memory: string, previous: Encounter[] = []): Encounter {
