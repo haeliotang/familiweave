@@ -48,8 +48,8 @@ Familiweave 不解释这些经验，也不声称知道它们“真正意味着�
 **它是：**
 
 - 一个“内在经验”的导演工具：一段梦、画面或感觉，变成有母题、节拍、影子与提示词的象征空间。
-- 一个可插拔的渲染层：当前是程序场景；未来可以接 Genie 4 等生成式世界模型。
-- 一个可追溯的记录系统：场景、计划、安全约束与捕获成片都有版本。
+- 一个可插拔的渲染层：当前是象征空间；未来可以接 Genie 4 等生成式世界模型。
+- 一个可追溯的记录系统：空间、计划、安全约束与捕获成片都有版本。
 
 **它不是：**
 
@@ -69,7 +69,7 @@ InnerPlan
         │
         ▼
 世界渲染器
-symbolic（本地原型） / procedural / genie4（以后）
+symbolic（本地原型） / genie4（以后）
         │
         ▼
 75 秒内在相遇 + 捕获与出处
@@ -79,7 +79,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 ```
 
 - **导演层决定“发生什么”**：母题、影子、节拍与提示词；不在提示词里放入用户原文。
-- **渲染层决定“看起来怎样”**：象征空间、程序场景或未来的世界模型。
+- **渲染层决定“看起来怎样”**：象征空间或未来的世界模型。
 - **捕获决定“如何留下”**：非确定性输出保存成片、hash、模型、提示词与时间。
 
 ## 当前状态
@@ -90,7 +90,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 | 内在导演层 | `InnerPlan`：母题、影子、75 秒节拍、空间/声音/光/镜头提示词、安全字段 |
 | 内在分镜 | `pnpm inner:storyboard --fragment "…"`；网页示例可进入 |
 | 象征渲染器 | `symbolic` 本地原型可用：75 秒、无音频、可进入/停留/离开；不解释 |
-| 渲染层 | `WorldRenderer` 注册表；`procedural` / `captured` 可用，`genie4` 等待 API |
+| 渲染层 | `WorldRenderer` 注册表；`symbolic` / `captured` 可用，`genie4` 等待 API |
 | 捕获与出处 | `CaptureProvenance` 写入 manifest；可回放有 URL 的捕获 |
 | 同意与隐私 | 用途绑定 consent；真实资料与梦/感觉默认不上传 |
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总；`docs/inner/evaluation.md` |
@@ -124,7 +124,7 @@ symbolic（本地原型） / procedural / genie4（以后）
 
 | 层 | 技术 |
 | --- | --- |
-| Web / 三维 | TypeScript、React、Vite、Three.js |
+| Web / 空间渲染 | TypeScript、React、Vite、CSS/DOM（symbolic） |
 | API / 存储 | TypeScript、Fastify、PostgreSQL；本地开发使用 PGlite |
 | 导演 / 分镜 / 业务类型 | TypeScript：`InnerPlan`、`WorldRenderer`、manifest、consent |
 | 文件与评估工具 | Rust：`familiweave-ops`（捕获 hash/verify、实验日志校验、Genie 配置检查） |
@@ -245,12 +245,12 @@ pnpm check:symbolic-path
 - [`docs/inner/`](docs/inner/)：内在景观方向说明与安全/共鸣评估。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划。
 - [`src/world-renderer.ts`](src/world-renderer.ts)：`WorldRenderer`、`WorldRenderSession` 与能力声明。
-- [`src/world-renderers.tsx`](src/world-renderers.tsx)：已注册渲染器（procedural / captured / symbolic）。
+- [`src/world-renderers.tsx`](src/world-renderers.tsx)：已注册渲染器（symbolic / captured / genie4 占位）。
 - [`src/capture.ts`](src/capture.ts)：捕获成片的出处与指纹。
 - [`src/consent.ts`](src/consent.ts)：用途绑定的云端同意记录。
 - [`src/genie/`](src/genie/)：Genie 4 适配器接口与未配置占位实现（不联网）。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
-- [`src/`](src/)：页面、三维场景、人物表演、声音与播放控制。
+- [`src/`](src/)：页面、内在景观、象征渲染与播放控制。
 - [`server/`](server/)：资料处理、匿名会话、准备任务、历史、删除和数据库迁移。
 - [`scripts/`](scripts/)：模型安装、素材处理、分镜与本地验证工具。
 - [`public/assets/`](public/assets/)：带版本的公开人物、动作与合成语音资源。

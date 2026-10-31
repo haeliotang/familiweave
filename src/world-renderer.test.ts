@@ -7,11 +7,10 @@ import { WorldRendererRegistry, worldRenderers } from './world-renderer'
 import './world-renderers'
 
 describe('world renderer registry', () => {
-  it('registers the procedural renderer as available', () => {
+  it('resolves episodes without a renderer field to symbolic', () => {
     const renderer = worldRenderers.resolve(undefined)
-    expect(renderer).toMatchObject({ kind: 'procedural', status: 'available' })
+    expect(renderer).toMatchObject({ kind: 'symbolic', status: 'available' })
     expect(renderer?.Component).toBeTypeOf('function')
-    expect(renderer?.validate?.(demoEncounter())).toBeUndefined()
   })
 
   it('reserves Genie 4 without calling an API and explains why', () => {
@@ -32,12 +31,6 @@ describe('world renderer registry', () => {
     expect(captured.validate!({ ...demoEncounter(), capture })).toBeUndefined()
   })
 
-  it('uses the procedural validator for unsupported scene or performance versions', () => {
-    const procedural = worldRenderers.get('procedural')!
-    expect(procedural.validate!({ ...demoEncounter(), sceneVersion: 'future-scene' })).toContain('场景版本')
-    expect(procedural.validate!({ ...demoEncounter(), performanceVersion: 'future-performance' })).toContain('动作版本')
-  })
-
   it('exposes the symbolic renderer as a working local prototype', () => {
     const symbolic = worldRenderers.get('symbolic')!
     expect(symbolic).toMatchObject({ kind: 'symbolic', status: 'available', capabilities: { interactive: true, nativeAudio: false, capture: false } })
@@ -45,7 +38,7 @@ describe('world renderer registry', () => {
     expect(symbolic.Component).toBeTypeOf('function')
   })
 
-  it('does not silently fall back to procedural for an unavailable or unknown kind', () => {
+  it('does not fall back for an unavailable or unknown kind', () => {
     expect(worldRenderers.resolve('genie4')?.kind).toBe('genie4')
     expect(worldRenderers.resolve('unknown' as RendererKind)).toBeUndefined()
   })
@@ -68,8 +61,8 @@ describe('world renderer registry', () => {
   it('keeps the latest registration for a kind so HMR can re-register descriptors', () => {
     const registry = new WorldRendererRegistry()
     const capabilities = { interactive: true, nativeAudio: false, capture: false }
-    registry.register({ kind: 'procedural', label: 'first', status: 'available', capabilities })
-    registry.register({ kind: 'procedural', label: 'second', status: 'available', capabilities })
-    expect(registry.get('procedural')?.label).toBe('second')
+    registry.register({ kind: 'symbolic', label: 'first', status: 'available', capabilities })
+    registry.register({ kind: 'symbolic', label: 'second', status: 'available', capabilities })
+    expect(registry.get('symbolic')?.label).toBe('second')
   })
 })

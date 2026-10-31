@@ -1,33 +1,6 @@
-import { lazy } from 'react'
 import { CapturedRenderer, validateCaptured } from './captured-renderer'
 import { SymbolicRenderer, validateSymbolic } from './symbolic-renderer'
-import type { Encounter } from './encounter'
-import { resolvePerformanceVersion } from './performance-catalog'
-import { sceneLayout } from './scene-catalog'
 import { worldRenderers, type WorldRendererProps } from './world-renderer'
-
-const Scene = lazy(() => import('./scene').then(module => ({ default: module.Scene })))
-
-function ProceduralRenderer({ encounter }: WorldRendererProps) {
-  return <Scene encounter={encounter} />
-}
-
-function validateProcedural(encounter: Encounter) {
-  try { sceneLayout(encounter.sceneVersion, encounter.scene, encounter.seed) }
-  catch { return encounter.sceneVersion ? '这次相遇的场景版本暂不支持，无法还原。' : '这次旧相遇未保存场景版本，无法还原当时的场景。' }
-  try { resolvePerformanceVersion(encounter.performanceVersion) }
-  catch { return '这次相遇的动作版本暂不支持，无法还原。' }
-  return undefined
-}
-
-worldRenderers.register({
-  kind: 'procedural',
-  label: '本地程序场景',
-  status: 'available',
-  capabilities: { interactive: true, nativeAudio: false, capture: false },
-  validate: validateProcedural,
-  Component: ProceduralRenderer,
-})
 
 worldRenderers.register({
   kind: 'genie4',

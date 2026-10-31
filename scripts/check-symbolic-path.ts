@@ -14,7 +14,7 @@ if (!main) {
 const mainBytes = (await stat(join(root, 'assets', main))).size
 const scenePreloaded = scene ? html.includes(scene) : false
 const problems: string[] = []
-if (scenePreloaded) problems.push(`scene chunk must stay lazy: ${scene}`)
+if (scenePreloaded) problems.push(`scene chunk must not be preloaded: ${scene}`)
 if (mainBytes > mainBudgetBytes) problems.push(`main bundle ${mainBytes}B exceeds ${mainBudgetBytes}B budget`)
 const report = { main, mainBytes, mainBudgetBytes, scene: scene ?? null, scenePreloaded, ok: problems.length === 0, problems }
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)

@@ -21,6 +21,6 @@ const report = {
   totalBytes: files.reduce((sum, file) => sum + file.bytes, 0),
   sceneChunk: scene ? { name: scene.name, bytes: scene.bytes, preloadedInHtml: html.includes(scene.name) } : null,
   mainChunk: files.find(file => file.name.startsWith('index-') && file.name.endsWith('.js')) ?? null,
-  note: 'symbolic path should not require the scene chunk; scene preload is expected to be false.',
+  note: 'symbolic-only builds should not produce a scene chunk; a null sceneChunk is expected.',
 }
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`)

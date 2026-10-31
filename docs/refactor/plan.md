@@ -66,6 +66,7 @@
 
 - 已删除 `feedback` / `evidence-correction`、旧资料准备 UI 组件与旧历史/反馈/纠正状态。
 - `main.tsx` 已重写为纯象征空间入口，不再连接服务端资料准备流程。
+- 已移除 `procedural` 渲染器注册与 `src/scene.tsx`；构建不再产生 610 KB 场景分包，主包 236,650 B。
 - 剩余：旧场景/人物资产、旧 director/storyboard/cue 模块、旧服务端资料准备与相关测试；更新项目地图只保留当前核心。
 
 ## 5. 性能测量项

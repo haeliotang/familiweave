@@ -3,9 +3,9 @@ import type { CaptureProvenance } from './capture'
 import type { RendererKind } from './director'
 import type { Encounter } from './encounter'
 
-// Runtime seam for the "director + world renderer" direction. The procedural
-// renderer is implemented today; Genie 4 / Marble / captured renderers can be
-// registered without changing SceneView or the episode manifest.
+// Runtime seam for the symbolic-space direction. Symbolic and captured
+// renderers are available; Genie 4 / Marble can be registered without changing
+// SceneView or the episode manifest.
 
 export type RendererStatus = 'available' | 'requires_api_access' | 'not_configured' | 'unavailable'
 
@@ -73,9 +73,9 @@ export class WorldRendererRegistry {
     return this.renderers.get(kind)
   }
 
-  /** Old episodes without a renderer field fall back to the local procedural renderer. */
+  /** Episodes without a renderer field use the current symbolic renderer. */
   resolve(kind: RendererKind | undefined) {
-    return this.renderers.get(kind ?? 'procedural')
+    return this.renderers.get(kind ?? 'symbolic')
   }
 
   list() {
