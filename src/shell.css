@@ -1,0 +1,107 @@
+/* Desktop shell: warm paper, three panes, quiet borders. */
+html, body, #root { height: 100% }
+body { overflow: hidden; background: #f3f0e7; color: #2b2d29 }
+.desktop-shell { height: 100%; display: grid; grid-template-rows: 44px minmax(0, 1fr); background: #f3f0e7 }
+.window-bar { display: flex; align-items: center; gap: 14px; padding: 0 18px 0 86px; background: #f1eee5; border-bottom: 1px solid #ded9cc; user-select: none; -webkit-app-region: drag }
+.window-bar button, .window-bar input { -webkit-app-region: no-drag }
+.window-title { display: flex; align-items: center; gap: 8px; font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif; letter-spacing: .4px; color: #3f443d }
+.window-mark { width: 14px; height: 14px; border: 1px solid #7d8f7b; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 3px #f1eee5, inset 0 0 0 4px #8b5e54 }
+.window-path { flex: 1; color: #8a8e83; font-size: 12px; padding-left: 18px; border-left: 1px solid #ded9cc }
+.window-meta { color: #8a8e83; font-size: 11px; letter-spacing: .3px }
+.shell-body { display: grid; grid-template-columns: 248px minmax(0, 1fr) 318px; min-height: 0 }
+.sidebar { min-height: 0; display: flex; flex-direction: column; background: #f4f1e8; border-right: 1px solid #ded9cc; padding: 16px 12px 12px }
+.sidebar-top { display: flex; flex-direction: column; gap: 10px }
+.new-button { display: flex; align-items: center; gap: 8px; width: 100%; border-radius: 9px; padding: 9px 12px; background: #435c50; color: #fff; font-size: 13px; text-align: left }
+.new-button span { font-size: 16px; line-height: 1 }
+.search-box { display: flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #ddd8ca; border-radius: 9px; background: #faf8f1; color: #9a9d92 }
+.search-box input { width: 100%; border: 0; outline: 0; background: transparent; color: #343833; font-size: 12px }
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; margin-top: 16px }
+.sidebar-nav button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border-radius: 7px; background: transparent; color: #62685f; font-size: 13px; text-align: left }
+.sidebar-nav button:hover { background: #eae6dc }
+.sidebar-nav button.active { background: #e7e1d5; color: #30352f; font-weight: 600 }
+.nav-icon { width: 17px; text-align: center; color: #8b5e54; font-size: 15px }
+.sidebar-recent { min-height: 0; overflow: auto; margin-top: 20px; padding-top: 14px; border-top: 1px solid #e1dccf }
+.section-label { margin: 0 0 8px 8px; color: #92968c; font-size: 11px; letter-spacing: .8px }
+.empty-copy { margin: 10px 8px; color: #8a8e83; font-size: 12px; line-height: 1.6 }
+.recent-item { display: block; width: 100%; padding: 8px 9px; border-radius: 8px; background: transparent; color: #4d554b; text-align: left; border-left: 2px solid transparent }
+.recent-item:hover { background: #ece7dc }
+.recent-item.active { background: #e9e3d7; border-left-color: #8b5e54 }
+.recent-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600 }
+.recent-meta { display: block; margin-top: 3px; color: #95998e; font-size: 10px }
+.sidebar-footer { display: flex; align-items: flex-start; gap: 8px; margin-top: auto; padding: 12px 7px 0; border-top: 1px solid #e1dccf; color: #787e74; font-size: 10px; line-height: 1.5 }
+.host-dot { width: 7px; height: 7px; flex: 0 0 auto; margin-top: 4px; border-radius: 50%; background: #b8a99d }
+.host-dot.native { background: #6f8d70 }
+.sidebar-footer strong { display: block; color: #666d63; font-size: 10px; font-weight: 600 }
+.sidebar-footer small { display: block; margin-top: 2px; color: #9a9e94; font-size: 9px; line-height: 1.45 }
+.workspace { min-height: 0; overflow: auto; padding: 0; margin: 0; max-width: none; background: #fbfaf6 }
+.workspace-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; height: auto; padding: 34px 44px 16px; border-bottom: 0 }
+.workspace-header .eyebrow { margin: 0 0 8px; color: #8b5e54; font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase }
+.workspace-header h1 { margin: 0; font: 400 clamp(28px, 3vw, 38px)/1.2 Georgia, "Songti SC", serif; letter-spacing: -.4px; color: #2d302b }
+.workspace-meta { margin: 8px 0 0; color: #8d9186; font-size: 12px }
+.status-pill, .local-badge { display: inline-flex; align-items: center; padding: 4px 9px; border: 1px solid #ddd7ca; border-radius: 999px; color: #8a8e83; font-size: 10px; white-space: nowrap }
+.local-badge { padding: 2px 7px; border-color: #d7d0c1; color: #8b5e54 }
+.workspace-tabs { display: flex; gap: 4px; padding: 0 44px; border-bottom: 1px solid #e4dfd3 }
+.workspace-tabs button { padding: 9px 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: #8b8f84; font-size: 12px }
+.workspace-tabs button.active { border-bottom-color: #8b5e54; color: #343833; font-weight: 600 }
+.mode-tabs { margin-bottom: 12px }
+.capture-wrap { padding: 8px 44px 44px; max-width: 900px }
+.capture-wrap .somatic-entry { margin: 0; padding: 0; border: 0; background: transparent }
+.capture-wrap .inner-entry { margin: 0; background: #f7f4ec }
+.capture-wrap .somatic-step { padding: 16px 0 }
+.capture-wrap .fragment-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.paper-card { padding: 18px 20px; border: 1px solid #e1dbcf; border-radius: 12px; background: #f8f6ef }
+.paper-card h2 { margin: 4px 0 4px; font: 600 18px/1.4 Georgia, serif }
+.card-label { margin: 0 0 8px; color: #979b90; font-size: 10px; letter-spacing: 1px; text-transform: uppercase }
+.muted { color: #7e8479; font-size: 12px; line-height: 1.7 }
+.detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 20px 44px 44px }
+.detail-grid .span-2 { grid-column: span 2 }
+.detail-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px }
+.detail-rows div { padding: 10px 12px; border: 1px solid #e7e1d5; border-radius: 8px; background: #fbf9f3 }
+.detail-rows span { display: block; color: #979b90; font-size: 10px; margin-bottom: 3px }
+.detail-rows strong { font-size: 14px; font-weight: 600 }
+.capture-wrap + .detail-grid { padding-top: 0 }
+.workspace > .paper-card { margin: 20px 44px 44px }
+.imagery-list { display: flex; flex-wrap: wrap; gap: 10px }
+.imagery-tile { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid #e1dbcf; border-radius: 8px; background: #fbf9f3; font-size: 12px }
+.imagery-swatch { width: 18px; height: 18px; border-radius: 4px; background: #d8d2c4 }
+.primary-button { padding: 9px 16px; border-radius: 8px; background: #435c50; color: #fff; font-size: 12px }
+.primary-button.wide { width: 100%; margin-top: 14px }
+.primary-button:disabled { opacity: .45; cursor: not-allowed }
+.quiet-button { padding: 7px 11px; border: 1px solid #dcd6c8; border-radius: 7px; background: transparent; color: #5d6559; font-size: 12px }
+.text-button { padding: 0; background: transparent; color: #8b5e54; font-size: 12px }
+.context-panel { min-height: 0; overflow: auto; padding: 24px 20px; background: #f7f4ec; border-left: 1px solid #ded9cc }
+.context-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #4d554b; font-size: 12px; font-weight: 600 }
+.check-list { list-style: none; margin: 16px 0 4px; padding: 0; display: flex; flex-direction: column; gap: 9px }
+.check-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 9px; border: 1px solid #e3ded2; border-radius: 8px; background: #fbf9f3; color: #5d6559; font-size: 11px }
+.check-item.present { border-color: #d8d2c2 }
+.check-item.absent { color: #9a9e94 }
+.check-mark { width: 14px; color: #71866f; font-weight: 700 }
+.check-item small { display: block; margin-top: 2px; color: #9a9e94; font-size: 10px; line-height: 1.4 }
+.context-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e1dccf }
+.context-note { margin-top: 18px; padding: 12px; border: 1px solid #e1dccf; border-radius: 9px; background: #fbf9f3; color: #6c7368; font-size: 11px; line-height: 1.65 }
+.context-note p { margin: 0 }
+.context-note p + p { margin-top: 5px }
+.context-lead { color: #70776b; font-size: 12px; line-height: 1.7 }
+.context-privacy { margin-top: 22px; color: #9a9e94; font-size: 10px; line-height: 1.6 }
+.scene-workspace { padding: 0 34px 28px }
+.scene-toolbar { display: flex; align-items: center; gap: 14px; padding: 20px 0 14px; color: #6e756a; font-size: 12px }
+.scene-toolbar span:first-of-type { flex: 1; font-weight: 600; color: #3d433c }
+.scene-workspace .symbolic-episode, .scene-workspace .captured-episode { height: calc(100vh - 190px); min-height: 430px; border-radius: 14px }
+.scene-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; color: #8d9186; font-size: 11px }
+.empty-state { padding: 80px 44px; color: #7e8479 }
+.empty-state h2 { font: 600 24px Georgia, serif; color: #343833 }
+.empty-state p { font-size: 13px; line-height: 1.7 }
+.host-card { margin: 0 44px 20px }
+.motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel { margin: 20px 44px 40px; padding-top: 18px; border-top: 1px solid #e4dfd3 }
+.motif-journal { margin-top: 0 }
+.motif-journal .journal-header, .relationship-journal .journal-header { align-items: flex-start }
+.motif-journal h2, .relationship-journal h2, .signal-lab h2, .device-lab h2, .local-data-panel h2 { font: 600 16px/1.4 Georgia, serif; margin: 0 0 4px; color: #343833 }
+.motif-list { margin-top: 12px }
+.motif-item { border-color: #e2ddd0; background: #f8f6ef }
+.motif-name { font-size: 13px }
+.motif-meta { font-size: 11px }
+.signal-lab, .device-lab { border-top-color: #e4dfd3 }
+.device-url input { max-width: 100%; width: 360px }
+@media (max-width: 1180px) { .shell-body { grid-template-columns: 220px minmax(0, 1fr) 280px } .workspace-header, .detail-grid, .capture-wrap, .workspace-tabs, .motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel, .host-card { padding-left: 28px; padding-right: 28px; margin-left: 28px; margin-right: 28px } .workspace-tabs { padding-left: 28px; padding-right: 28px; margin: 0 } }
+@media (max-width: 920px) { .shell-body { grid-template-columns: 208px minmax(0, 1fr) } .context-panel { display: none } }
+@media (max-width: 680px) { .shell-body { grid-template-columns: minmax(0, 1fr) } .sidebar { display: none } .window-bar { padding-left: 16px } .window-path { display: none } .workspace-header, .detail-grid, .capture-wrap, .motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel, .host-card { padding-left: 18px; padding-right: 18px; margin-left: 18px; margin-right: 18px } .workspace-tabs { padding: 0 18px; margin: 0 } }

@@ -1,0 +1,8 @@
+{
+  "name": "familiweave-desktop",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --dir ../.. dev",
+    "build": "pnpm --dir ../.. build"
+  }
+}

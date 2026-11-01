@@ -97,6 +97,7 @@ symbolic 渲染器
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总 |
 | Genie 4 | 适配器接口 + Rust 配置检查；没有网络调用 |
 | 本地持久化 | 母题、关系触发点与可选声音摘要存于浏览器 `localStorage`；可整体导出/删除；无服务端、无账号、无同步 |
+| 桌面外壳 | Tauri 2 三栏工作台；Rust 宿主提供 app data 文件沙箱与 SQLite 句柄；窗口已启动验证，打包/签名未验收 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
 
@@ -115,13 +116,26 @@ symbolic 渲染器
 
 v0 不会测量潜意识或生理信号，也不会把意象解释成某段记忆。详细边界见 [v0：躯体地图 + 意象碎片](docs/inner/v0-somatic-capture.md)。
 
+## 桌面外壳
+
+前端已经收进 Tauri 2 三栏工作台：左侧导航与最近母题，中间捕获/母题详情，右侧“空间将收到的内容”。Rust 宿主在 `apps/desktop/src-tauri` 管理 app data 文件沙箱、SQLite 句柄与打包配置。
+
+![桌面外壳](docs/assets/desktop-shell.png)
+
+```sh
+pnpm tauri:dev
+```
+
+详见 [桌面外壳](docs/desktop-shell.md)。当前窗口已启动验证；正式打包、签名与公证尚未验收。
+
 ## 技术栈
 
 以 **TypeScript + Rust** 为主：
 
 | 层 | 技术 |
 | --- | --- |
-| Web / 空间 | TypeScript、React、Vite、CSS/DOM |
+| Web / 空间 | TypeScript、React 19、Vite、CSS/DOM |
+| 桌面外壳 | Tauri 2 + Rust 宿主（文件系统、SQLite、沙箱、打包） |
 | 导演 / 分镜 / 业务类型 | TypeScript：`InnerPlan`、`EpisodePlan`、`WorldRenderer`、manifest、consent |
 | 文件与评估工具 | Rust：`familiweave-ops`（捕获 hash/verify、实验日志校验、Genie 配置检查） |
 | 模型与媒体 | 未来按需接入；当前 symbolic 路径不加载模型、不初始化音频 |
@@ -144,16 +158,30 @@ Rust 负责确定性强、文件型、无 UI 的操作。当前前端不连接�
 
 - Node.js 22 或更新版本
 - pnpm 10
-- Rust 工具链（运行 `familiweave-ops` 时需要）
+- Rust 工具链（`familiweave-ops` 与 Tauri 桌面都需要）
+- macOS 运行 Tauri 时还需要 Xcode Command Line Tools
 
 ### 安装与启动
 
 ```sh
 pnpm install
+```
+
+Web 预览：
+
+```sh
 pnpm dev
 ```
 
 打开终端显示的本地地址，通常为 `http://127.0.0.1:5173/`。
+
+桌面外壳（Tauri 2）：
+
+```sh
+pnpm tauri:dev
+```
+
+首次会编译 Tauri Rust 依赖。桌面结构与验证状态见 [桌面外壳](docs/desktop-shell.md)。
 
 ### 内在分镜
 
@@ -209,9 +237,13 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/capture.ts`](src/capture.ts)：捕获成片的出处与指纹。
 - [`src/consent.ts`](src/consent.ts)：用途绑定的云端同意记录。
 - [`src/genie/`](src/genie/)：Genie 4 适配器接口与未配置占位实现（不联网）。
-- [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口。
+- [`src/main.tsx`](src/main.tsx)：桌面外壳入口。
+- [`src/desktop-shell.tsx`](src/desktop-shell.tsx)：三栏工作台（侧栏 / 中间 / 上下文面板）。
+- [`src/host.ts`](src/host.ts)：Tauri invoke 桥；Web 预览自动降级。
+- [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/)：Tauri 2 Rust 宿主（文件沙箱、SQLite 句柄、打包配置）。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
 - [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点、v3 本机信号与安全/共鸣评估。
+- [`docs/desktop-shell.md`](docs/desktop-shell.md)：Tauri 2 桌面外壳与三栏美术。
 - [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界、[BCI 开源生态调研](docs/vision/bci-open-source-landscape.md)、[BCI-1 信号层](docs/vision/bci-1-signal-layer.md) 与 [BCI-2 设备桥接](docs/vision/bci-2-device-bridge.md)。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划、基线。
 - [`docs/evaluation/`](docs/evaluation/)：生成实验模板、评分表与日志示例。
