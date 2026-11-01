@@ -85,7 +85,7 @@ pnpm tauri:dev
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
 - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：4 个宿主测试通过（文件沙箱 + SQLite 快照）
 - `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
-- `pnpm tauri:build --bundles app`：成功生成未签名 `Familiweave.app`（约 10.28 MiB）。
+- `pnpm tauri:build --bundles app`：成功生成未签名 `Familiweave.app`（约 10.12 MiB），并应用自定义 Familiweave 图标。
 - 启动打包后的 App：成功创建 `~/Library/Application Support/com.inceptless.familiweave/familiweave.db`，包含 `local_meta` 与 `local_state` 表。
 - 导出/导入：Rust 命令写入/读取 app data/local-files；前端也支持 JSON 下载与文件导入。
 - 签名、公证与正式安装包尚未验收。
