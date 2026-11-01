@@ -97,7 +97,7 @@ symbolic 渲染器
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总 |
 | Genie 4 | 适配器接口 + Rust 配置检查；没有网络调用 |
 | 本地持久化 | Tauri 下母题/关系触发点经 `invoke` 写入 SQLite；Web 预览回退 `localStorage`；可整体导出/导入/删除 |
-| 桌面外壳 | Tauri 2 三栏工作台；Rust 宿主提供 app data 文件沙箱与 SQLite 持久化；未签名 `.app` 已构建，窗口已启动 |
+| 桌面外壳 | Tauri 2 三栏工作台；Rust 宿主提供 app data 文件沙箱与 SQLite 持久化；ad-hoc 签名 `.app` 已构建，窗口已启动 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
 
@@ -126,7 +126,7 @@ v0 不会测量潜意识或生理信号，也不会把意象解释成某段记�
 pnpm tauri:dev
 ```
 
-详见 [桌面外壳](docs/desktop-shell.md)。未签名 `.app` 已构建并启动；正式签名、公证与安装包尚未验收。
+详见 [桌面外壳](docs/desktop-shell.md)。ad-hoc 签名 `.app` 已构建并启动；已加入 hardened runtime entitlements，但正式签名、公证与安装包仍需 Apple 证书。
 
 ## 技术栈
 

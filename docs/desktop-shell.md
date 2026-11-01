@@ -85,13 +85,35 @@ pnpm tauri:dev
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
 - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：4 个宿主测试通过（文件沙箱 + SQLite 快照）
 - `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
-- `pnpm tauri:build --bundles app`：成功生成未签名 `Familiweave.app`（约 10.12 MiB），并应用自定义 Familiweave 图标。
+- `pnpm tauri:build --bundles app`：成功生成 `Familiweave.app`（约 10.11 MiB；无 Developer ID 签名），并应用自定义 Familiweave 图标。
 - 启动打包后的 App：成功创建 `~/Library/Application Support/com.inceptless.familiweave/familiweave.db`，包含 `local_meta` 与 `local_state` 表。
 - 导出/导入：Rust 命令写入/读取 app data/local-files；前端也支持 JSON 下载与文件导入。
 - 签名、公证与正式安装包尚未验收。
 - Web 预览截图：见上方图片。
 
-## 6. 下一步
+## 6. 签名、公证与分发边界
+
+当前产物是 **ad-hoc 签名**，只适合本机验证；`spctl --assess` 会拒绝它。
+
+本机 ad-hoc 签名（不用于分发）：
+
+```sh
+sh scripts/desktop-sign-adhoc.sh
+```
+
+真实分发需要：
+
+1. Apple Developer Program 的 **Developer ID Application** 证书；
+2. `codesign` 使用该 identity（Tauri 可用 `APPLE_SIGNING_IDENTITY`）；
+3. 用 `notarytool` 提交公证，并 `stapler` 装订；
+4. 在干净 macOS 用户环境做 Gatekeeper 验证。
+
+本会话没有 Apple 证书与公证账号，因此只验证了：
+- 未签名 `.app` 可以本地构建并启动；
+- ad-hoc `codesign` 可以带上 hardened runtime entitlements；
+- `spctl` 仍然拒绝（符合未公证预期）。
+
+## 7. 下一步
 
 1. 在正常 macOS 用户会话运行 `pnpm tauri:dev`，目视检查交通灯、拖拽区与三栏布局。
 2. 迁移已完成基础链路；继续把信号摘要/BCI 时间轴也纳入 SQLite。

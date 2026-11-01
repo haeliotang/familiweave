@@ -22,10 +22,15 @@
         "fullscreen": false,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "trafficLightPosition": { "x": 16, "y": 18 }
+        "trafficLightPosition": {
+          "x": 16,
+          "y": 18
+        }
       }
     ],
-    "security": { "csp": null }
+    "security": {
+      "csp": null
+    }
   },
   "bundle": {
     "active": true,
@@ -37,6 +42,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "android": { "debugApplicationIdSuffix": ".debug" }
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    },
+    "macOS": {
+      "minimumSystemVersion": "12.0",
+      "hardenedRuntime": true,
+      "entitlements": "Entitlements.plist"
+    }
   }
 }
