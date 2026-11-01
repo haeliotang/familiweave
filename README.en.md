@@ -4,13 +4,13 @@
 
 > A local-first symbolic interface for the pre-verbal layer.
 >
-> An enterable, exit-able, self-interpreted space for inner experience.
+> An enterable, exit-able, self-interpreted space for pre-verbal experience.
 
 ![Familiweave desktop shell](docs/assets/desktop-shell-en.png)
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 
-It is not trying to build a “therapist chatbot”. It does not claim to read the subconscious. It starts from a narrower, testable question:
+It is not trying to build a “therapist chatbot”. It does not claim to read the deep subconscious. It starts from a narrower, testable question:
 
 > Before language is formed, can the body, imagery and relational patterns be held first — and turned into a symbolic experience that only the person can complete?
 
@@ -25,11 +25,25 @@ As AI takes over explicit knowledge, logical reasoning, language and external ex
 
 LLMs are built on tokens. Implicit memory, attachment reactions and somatic states are more **pre-verbal, associative and affective**. Asking someone to “put it into words” often compresses it into a label like “I am anxious”.
 
-Familiweave does not replace language. It adds an entrance before language: **body location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
+Familiweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
+
+### 1.1 Terminology
+
+We use these terms consistently:
+
+- **pre-verbal layer** — body, affect, imagery and relational reactions before language.
+- **deep subconscious** — the project’s name for this pre-verbal layer; not a clinical object or something the system can read.
+- **implicit memory** — automatic somatic and relational patterns; not a diagnosis.
+- **somatic capture** — body map, sensation, intensity, breath and image choice.
+- **symbolic space** — an enterable, exit-able 75s encounter or 180s space.
+- **motif** — a recurring body–imagery–relationship unit named by the user.
+- **relationship topology** — the user-authored map of relationship triggers; not inference about others or attachment typing.
+- **BCI** — brain-computer interface. Today it means the local signal layer and device bridge, not an implant.
+- **LSM (Large Somatic & Symbolic Model)** — a cross-modal research model of somatic state, imagery and relationship context; not a trained model yet.
 
 ## 2. What we build
 
-### 2.1 Pre-verbal capture
+### 2.1 Somatic capture
 
 - Body map: head, jaw, throat, shoulders, chest, stomach/belly, back, hands, legs
 - Sensation, intensity, breath
@@ -46,7 +60,7 @@ The capture becomes an `InnerPlan`, then a 75-second encounter or 180-second spa
 - approach, stay, leave
 - no interpretation, no score, no diagnosis
 
-### 2.3 Deep motifs and relationships
+### 2.3 Motifs and relationship topology
 
 - **Motif journal**: the user names it, saves it, deletes it
 - **Relationship triggers**: user-written situations, moments, body reactions and automatic responses
@@ -113,20 +127,45 @@ WorldRenderer (symbolic today; Genie 4 later)
 - `CaptureProvenance`: provenance for non-deterministic captures.
 - Tauri Rust host: file sandbox, SQLite, packaging; the frontend uses `invoke`.
 
-## 5. BCI and LSM path
+## 5. BCI and LSM: the aggressive path
 
-Familiweave treats BCI as an **optional signal entrance**, not a product premise.
+Familiweave is not “a chatbot with a few physiological sensors”. Our long-term claim is more aggressive:
 
-| Stage | Content | Status |
+> **The next mental-health infrastructure will not be a better-speaking LLM. It will be a BCI-native interface to the pre-verbal layer.**
+
+BCI is therefore not an optional accessory. It is the long-term core research spine. We have no implant, no neural decoding, and we do not dress experimental signals up as “reading the deep subconscious”. But the roadmap actively moves toward that direction instead of stopping at self-report.
+
+### 5.1 North Star
+
+**From BCI to LSM:**
+
+1. build device-agnostic somatic/signal capture;
+2. on consented longitudinal data, learn a cross-modal mapping between signal, imagery and relationship;
+3. drive symbolic-space parameters from that mapping, not from language interpretation;
+4. make relationship topology a first-class product, not a side panel;
+5. end with a **exit-able, deletable, self-interpreted** BCI-native symbolic interface.
+
+### 5.2 Stages
+
+| Stage | Goal | Status |
 | --- | --- | --- |
 | BCI-0 | Local voice summary + self-report + imagery | Implemented |
-| BCI-1 | Device-agnostic signal layer + LSL simulator | Implemented |
-| BCI-2 | Local WebSocket bridge | Contract/UI only; no hardware validation |
-| BCI-3 | Consented OpenBCI/BrainFlow/LSL research | Not started |
-| LSM | Cross-modal somatic–imagery–relationship research model | Direction, not a trained model |
-| Clinical | Work with ethics/clinical partners | Not started |
+| BCI-1 | Device-agnostic `SignalSource` + LSL simulator + timeline | Implemented |
+| BCI-2 | Local WebSocket device bridge | Contract/UI; no hardware validation |
+| BCI-3 | Real OpenBCI/BrainFlow/LSL capture, small consented samples | Not started; next main push |
+| LSM-0 | Cross-modal alignment: predict symbolic parameters from somatic/signal data, without emotion diagnosis | Not started; next research target |
+| LSM-1 | Longitudinal motif + relationship-topology personal model | Not started |
+| LSM-2 | Closed-loop adaptive symbolic space, always overridable and exit-able | Not started |
 
-**LSM is a research narrative here, not a technical promise.** Without real, consented, deletable data, nobody should claim to “read the subconscious”.
+### 5.3 We refuse to stop at prototype
+
+- We will not wait for a Neuralink N1 SDK; we build on OpenBCI, BrainFlow, LSL and the open ecosystem.
+- We will not treat self-report as the endpoint; consented data must test whether signal and self-report correspond stably.
+- We will not leave relationship topology as a static list; it must become a longitudinal structure that can be reviewed, compared and deleted.
+- We will not fake LSM with an LLM; LSM is a somatic–imagery–relationship mapping, not next-token probability.
+- If we cannot show a reproducible signal–self-report correspondence, we must say the path failed instead of marketing “deep-subconscious reading”.
+
+**LSM is still a research agenda, not a trained model — but it is the active target of this project, not decorative futurism.**
 
 ## 6. How we handle the deep subconscious
 
@@ -137,7 +176,7 @@ Therefore:
 - no interpretation: no dream dictionary, no “you actually mean…”
 - no diagnosis: not a test, therapy or medical device
 - no memory recovery: no repressed-memory suggestions, no false memories
-- no scoring: no subconscious health score, no relationship match score
+- no scoring: no deep-subconscious health score, no relationship match score
 - no inference about others: relationship triggers only map what the user wrote
 - no dependency loops: no streaks, no “someone is waiting for you”
 - meaning stays with the user: the system offers form and open questions only
@@ -205,12 +244,15 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [`docs/vision/`](docs/vision/) — BCI landscape, BCI-1/2, LSM/relationship path.
 - [`docs/desktop-shell.md`](docs/desktop-shell.md) — desktop shell, SQLite and signing.
 
-## 10. Roadmap
+## 10. Roadmap: from BCI seam to LSM
 
 - **Now**: v0–v3 local prototype, BCI-1/2 seams, Tauri shell, SQLite, bilingual UI.
-- **Next**: real-device voice validation; real OpenBCI/LSL bridge; visual QA of the Tauri window.
-- **Research**: consented multimodal small samples; first ask whether signals and self-report correspond stably, not promise efficacy.
-- **Long term**: LSM as a research agenda; relationship topology remains user-authored; clinical work only with ethics and clinical partners.
+- **Next main push**: real OpenBCI/BrainFlow/LSL capture; real-device voice validation; move signal summaries into SQLite; visual QA of the Tauri window.
+- **Research stage**: train LSM-0 cross-modal alignment on small, consented, deletable samples; first prove a reproducible signal–imagery–relationship structure, then discuss productisation.
+- **Product stage**: relationship topology becomes a first-class entrance; closed-loop symbolic space adapts from signals, but the user always keeps interpretation and exit.
+- **Long term**: a BCI-native interface to the pre-verbal layer; clinical work only with ethics and clinical partners.
+
+**Aggressive is not the same as overclaiming.** This path only holds on real, consented, deletable data; without evidence, LSM is not written up as an existing capability.
 
 ## 11. Research questions
 
