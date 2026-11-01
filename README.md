@@ -225,6 +225,15 @@ pnpm measure:browser:full
 pnpm tauri:build --bundles app
 ```
 
+跨平台构建（需要对应系统原生环境）：
+
+```sh
+pnpm tauri:build --bundles appimage,deb   # Linux
+pnpm tauri:build --bundles nsis           # Windows
+```
+
+GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux AppImage/DEB，并把产物附加到对应 tag 的 Release。macOS 包需要 Developer ID 才能正式分发；Windows/Linux 当前也是未签名构建。
+
 当前产物是 ad-hoc 签名的本机验证包；正式签名与公证需要 Apple 证书。
 
 ## 9. 项目地图

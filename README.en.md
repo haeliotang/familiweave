@@ -228,6 +228,15 @@ Desktop build:
 pnpm tauri:build --bundles app
 ```
 
+Cross-platform builds (run natively on the target OS):
+
+```sh
+pnpm tauri:build --bundles appimage,deb   # Linux
+pnpm tauri:build --bundles nsis           # Windows
+```
+
+The GitHub Actions `Desktop builds` workflow produces Windows NSIS and Linux AppImage/DEB assets and attaches them to the matching tag release. macOS distribution still needs Developer ID signing; Windows/Linux artifacts are unsigned.
+
 The current artifact is ad-hoc signed for local validation; Developer ID signing and notarization need an Apple certificate.
 
 ## 9. Project map
