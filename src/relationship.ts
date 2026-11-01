@@ -113,3 +113,23 @@ export function clearRelationshipTriggers(storage: RelationshipStorageLike): Rel
 export function exportRelationshipTriggers(entries: RelationshipTrigger[]) {
   return JSON.stringify({ version: 'relationship-export-v1', exportedAt: new Date().toISOString(), entries }, null, 2)
 }
+
+export interface RelationshipSummary {
+  total: number
+  regions: Array<{ value: SomaticRegion; label: string; count: number }>
+  sensations: Array<{ value: SomaticSensation; label: string; count: number }>
+  responses: Array<{ value: RelationshipResponse; label: string; count: number }>
+}
+
+/** Descriptive counts of fields the user chose. This is not an inference about the user or anyone else. */
+export function summarizeRelationshipTriggers(entries: RelationshipTrigger[]): RelationshipSummary {
+  const count = <T extends string>(values: T[]) => {
+    const map = new Map<T, number>()
+    for (const value of values) map.set(value, (map.get(value) ?? 0) + 1)
+    return [...map.entries()].sort((left, right) => right[1] - left[1])
+  }
+  const regionsSummary = count(entries.map(entry => entry.region)).map(([value, count]) => ({ value, label: regions.find(item => item.value === value)?.label ?? value, count }))
+  const sensationsSummary = count(entries.map(entry => entry.sensation)).map(([value, count]) => ({ value, label: sensations.find(item => item.value === value)?.label ?? value, count }))
+  const responsesSummary = count(entries.map(entry => entry.response)).map(([value, count]) => ({ value, label: responseLabels[value], count }))
+  return { total: entries.length, regions: regionsSummary, sensations: sensationsSummary, responses: responsesSummary }
+}

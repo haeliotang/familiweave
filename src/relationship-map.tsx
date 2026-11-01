@@ -1,6 +1,24 @@
 import { useState } from 'react'
 import { breaths, regions, sensations, type BreathState, type SomaticRegion, type SomaticSensation } from './somatic'
-import { addRelationshipTrigger, clearRelationshipTriggers, exportRelationshipTriggers, loadRelationshipTriggers, removeRelationshipTrigger, responseLabels, responses, type RelationshipResponse, type RelationshipTrigger } from './relationship'
+import { addRelationshipTrigger, clearRelationshipTriggers, exportRelationshipTriggers, loadRelationshipTriggers, removeRelationshipTrigger, responseLabels, responses, summarizeRelationshipTriggers, type RelationshipResponse, type RelationshipSummary, type RelationshipTrigger } from './relationship'
+
+function TriggerSummary({ summary }: { summary: RelationshipSummary }) {
+  if (!summary.total) return null
+  const groups = [
+    { title: '身体位置', items: summary.regions },
+    { title: '感觉', items: summary.sensations },
+    { title: '自动反应', items: summary.responses },
+  ]
+  return <div className="trigger-summary">
+    <p className="note">共 {summary.total} 条。下面只是按你选过的字段计数，不是解释，也不代表因果。</p>
+    <div className="trigger-summary-grid">
+      {groups.map(group => <div key={group.title}>
+        <h3>{group.title}</h3>
+        {group.items.slice(0, 5).map(item => <p key={item.value}>{item.label} · {item.count}</p>)}
+      </div>)}
+    </div>
+  </div>
+}
 
 function TriggerMap({ entries }: { entries: RelationshipTrigger[] }) {
   const shown = entries.slice(0, 8)
@@ -35,6 +53,7 @@ export function RelationshipJournal() {
   const [breath, setBreath] = useState<BreathState>('shallow')
   const [response, setResponse] = useState<RelationshipResponse>('freeze')
   const canSave = Boolean(situation.trim() || cue.trim())
+  const summary = summarizeRelationshipTriggers(entries)
 
   const save = () => {
     if (!canSave) return
@@ -87,6 +106,7 @@ export function RelationshipJournal() {
       ? <p className="note">还没有关系触发点。你可以记录一个让你身体先反应的瞬间。</p>
       : <>
         <TriggerMap entries={entries} />
+        <TriggerSummary summary={summary} />
         <ul className="motif-list">
           {entries.map(entry => <li key={entry.id} className="motif-item">
             <div className="motif-main"><span className="motif-name">{entry.role || '未命名的角色'}</span><span className="motif-date">{new Date(entry.createdAt).toLocaleDateString('zh-CN')}</span></div>

@@ -42,3 +42,17 @@ describe('relationship trigger journal', () => {
     expect(JSON.stringify(exported)).not.toMatch(/attachment|diagnos|score|matching/i)
   })
 })
+
+it('describes counts of user-chosen fields without inferring causes', async () => {
+  const { summarizeRelationshipTriggers } = await import('./relationship')
+  const entries = [
+    { ...addRelationshipTrigger(memoryStorage(), base)[0] },
+    { ...addRelationshipTrigger(memoryStorage(), { ...base, region: 'chest', response: 'flee' })[0] },
+    { ...addRelationshipTrigger(memoryStorage(), { ...base, region: 'stomach', response: 'freeze' })[0] },
+  ]
+  const summary = summarizeRelationshipTriggers(entries)
+  expect(summary.total).toBe(3)
+  expect(summary.regions[0]).toMatchObject({ value: 'chest', count: 2 })
+  expect(summary.responses.find(item => item.value === 'freeze')?.count).toBe(2)
+  expect(JSON.stringify(summary)).not.toMatch(/because|cause|attachment|score|diagnos/i)
+})

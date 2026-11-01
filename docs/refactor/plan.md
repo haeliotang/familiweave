@@ -31,7 +31,7 @@
 
 ### R0：构建与浏览器基线（完成）
 
-- 主包 260,582 B，CSS 15,018 B，合计 275,600 B；无 scene 分包。v0–v3 增加了躯体地图、意象库、本机母题日记、关系触发点与本机声音摘要。
+- 主包 261,678 B，CSS 15,485 B，合计 277,163 B；无 scene 分包。v0–v3 增加了躯体地图、意象库、本机母题日记、关系触发点/计数与本机声音摘要。
 - `pnpm measure:build` 记录体积；`pnpm check:symbolic-path` 守卫 320,000 B 预算。
 - 本地 headless：DOMContentLoaded 51 ms、load 51 ms、first paint/FCP 72 ms。
 - 完整 75 秒相遇与 180 秒空间帧采样完成；结果见 [R0 构建基线](baseline.md)。
@@ -56,7 +56,7 @@
 
 ### R4：清理（主体完成）
 
-- `src/` 33 个文件、11 个测试文件、40 个测试；`server/`、`public/assets` 与旧文档已删除。
+- `src/` 33 个文件、11 个测试文件、41 个测试；`server/`、`public/assets` 与旧文档已删除。
 - 前端现在是纯本地 symbolic-only 应用。
 - 未使用依赖已清理：保留 React/Vite/Zod 与测试工具，移除 Fastify、pg、sharp、sherpa、Three.js 与 PGlite。
 
@@ -79,4 +79,4 @@ pnpm rust:test
 pnpm eval:validate docs/evaluation/experiment-log.example.json
 ```
 
-当前测试 40 项；无 HEIC / PostgreSQL / 模型下载依赖。R3 的真实设备、生产构建与交互压力仍未验证。
+当前测试 41 项；无 HEIC / PostgreSQL / 模型下载依赖。R3 的真实设备、生产构建与交互压力仍未验证。
