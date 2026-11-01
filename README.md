@@ -96,7 +96,7 @@ symbolic 渲染器
 | 同意与隐私 | 用途绑定 consent；梦、感觉与真实资料默认不上传 |
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总 |
 | Genie 4 | 适配器接口 + Rust 配置检查；没有网络调用 |
-| 本地持久化 | 母题、关系触发点与可选声音摘要存于浏览器 `localStorage`；无服务端、无账号、无同步 |
+| 本地持久化 | 母题、关系触发点与可选声音摘要存于浏览器 `localStorage`；可整体导出/删除；无服务端、无账号、无同步 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
 
@@ -108,6 +108,7 @@ symbolic 渲染器
 - **本机母题日记**：给这次感觉命名，可选择仅保存在本机；支持删除与导出 JSON。
 - **关系触发点**：记录你注意到的触发瞬间、身体反应与自动反应；只画你自己的地图，并显示字段计数（不解释、不推断对方、不做匹配）。
 - **可选本机声音测量**：8 秒音量/停顿摘要；明确同意、不保存原始音频、不上传。
+- **本机数据**：可整体导出母题、关系触发点与声音摘要，或一键删除。
 - **安全**：不解释、不评分、不诊断；离开随时可用。
 
 v0 不会测量潜意识或生理信号，也不会把意象解释成某段记忆。详细边界见 [v0：躯体地图 + 意象碎片](docs/inner/v0-somatic-capture.md)。
@@ -189,6 +190,8 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/relationship-map.tsx`](src/relationship-map.tsx)：用户自述的关系触发点地图。
 - [`src/somatic-signal.ts`](src/somatic-signal.ts)：本地信号摘要与同意记录。
 - [`src/voice-trace.tsx`](src/voice-trace.tsx)：可选的 8 秒本机音量/停顿测量。
+- [`src/local-dataset.ts`](src/local-dataset.ts)：母题、关系触发点与信号摘要的本地数据集导出。
+- [`src/local-data-panel.tsx`](src/local-data-panel.tsx)：本机数据导出/删除入口。
 - [`src/inner-entry.tsx`](src/inner-entry.tsx)：文字输入模式。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声渲染器。
