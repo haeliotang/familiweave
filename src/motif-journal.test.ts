@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { addMotif, clearMotifs, exportMotifs, loadMotifs, motifDisplayName, removeMotif, type StorageLike } from './motif-journal'
 import type { SomaticCapture } from './somatic'
+import { grantLocalSignalConsent, voiceTraceFromSamples } from './somatic-signal'
 
 function memoryStorage(): StorageLike {
   const values = new Map<string, string>()
@@ -40,6 +41,14 @@ describe('local motif journal', () => {
     addMotif(storage, { name: 'a', capture })
     expect(clearMotifs(storage)).toEqual([])
     expect(loadMotifs(storage)).toEqual([])
+  })
+
+  it('keeps optional local signal summaries with consent', () => {
+    const storage = memoryStorage()
+    const signals = { consent: grantLocalSignalConsent('2026-11-01T00:00:00Z'), voice: voiceTraceFromSamples([0.1, 0.2, 0.05], 8, 10) }
+    const entries = addMotif(storage, { name: '带声音', capture, signals })
+    expect(entries[0].signals?.voice?.version).toBe('voice-v1')
+    expect(loadMotifs(storage)[0].signals?.consent.localOnly).toBe(true)
   })
 
   it('exports a portable local JSON record without interpretation', () => {

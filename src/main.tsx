@@ -28,7 +28,7 @@ function App() {
         <button role="tab" aria-selected={entryMode === 'text'} className={entryMode === 'text' ? 'selected' : ''} onClick={() => setEntryMode('text')}>用文字</button>
       </div>
       {entryMode === 'somatic'
-        ? <SomaticEntry onStart={setCurrent} onRemember={(capture, name) => setMotifs(addMotif(window.localStorage, { capture, name }))} />
+        ? <SomaticEntry onStart={setCurrent} onRemember={(capture, name, signals) => setMotifs(addMotif(window.localStorage, { capture, name, signals }))} />
         : <InnerEntry onStart={setCurrent} />}
       <div className="actions">
         <button className="quiet" onClick={() => setCurrent(demoInnerEncounter())}>相遇示例</button>

@@ -1,4 +1,5 @@
 import { isSomaticCapture, type SomaticCapture } from './somatic'
+import { isSignalConsent, isVoiceTrace, type MotifSignals } from './somatic-signal'
 
 export interface MotifEntry {
   version: 'motif-v1'
@@ -6,6 +7,7 @@ export interface MotifEntry {
   createdAt: string
   name: string
   capture: SomaticCapture
+  signals?: MotifSignals
 }
 
 export interface StorageLike {
@@ -29,6 +31,7 @@ function isMotifEntry(value: unknown): value is MotifEntry {
     && typeof entry.createdAt === 'string' && !Number.isNaN(Date.parse(entry.createdAt))
     && typeof entry.name === 'string'
     && isSomaticCapture(entry.capture)
+    && (entry.signals === undefined || (isSignalConsent(entry.signals.consent) && (entry.signals.voice === undefined || isVoiceTrace(entry.signals.voice))))
 }
 
 export function loadMotifs(storage: StorageLike): MotifEntry[] {
@@ -46,14 +49,16 @@ export function saveMotifs(storage: StorageLike, entries: MotifEntry[]) {
   storage.setItem(motifStorageKey, JSON.stringify(entries.slice(0, maxEntries)))
 }
 
-export function addMotif(storage: StorageLike, input: { name?: string; capture: SomaticCapture; now?: string }): MotifEntry[] {
+export function addMotif(storage: StorageLike, input: { name?: string; capture: SomaticCapture; signals?: MotifSignals; now?: string }): MotifEntry[] {
   if (!isSomaticCapture(input.capture)) throw new Error('capture is incomplete')
+  if (input.signals && (!isSignalConsent(input.signals.consent) || (input.signals.voice && !isVoiceTrace(input.signals.voice)))) throw new Error('signals are incomplete')
   const entry: MotifEntry = {
     version: 'motif-v1',
     id: crypto.randomUUID(),
     createdAt: input.now ?? new Date().toISOString(),
     name: normalizeName(input.name ?? ''),
     capture: input.capture,
+    ...(input.signals ? { signals: input.signals } : {}),
   }
   const entries = [entry, ...loadMotifs(storage)].slice(0, maxEntries)
   saveMotifs(storage, entries)

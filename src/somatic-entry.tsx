@@ -1,6 +1,8 @@
 import { useState, type KeyboardEvent } from 'react'
 import type { Encounter } from './encounter'
 import { createInnerCaptureEncounter } from './inner-encounter'
+import { VoiceTraceRecorder } from './voice-trace'
+import type { MotifSignals } from './somatic-signal'
 import { breaths, fragments, regions, sensations, type AssociativeFragmentId, type BreathState, type SomaticCapture, type SomaticRegion, type SomaticSensation } from './somatic'
 
 const bodyRegions: Array<{ region: SomaticRegion; x: number; y: number; rx: number; ry: number }> = [
@@ -40,7 +42,7 @@ function BodyMap({ region, onSelect }: { region: SomaticRegion | null; onSelect:
   </div>
 }
 
-export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Encounter) => void; onRemember?: (capture: SomaticCapture, name: string) => void }) {
+export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Encounter) => void; onRemember?: (capture: SomaticCapture, name: string, signals?: MotifSignals) => void }) {
   const [region, setRegion] = useState<SomaticRegion | null>(null)
   const [sensation, setSensation] = useState<SomaticSensation | null>(null)
   const [intensity, setIntensity] = useState<1 | 2 | 3 | 4 | 5>(3)
@@ -48,6 +50,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
   const [selectedFragments, setSelectedFragments] = useState<AssociativeFragmentId[]>([])
   const [name, setName] = useState('')
   const [remember, setRemember] = useState(true)
+  const [signals, setSignals] = useState<MotifSignals | null>(null)
 
   const toggleFragment = (id: AssociativeFragmentId) => {
     setSelectedFragments(current => current.includes(id)
@@ -62,7 +65,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
     event.preventDefault()
     if (!canEnter || !region || !sensation || !breath) return
     const capture: SomaticCapture = { region, sensation, intensity, breath, fragments: selectedFragments }
-    if (remember) onRemember?.(capture, name)
+    if (remember) onRemember?.(capture, name, signals ?? undefined)
     onStart(createInnerCaptureEncounter(capture))
   }}>
     <div className="somatic-step">
@@ -106,6 +109,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
       <input id="motif-name" value={name} maxLength={60} onChange={event => setName(event.target.value)} placeholder="比如：胸口的旧门" />
       <label className="remember-line"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> 保存到本机母题日记（可删除）</label>
     </div>
+    <VoiceTraceRecorder onTrace={setSignals} />
 
     <div className="actions">
       <button disabled={!canEnter}>进入这段空间</button>

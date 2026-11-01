@@ -39,6 +39,7 @@ export function MotifJournal({ entries, onRemove, onClear }: { entries: MotifEnt
             {' · 强度 '}{entry.capture.intensity}/5
             {' · '}{breaths.find(item => item.value === entry.capture.breath)?.label}呼吸
             {' · '}{entry.capture.fragments.map(id => fragments.find(fragment => fragment.id === id)?.label ?? id).join(' / ')}
+            {entry.signals?.voice ? ' · 含本机声音摘要' : ''}
           </p>
           <button type="button" className="quiet small" onClick={() => onRemove(entry.id)}>删除这条</button>
         </li>)}
