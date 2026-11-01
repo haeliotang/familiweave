@@ -6,9 +6,9 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-ODJV8YIU.js` | 245,880 | 主入口（v0 躯体捕获后） |
-| `index-DclfJlOY.css` | 12,494 | 样式 |
-| 合计 | 258,374 | 两个产物；无 scene 分包 |
+| `index-D_sysRPI.js` | 249,521 | 主入口（v1 母题日记后） |
+| `index-bVirSWz6.css` | 13,694 | 样式 |
+| 合计 | 263,215 | 两个产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。
@@ -38,12 +38,12 @@
 
 | 指标 | 结果 |
 | --- | ---: |
-| DOMContentLoaded | 64 ms |
-| load | 64 ms |
-| first paint | 76 ms |
-| first contentful paint | 100 ms |
+| DOMContentLoaded | 97 ms |
+| load | 97 ms |
+| first paint | 104 ms |
+| first contentful paint | 140 ms |
 | symbolic 空间挂载 | true |
-| 2 秒帧采样 | 121 帧，平均 16.56 ms，P95 16.80 ms |
+| 2 秒帧采样 | 121 帧，平均 16.62 ms，P95 16.70 ms |
 
 限制：这是本地 headless 开发服务，不是手机、真实网络或生产构建；2 秒采样是快速检查，完整 75/180 秒结果见下节，仍不替代真实设备验收。
 

@@ -40,12 +40,14 @@ function BodyMap({ region, onSelect }: { region: SomaticRegion | null; onSelect:
   </div>
 }
 
-export function SomaticEntry({ onStart }: { onStart: (encounter: Encounter) => void }) {
+export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Encounter) => void; onRemember?: (capture: SomaticCapture, name: string) => void }) {
   const [region, setRegion] = useState<SomaticRegion | null>(null)
   const [sensation, setSensation] = useState<SomaticSensation | null>(null)
   const [intensity, setIntensity] = useState<1 | 2 | 3 | 4 | 5>(3)
   const [breath, setBreath] = useState<BreathState | null>(null)
   const [selectedFragments, setSelectedFragments] = useState<AssociativeFragmentId[]>([])
+  const [name, setName] = useState('')
+  const [remember, setRemember] = useState(true)
 
   const toggleFragment = (id: AssociativeFragmentId) => {
     setSelectedFragments(current => current.includes(id)
@@ -60,6 +62,7 @@ export function SomaticEntry({ onStart }: { onStart: (encounter: Encounter) => v
     event.preventDefault()
     if (!canEnter || !region || !sensation || !breath) return
     const capture: SomaticCapture = { region, sensation, intensity, breath, fragments: selectedFragments }
+    if (remember) onRemember?.(capture, name)
     onStart(createInnerCaptureEncounter(capture))
   }}>
     <div className="somatic-step">
@@ -96,6 +99,12 @@ export function SomaticEntry({ onStart }: { onStart: (encounter: Encounter) => v
           </button>
         })}
       </div>
+    </div>
+
+    <div className="somatic-name">
+      <label htmlFor="motif-name">给这次感觉一个名字（可留空）</label>
+      <input id="motif-name" value={name} maxLength={60} onChange={event => setName(event.target.value)} placeholder="比如：胸口的旧门" />
+      <label className="remember-line"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> 保存到本机母题日记（可删除）</label>
     </div>
 
     <div className="actions">

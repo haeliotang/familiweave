@@ -131,3 +131,19 @@ textarea { display: block; width: 100%; min-height: 130px; padding: 18px; border
 .palette-forest .fragment-visual { background: linear-gradient(140deg, #9dae86, #496247 52%, #1b2a1e) }
 .palette-mirror .fragment-visual { background: linear-gradient(135deg, #d8e0de, #889ca0 50%, #2e3d40) }
 @media (max-width: 720px) { .fragment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } .somatic-entry { padding: 14px } }
+/* v1 local motif journal: user-named, local-only, no interpretation. */
+.somatic-name { display: flex; flex-direction: column; gap: 8px; margin: 18px 0 8px; padding-top: 16px; border-top: 1px solid #e4e0d5 }
+.somatic-name > label:first-child { color: #596158; font-size: 13px }
+.somatic-name input[type="text"], .somatic-name input:not([type]) { padding: 10px 12px; border: 1px solid #cdd4c9; border-radius: 8px; background: #fffcf5; color: #292d29; font: inherit }
+.remember-line { display: flex; align-items: center; gap: 8px; color: #71786d; font-size: 13px }
+.motif-journal { margin-top: 32px; padding-top: 22px; border-top: 1px solid #deded3 }
+.journal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap }
+.journal-header h2 { margin: 0 0 4px; font: 600 18px/1.4 Georgia, serif; color: #292d29 }
+.journal-header .actions { flex-wrap: wrap }
+.motif-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px }
+.motif-item { padding: 12px 14px; border: 1px solid #deded3; border-radius: 12px; background: #f4f1e8 }
+.motif-main { display: flex; align-items: baseline; justify-content: space-between; gap: 10px }
+.motif-name { font-weight: 600; color: #292d29 }
+.motif-date { color: #8a9186; font-size: 12px }
+.motif-meta { margin: 6px 0 8px; color: #71786d; font-size: 12px; line-height: 1.6 }
+.motif-item .small { padding: 4px 8px; font-size: 12px }

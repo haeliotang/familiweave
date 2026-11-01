@@ -4,6 +4,8 @@ import type { Encounter } from './encounter'
 import { demoInnerEncounter, demoInnerSpaceEncounter } from './inner-encounter'
 import { InnerEntry } from './inner-entry'
 import { SomaticEntry } from './somatic-entry'
+import { MotifJournal } from './motif-journal-view'
+import { addMotif, clearMotifs, loadMotifs, removeMotif, type MotifEntry } from './motif-journal'
 import { SceneView } from './scene-loader'
 import './style.css'
 
@@ -11,6 +13,7 @@ function App() {
   const [current, setCurrent] = useState<Encounter | null>(null)
   const [replay, setReplay] = useState(0)
   const [entryMode, setEntryMode] = useState<'somatic' | 'text'>('somatic')
+  const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
   const isSpace = current?.innerPlan?.format === 'space'
 
   return <main>
@@ -23,12 +26,15 @@ function App() {
         <button role="tab" aria-selected={entryMode === 'somatic'} className={entryMode === 'somatic' ? 'selected' : ''} onClick={() => setEntryMode('somatic')}>从身体开始</button>
         <button role="tab" aria-selected={entryMode === 'text'} className={entryMode === 'text' ? 'selected' : ''} onClick={() => setEntryMode('text')}>用文字</button>
       </div>
-      {entryMode === 'somatic' ? <SomaticEntry onStart={setCurrent} /> : <InnerEntry onStart={setCurrent} />}
+      {entryMode === 'somatic'
+        ? <SomaticEntry onStart={setCurrent} onRemember={(capture, name) => setMotifs(addMotif(window.localStorage, { capture, name }))} />
+        : <InnerEntry onStart={setCurrent} />}
       <div className="actions">
         <button className="quiet" onClick={() => setCurrent(demoInnerEncounter())}>相遇示例</button>
         <button className="quiet" onClick={() => setCurrent(demoInnerSpaceEncounter())}>空间示例</button>
       </div>
       <p className="note">当前为本地研究原型；不解释、不诊断、默认不上传。仪式、物件与档案形式尚未实现。</p>
+      <MotifJournal entries={motifs} onRemove={id => setMotifs(removeMotif(window.localStorage, id))} onClear={() => setMotifs(clearMotifs(window.localStorage))} />
     </section> : <section className="view">
       <div className="view-header">
         <button className="quiet" onClick={() => setCurrent(null)}>← 返回</button>
