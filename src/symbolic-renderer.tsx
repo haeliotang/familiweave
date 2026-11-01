@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { InnerAction } from './inner'
 import type { Encounter } from './encounter'
 import type { WorldRendererProps } from './world-renderer'
+import { useLanguage } from './i18n'
 
 export function validateSymbolic(encounter: Encounter) {
   const plan = encounter.innerPlan
@@ -24,6 +25,7 @@ export function symbolicPhase(seconds: number, duration = 75, format: 'encounter
 }
 
 export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
+  const { t } = useLanguage()
   const plan = encounter.innerPlan
   const [seconds, setSeconds] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -52,8 +54,8 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
     return (
       <div className="symbolic-episode symbolic-left">
         <div className="symbolic-left-copy">
-          <p>你离开了这个空间。</p>
-          <button className="quiet" onClick={() => setLeft(false)}>重新进入</button>
+          <p>{t('你离开了这个空间。')}</p>
+          <button className="quiet" onClick={() => setLeft(false)}>{t('重新进入')}</button>
         </div>
       </div>
     )
@@ -72,11 +74,11 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
       <div className="symbolic-fog" />
       {!isSpace && <div className="symbolic-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>}
       <div className="symbolic-controls">
-        <button className="quiet" onClick={() => setSeconds(value => Math.min(plan.durationSec, value + 8))}>靠近一点</button>
-        <button className="quiet" onClick={() => setPaused(value => !value)}>{paused ? '继续停留' : '停留'}</button>
-        <button className="quiet" onClick={() => setLeft(true)}>离开</button>
+        <button className="quiet" onClick={() => setSeconds(value => Math.min(plan.durationSec, value + 8))}>{t('靠近一点')}</button>
+        <button className="quiet" onClick={() => setPaused(value => !value)}>{paused ? t('继续停留') : t('停留')}</button>
+        <button className="quiet" onClick={() => setLeft(true)}>{t('离开')}</button>
       </div>
-      {done && <div className="symbolic-end" role="status"><p>这段空间结束了。</p><button className="quiet" onClick={() => { setSeconds(0); setPaused(false) }}>再进入一次</button></div>}
+      {done && <div className="symbolic-end" role="status"><p>{t('这段空间结束了。')}</p><button className="quiet" onClick={() => { setSeconds(0); setPaused(false) }}>{t('再进入一次')}</button></div>}
     </div>
   )
 }

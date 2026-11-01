@@ -25,13 +25,13 @@ export interface RelationshipStorageLike {
 export const relationshipStorageKey = 'familiweave.relationship-triggers.v1'
 const maxEntries = 100
 
-export const responses: Array<{ value: RelationshipResponse; label: string }> = [
-  { value: 'approach', label: '靠近' },
-  { value: 'freeze', label: '僵住' },
-  { value: 'fawn', label: '讨好' },
-  { value: 'flee', label: '逃离' },
-  { value: 'fight', label: '反击' },
-  { value: 'numb', label: '麻木/断开' },
+export const responses: Array<{ value: RelationshipResponse; label: string; labelEn: string }> = [
+  { value: 'approach', label: '靠近', labelEn: 'Approach' },
+  { value: 'freeze', label: '僵住', labelEn: 'Freeze' },
+  { value: 'fawn', label: '讨好', labelEn: 'Fawn' },
+  { value: 'flee', label: '逃离', labelEn: 'Flee' },
+  { value: 'fight', label: '反击', labelEn: 'Fight' },
+  { value: 'numb', label: '麻木/断开', labelEn: 'Numb / disconnect' },
 ]
 
 export const responseLabels: Record<RelationshipResponse, string> = Object.fromEntries(responses.map(item => [item.value, item.label])) as Record<RelationshipResponse, string>
@@ -122,9 +122,9 @@ export function exportRelationshipTriggers(entries: RelationshipTrigger[]) {
 
 export interface RelationshipSummary {
   total: number
-  regions: Array<{ value: SomaticRegion; label: string; count: number }>
-  sensations: Array<{ value: SomaticSensation; label: string; count: number }>
-  responses: Array<{ value: RelationshipResponse; label: string; count: number }>
+  regions: Array<{ value: SomaticRegion; label: string; labelEn: string; count: number }>
+  sensations: Array<{ value: SomaticSensation; label: string; labelEn: string; count: number }>
+  responses: Array<{ value: RelationshipResponse; label: string; labelEn: string; count: number }>
 }
 
 /** Descriptive counts of fields the user chose. This is not an inference about the user or anyone else. */
@@ -134,8 +134,8 @@ export function summarizeRelationshipTriggers(entries: RelationshipTrigger[]): R
     for (const value of values) map.set(value, (map.get(value) ?? 0) + 1)
     return [...map.entries()].sort((left, right) => right[1] - left[1])
   }
-  const regionsSummary = count(entries.map(entry => entry.region)).map(([value, count]) => ({ value, label: regions.find(item => item.value === value)?.label ?? value, count }))
-  const sensationsSummary = count(entries.map(entry => entry.sensation)).map(([value, count]) => ({ value, label: sensations.find(item => item.value === value)?.label ?? value, count }))
-  const responsesSummary = count(entries.map(entry => entry.response)).map(([value, count]) => ({ value, label: responseLabels[value], count }))
+  const regionsSummary = count(entries.map(entry => entry.region)).map(([value, count]) => { const item = regions.find(entry => entry.value === value); return { value, label: item?.label ?? value, labelEn: item?.labelEn ?? value, count } })
+  const sensationsSummary = count(entries.map(entry => entry.sensation)).map(([value, count]) => { const item = sensations.find(entry => entry.value === value); return { value, label: item?.label ?? value, labelEn: item?.labelEn ?? value, count } })
+  const responsesSummary = count(entries.map(entry => entry.response)).map(([value, count]) => { const item = responses.find(entry => entry.value === value); return { value, label: item?.label ?? value, labelEn: item?.labelEn ?? value, count } })
   return { total: entries.length, regions: regionsSummary, sensations: sensationsSummary, responses: responsesSummary }
 }

@@ -1,6 +1,10 @@
 # Familiweave
 
+**中文** | [English](README.en.md)
+
 > 为不可言说的内在经验，提供一个可进入、可退出、可自己解释的象征空间。
+
+![Familiweave 桌面外壳（英文界面）](docs/assets/desktop-shell-en.png)
 
 Familiweave 是一个关于内在经验的公开探索项目，由 **Inceptless 公司**发起。
 
@@ -118,7 +122,7 @@ v0 不会测量潜意识或生理信号，也不会把意象解释成某段记�
 
 ## 桌面外壳
 
-前端已经收进 Tauri 2 三栏工作台：左侧导航与最近母题，中间捕获/母题详情，右侧“空间将收到的内容”。Rust 宿主在 `apps/desktop/src-tauri` 管理 app data 文件沙箱、SQLite 持久化与打包配置；配色参考 inceptless 的纸面/墨色三栏。
+前端已经收进 Tauri 2 三栏工作台：左侧导航与最近母题，中间捕获/母题详情，右侧“空间将收到的内容”。Rust 宿主在 `apps/desktop/src-tauri` 管理 app data 文件沙箱、SQLite 持久化与打包配置；配色与布局参考 inceptless 的中性纸面/墨色三栏。
 
 ![桌面外壳](docs/assets/desktop-shell.png)
 
@@ -241,6 +245,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/desktop-shell.tsx`](src/desktop-shell.tsx)：三栏工作台（侧栏 / 中间 / 上下文面板）。
 - [`src/host.ts`](src/host.ts)：Tauri invoke 桥；Web 预览自动降级。
 - [`src/local-store.ts`](src/local-store.ts)：SQLite/本地快照读写与 Web 回退。
+- [`src/i18n.tsx`](src/i18n.tsx)：中英双语界面。
 - [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/)：Tauri 2 Rust 宿主（文件沙箱、SQLite 句柄、打包配置）。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
 - [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点、v3 本机信号与安全/共鸣评估。
@@ -273,6 +278,10 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 ## 参与
 
 欢迎通过 Issues 讨论体验想法、报告可复现的问题，或提出空间、声音和交互改进。尽量附上浏览器与系统版本、复现步骤及预期表现，使用合成资料举例，避免在公开讨论中上传私人照片、录音、梦或情绪资料。
+
+## 许可证
+
+Apache License 2.0。见 [LICENSE](LICENSE)。
 
 ## 发起方
 

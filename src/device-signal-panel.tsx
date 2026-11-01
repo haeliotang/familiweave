@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { grantLocalSignalConsent } from './somatic-signal'
 import { WebSocketSignalSource, type DeviceSourceState } from './device-signal-source'
 import { summarizeTimeline, traceToTimeline, type SignalSample, type SignalTimeline } from './signal-source'
+import { useLanguage } from './i18n'
 
 export function DeviceSignalPanel() {
+  const { t } = useLanguage()
   const [url, setUrl] = useState('ws://127.0.0.1:8765')
   const [consent, setConsent] = useState(false)
   const [state, setState] = useState<DeviceSourceState>('idle')
@@ -59,22 +61,22 @@ export function DeviceSignalPanel() {
 
   const summary = timeline ? summarizeTimeline(timeline) : null
   return <section className="device-lab" aria-labelledby="device-lab-title">
-    <h2 id="device-lab-title">BCI-2 设备桥接（实验）</h2>
-    <p className="note">连接<strong>本机</strong> WebSocket 桥接，接收 JSON 样本。浏览器不直接读 LSL，也不上传数据；原始信号默认不保存。</p>
-    <label className="device-url">本机桥接地址
+    <h2 id="device-lab-title">{t('BCI-2 设备桥接（实验）')}</h2>
+    <p className="note">{t('连接')}<strong>{t('本机')}</strong>{t(' WebSocket 桥接，接收 JSON 样本。浏览器不直接读 LSL，也不上传数据；原始信号默认不保存。')}</p>
+    <label className="device-url">{t('本机桥接地址')}
       <input value={url} onChange={event => setUrl(event.target.value)} placeholder="ws://127.0.0.1:8765" />
     </label>
-    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> 我同意连接本机设备桥接，并理解这不是临床数据</label>
+    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('我同意连接本机设备桥接，并理解这不是临床数据')}</label>
     <div className="actions">
-      <button type="button" disabled={!consent || state === 'connecting' || state === 'connected'} onClick={start}>{state === 'connecting' ? '连接中…' : '连接桥接'}</button>
-      <button type="button" className="quiet" disabled={!source.current} onClick={stop}>断开</button>
-      {timeline && <button type="button" className="quiet" onClick={exportTimeline}>导出设备时间轴</button>}
+      <button type="button" disabled={!consent || state === 'connecting' || state === 'connected'} onClick={start}>{state === 'connecting' ? t('连接中…') : t('连接桥接')}</button>
+      <button type="button" className="quiet" disabled={!source.current} onClick={stop}>{t('断开')}</button>
+      {timeline && <button type="button" className="quiet" onClick={exportTimeline}>{t('导出设备时间轴')}</button>}
     </div>
     <div className="signal-readout">
-      <span>状态：{state}</span>
-      <span>样本：{timeline ? summary?.sampleCount ?? 0 : samples.length}</span>
-      {message && <span role="status">错误：{message}</span>}
+      <span>{t('状态')}：{state}</span>
+      <span>{t('样本')}：{timeline ? summary?.sampleCount ?? 0 : samples.length}</span>
+      {message && <span role="status">{t('错误')}：{message}</span>}
     </div>
-    {source.current && <p className="note">等待本机桥接发送 hello / sample / samples JSON 包；不会保存原始信号。</p>}
+    {source.current && <p className="note">{t('等待本机桥接发送 hello / sample / samples JSON 包；不会保存原始信号。')}</p>}
   </section>
 }

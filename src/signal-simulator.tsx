@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { grantLocalSignalConsent } from './somatic-signal'
 import { SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalSample, type SignalTimeline } from './signal-source'
+import { useLanguage } from './i18n'
 
 export function SignalSimulator() {
+  const { t } = useLanguage()
   const [consent, setConsent] = useState(false)
   const [running, setRunning] = useState(false)
   const [samples, setSamples] = useState<SignalSample[]>([])
@@ -55,19 +57,19 @@ export function SignalSimulator() {
   }
 
   return <section className="signal-lab" aria-labelledby="signal-lab-title">
-    <h2 id="signal-lab-title">BCI-1 信号实验台</h2>
-    <p className="note">这里产生的是<strong>模拟数据</strong>，不是你的身体信号，也不是医疗数据。用于验证时间轴、采样与导出管线。</p>
-    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> 我理解这是模拟信号，不是真实采集</label>
+    <h2 id="signal-lab-title">{t('BCI-1 信号实验台')}</h2>
+    <p className="note">{t('这里产生的是')}<strong>{t('模拟数据')}</strong>{t('，不是你的身体信号，也不是医疗数据。用于验证时间轴、采样与导出管线。')}</p>
+    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('我理解这是模拟信号，不是真实采集')}</label>
     <div className="actions">
-      <button type="button" disabled={!consent || running} onClick={start}>运行 15 秒模拟</button>
-      <button type="button" className="quiet" disabled={!running} onClick={stop}>停止</button>
-      {timeline && <button type="button" className="quiet" onClick={exportTimeline}>导出时间轴 JSON</button>}
+      <button type="button" disabled={!consent || running} onClick={start}>{t('运行 15 秒模拟')}</button>
+      <button type="button" className="quiet" disabled={!running} onClick={stop}>{t('停止')}</button>
+      {timeline && <button type="button" className="quiet" onClick={exportTimeline}>{t('导出时间轴 JSON')}</button>}
     </div>
     <div className="signal-readout">
-      <span>心率模拟 {heart?.value ?? '—'} bpm</span>
-      <span>EDA 模拟 {eda?.value ?? '—'} uS</span>
-      <span>{running ? `采样中 · ${samples.length}` : timeline ? `已停止 · ${summary?.sampleCount ?? 0} 个样本` : '未开始'}</span>
+      <span>{t('心率模拟')} {heart?.value ?? '—'} bpm</span>
+      <span>{t('EDA 模拟')} {eda?.value ?? '—'} uS</span>
+      <span>{running ? `${t('采样中')} · ${samples.length}` : timeline ? `${t('已停止')} · ${summary?.sampleCount ?? 0} ${t('个样本')}` : t('未开始')}</span>
     </div>
-    {summary && <p className="note">时长 {summary.durationSec}s · 来源 {timeline?.sources.join(', ')} · {summary.simulated ? '模拟' : '真实'} · 仅本地</p>}
+    {summary && <p className="note">{t('时长')} {summary.durationSec}s · {t('来源')} {timeline?.sources.join(', ')} · {summary.simulated ? t('模拟') : t('真实')} · {t('仅本地')}</p>}
   </section>
 }

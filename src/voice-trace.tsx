@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { grantLocalSignalConsent, voiceTraceFromSamples, type MotifSignals, type VoiceTrace } from './somatic-signal'
+import { useLanguage } from './i18n'
 
 type Status = 'idle' | 'requesting' | 'recording' | 'done' | 'error'
 
 export function VoiceTraceRecorder({ onTrace }: { onTrace: (signals: MotifSignals | null) => void }) {
+  const { t } = useLanguage()
   const [consent, setConsent] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
   const [trace, setTrace] = useState<VoiceTrace | null>(null)
@@ -57,7 +59,7 @@ export function VoiceTraceRecorder({ onTrace }: { onTrace: (signals: MotifSignal
             setStatus('done')
             onTrace({ consent: grantLocalSignalConsent(), voice: next })
           } catch {
-            setError('没有采到足够的声音样本。')
+            setError(t('没有采到足够的声音样本。'))
             setStatus('error')
           } finally {
             stream.current?.getTracks().forEach(track => track.stop())
@@ -69,18 +71,18 @@ export function VoiceTraceRecorder({ onTrace }: { onTrace: (signals: MotifSignal
       }, 100)
     } catch {
       stop()
-      setError('无法启用麦克风。你仍然可以只记录身体与意象。')
+      setError(t('无法启用麦克风。你仍然可以只记录身体与意象。'))
       setStatus('error')
     }
   }
 
   return <div className="voice-trace">
-    <h3>可选：本机声音测量</h3>
-    <p className="step-note">测量 8 秒内的音量与停顿；不保存原始音频，不上传。麦克风只在按下按钮后开启。</p>
-    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> 允许本机麦克风测量，并只把摘要存进母题</label>
+    <h3>{t('可选：本机声音测量')}</h3>
+    <p className="step-note">{t('测量 8 秒内的音量与停顿；不保存原始音频，不上传。麦克风只在按下按钮后开启。')}</p>
+    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('允许本机麦克风测量，并只把摘要存进母题')}</label>
     <div className="actions">
-      <button type="button" disabled={!consent || status === 'requesting' || status === 'recording'} onClick={() => void start()}>{status === 'recording' ? '测量中…' : '测量 8 秒'}</button>
-      {trace && <span className="selection-summary">音量均值 {trace.rmsMean.toFixed(3)} · 停顿比例 {trace.pauseRatio.toFixed(2)}</span>}
+      <button type="button" disabled={!consent || status === 'requesting' || status === 'recording'} onClick={() => void start()}>{status === 'recording' ? t('测量中…') : t('测量 8 秒')}</button>
+      {trace && <span className="selection-summary">{t('音量均值')} {trace.rmsMean.toFixed(3)} · {t('停顿比例')} {trace.pauseRatio.toFixed(2)}</span>}
       {error && <span className="error-inline" role="status">{error}</span>}
     </div>
   </div>

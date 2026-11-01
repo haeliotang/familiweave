@@ -134,3 +134,65 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 .primary-button { background: #33423a }
 .check-item { background: #fbfbf8; border-color: #e4e4de }
 .context-note, .trigger-summary, .local-data-panel, .signal-lab, .device-lab { background-color: #fbfbf8; border-color: #e4e4de }
+/* Exact Inceptless-like layout: no global title bar; sidebar, top tabs, right rail. */
+.desktop-shell { display: block; height: 100%; background: #f7f7f7 }
+.shell-body { display: grid; grid-template-columns: 236px minmax(0, 1fr) 330px; height: 100%; min-height: 0 }
+.sidebar { background: #e9e8eb; border-right: 1px solid #dfdfe1; padding: 0 10px 10px; min-height: 0 }
+.sidebar-top { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 34px 8px 12px }
+.traffic-lights { position: absolute; top: 14px; left: 8px; display: flex; gap: 7px }
+.traffic-lights span { width: 11px; height: 11px; border-radius: 50%; background: #c9c9c9; border: 1px solid rgba(0,0,0,.08) }
+.traffic-lights span:nth-child(1) { background: #ff5f57 }
+.traffic-lights span:nth-child(2) { background: #febc2e }
+.traffic-lights span:nth-child(3) { background: #28c840 }
+.sidebar-brand { padding: 2px 2px 4px; color: #2b2b2b; font: 600 12px/1.2 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif; letter-spacing: .3px }
+.search-box { background: #f7f7f7; border: 1px solid #dedee1; border-radius: 8px; padding: 7px 9px; color: #9b9b9b }
+.new-button { background: #2e2e2e; border-radius: 8px; color: #fff; padding: 9px 11px; font-size: 12px }
+.sidebar-nav { margin-top: 10px; gap: 1px }
+.sidebar-nav button { border-radius: 7px; padding: 7px 9px; color: #55565a; font-size: 12px }
+.sidebar-nav button.active { background: #dedee1; color: #202024; font-weight: 600 }
+.sidebar-nav button:hover { background: #e2e1e4 }
+.nav-icon { color: #6f7074; font-size: 14px }
+.sidebar-recent { border-top-color: #dcdcdf; margin-top: 14px; padding-top: 12px }
+.section-label { color: #86868b; font-size: 10px; letter-spacing: .7px }
+.recent-item { border-radius: 7px; padding: 7px 8px; color: #46474b }
+.recent-item:hover { background: #e2e1e4 }
+.recent-item.active { background: #dedee1; border-left: 2px solid #8a8a8e }
+.recent-title { font-size: 11px; font-weight: 600 }
+.recent-meta { color: #8b8c90; font-size: 9px }
+.sidebar-footer { border-top-color: #dcdcdf; color: #77787c }
+.sidebar-footer strong { color: #606166; font-size: 9px }
+.sidebar-footer small { color: #96979b; font-size: 9px }
+.workspace { display: flex; flex-direction: column; min-height: 0; overflow: hidden; background: #f7f7f7; max-width: none; margin: 0; padding: 0 }
+.workspace-topbar { display: flex; flex: 0 0 48px; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid #e3e3e3; background: #f7f7f7; -webkit-app-region: drag; user-select: none }
+.workspace-topbar button { -webkit-app-region: no-drag }
+.workspace-tabs { display: flex; flex: 1; align-items: center; gap: 2px; padding: 0; margin: 0; border: 0 }
+.workspace-tabs button { padding: 8px 10px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent; color: #7b7c80; font-size: 12px }
+.workspace-tabs button.active { color: #222326; border-bottom-color: #222326; font-weight: 600 }
+.top-label { color: #68696d; font-size: 12px; font-weight: 600 }
+.workspace-path { color: #9a9b9f; font-size: 10px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.workspace-scroll { flex: 1; min-height: 0; overflow: auto; background: #f7f7f7 }
+.workspace-header { padding: 26px 40px 12px; gap: 14px }
+.workspace-header .eyebrow { margin-bottom: 7px; color: #898a8e; font-size: 10px; letter-spacing: 1px }
+.workspace-header h1 { font: 600 24px/1.35 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif; letter-spacing: -.2px; color: #242528 }
+.workspace-meta { color: #8b8c90; font-size: 11px }
+.status-pill { border-color: #dedee1; color: #77787c; font-size: 9px }
+.local-badge { border-color: #dedee1; color: #696a6e; font-size: 9px }
+.capture-wrap { padding: 8px 40px 40px; max-width: 920px }
+.detail-grid { padding: 18px 40px 40px }
+.paper-card, .motif-item, .host-card { border-color: #e1e1e3; background: #f7f7f7; border-radius: 10px }
+.workspace > .paper-card { margin: 18px 40px 36px }
+.motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel { margin: 18px 40px 36px; padding-top: 16px; border-top-color: #e3e3e3 }
+.context-panel { background: #f7f7f7; border-left: 1px solid #e3e3e3; padding: 20px 18px; color: #58595d }
+.context-panel .context-heading { color: #35363a; font-size: 11px }
+.context-panel .check-item { background: #f7f7f7; border-color: #e2e2e4; color: #636468 }
+.context-panel .context-note { background: #f7f7f7; border-color: #e2e2e4; color: #77787c }
+.context-panel .primary-button { background: #2e2e2e }
+.scene-workspace { padding: 0 28px 24px }
+.scene-toolbar { padding: 16px 0 12px }
+.scene-workspace .symbolic-episode, .scene-workspace .captured-episode { height: calc(100vh - 48px - 96px); min-height: 380px; border-radius: 10px }
+.scene-footer { padding-top: 10px }
+@media (max-width: 1180px) { .shell-body { grid-template-columns: 220px minmax(0, 1fr) 300px } .workspace-header, .detail-grid, .capture-wrap, .motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel, .host-card { padding-left: 28px; padding-right: 28px; margin-left: 28px; margin-right: 28px } .workspace-topbar { padding: 0 28px } }
+@media (max-width: 920px) { .shell-body { grid-template-columns: 208px minmax(0, 1fr) } .context-panel { display: none } }
+@media (max-width: 680px) { .shell-body { grid-template-columns: minmax(0, 1fr) } .sidebar { display: none } }
+.lang-toggle { padding: 4px 8px; border: 1px solid #dedee1; border-radius: 6px; background: transparent; color: #737478; font-size: 10px; line-height: 1.2 }
+.lang-toggle:hover { background: #ededee; color: #333 }
