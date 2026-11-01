@@ -1,7 +1,11 @@
 use rusqlite::Connection;
 use serde::Serialize;
 use serde_json::{Value, json};
-use std::{fs, path::PathBuf, sync::Mutex};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 use tauri::{Manager, State};
 
 #[cfg(test)]
@@ -205,11 +209,51 @@ fn db_status(state: State<'_, DbState>) -> Result<DbStatus, String> {
     })
 }
 
+fn copy_legacy_file(source: &Path, destination: &Path) -> Result<(), std::io::Error> {
+    if source.is_file() && !destination.exists() {
+        if let Some(parent) = destination.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::copy(source, destination)?;
+    }
+    Ok(())
+}
+
+fn migrate_legacy_app_data(data: &Path) -> Result<(), std::io::Error> {
+    let Some(parent) = data.parent() else {
+        return Ok(());
+    };
+    let legacy = parent.join("com.inceptless.familiweave");
+    if legacy == data || !legacy.is_dir() {
+        return Ok(());
+    }
+    fs::create_dir_all(data)?;
+    if !data.join("familiweave.db").exists() {
+        copy_legacy_file(&legacy.join("familiweave.db"), &data.join("familiweave.db"))?;
+    }
+    let legacy_files = legacy.join("local-files");
+    if legacy_files.is_dir() {
+        for entry in fs::read_dir(legacy_files)? {
+            let entry = entry?;
+            if entry.file_type()?.is_file() {
+                copy_legacy_file(
+                    &entry.path(),
+                    &data.join("local-files").join(entry.file_name()),
+                )?;
+            }
+        }
+    }
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             let data = app.path().app_data_dir()?;
+            if let Err(error) = migrate_legacy_app_data(&data) {
+                eprintln!("legacy app-data migration skipped: {error}");
+            }
             fs::create_dir_all(&data)?;
             let database_path = data.join("familiweave.db");
             let connection = Connection::open(&database_path)?;
@@ -293,5 +337,32 @@ mod tests {
             assert!(sandbox_file_name(name).is_err(), "accepted {name:?}");
         }
         assert!(sandbox_file_name(&"a".repeat(121)).is_err());
+    }
+    #[test]
+    fn migrates_legacy_app_data_into_the_corrected_bundle_id() {
+        let root = std::env::temp_dir().join(format!(
+            "familiweave-migration-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let legacy = root.join("com.inceptless.familiweave");
+        let current = root.join("com.inceptless.familiweave");
+        std::fs::create_dir_all(legacy.join("local-files")).unwrap();
+        std::fs::write(legacy.join("familiweave.db"), b"legacy-db").unwrap();
+        std::fs::write(legacy.join("local-files/note.json"), b"{\"ok\":true}").unwrap();
+
+        super::migrate_legacy_app_data(&current).unwrap();
+
+        assert_eq!(
+            std::fs::read(current.join("familiweave.db")).unwrap(),
+            b"legacy-db"
+        );
+        assert_eq!(
+            std::fs::read(current.join("local-files/note.json")).unwrap(),
+            b"{\"ok\":true}"
+        );
+        let _ = std::fs::remove_dir_all(root);
     }
 }

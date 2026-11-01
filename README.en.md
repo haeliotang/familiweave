@@ -268,7 +268,9 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 
 ## 12. License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+Apache License 2.0. Copyright 2026 Inceptless. See [LICENSE](LICENSE).
+
+Historical large-file and audio audit: [docs/privacy/history-audit-2026-11-01.md](docs/privacy/history-audit-2026-11-01.md).
 
 ## 13. Initiator
 

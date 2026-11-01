@@ -265,7 +265,9 @@ pnpm tauri:build --bundles app
 
 ## 12. 许可证
 
-Apache License 2.0。见 [LICENSE](LICENSE)。
+Apache License 2.0。Copyright 2026 Inceptless。见 [LICENSE](LICENSE)。
+
+历史大文件与音频审计见 [docs/privacy/history-audit-2026-11-01.md](docs/privacy/history-audit-2026-11-01.md)。
 
 ## 13. 发起方
 
