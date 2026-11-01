@@ -96,7 +96,7 @@ symbolic 渲染器
 | 同意与隐私 | 用途绑定 consent；梦、感觉与真实资料默认不上传 |
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总 |
 | Genie 4 | 适配器接口 + Rust 配置检查；没有网络调用 |
-| 本地持久化 | 母题日记存于浏览器 `localStorage`；无服务端、无账号、无同步 |
+| 本地持久化 | 母题日记与关系触发点存于浏览器 `localStorage`；无服务端、无账号、无同步 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
 
@@ -106,6 +106,7 @@ symbolic 渲染器
 - **用文字**：输入一段梦/画面/地点/感觉；选择 75 秒相遇或 180 秒空间。
 - **示例**：直接进入相遇或空间示例。
 - **本机母题日记**：给这次感觉命名，可选择仅保存在本机；支持删除与导出 JSON。
+- **关系触发点**：记录你注意到的触发瞬间、身体反应与自动反应；只画你自己的地图，不推断对方、不做匹配。
 - **安全**：不解释、不评分、不诊断；离开随时可用。
 
 v0 不会测量潜意识或生理信号，也不会把意象解释成某段记忆。详细边界见 [v0：躯体地图 + 意象碎片](docs/inner/v0-somatic-capture.md)。
@@ -183,6 +184,8 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/somatic-entry.tsx`](src/somatic-entry.tsx)：v0 默认入口：身体地图 + 意象选择，无文字框。
 - [`src/motif-journal.ts`](src/motif-journal.ts)：本机母题日记的存储、删除与导出。
 - [`src/motif-journal-view.tsx`](src/motif-journal-view.tsx)：母题日记列表。
+- [`src/relationship.ts`](src/relationship.ts)：本机关系触发点记录与导出。
+- [`src/relationship-map.tsx`](src/relationship-map.tsx)：用户自述的关系触发点地图。
 - [`src/inner-entry.tsx`](src/inner-entry.tsx)：文字输入模式。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声渲染器。
@@ -195,7 +198,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/genie/`](src/genie/)：Genie 4 适配器接口与未配置占位实现（不联网）。
 - [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
-- [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记与安全/共鸣评估。
+- [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点与安全/共鸣评估。
 - [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划、基线。
 - [`docs/evaluation/`](docs/evaluation/)：生成实验模板、评分表与日志示例。
@@ -205,7 +208,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 ## 路线图
 
 - **Phase 0（已完成）**：`InnerPlan`、`WorldRenderer` 接口、manifest 接入、捕获 schema、同意记录、Rust 工具、Genie 适配器骨架与 API 清单。
-- **Phase 1（当前）**：相遇与空间两种 symbolic 形式；v0 躯体捕获与 v1 本机母题日记已可用；真实设备、生产构建与交互压力待验证。
+- **Phase 1（当前）**：相遇与空间两种 symbolic 形式；v0 躯体捕获、v1 母题日记与 v2 关系触发点地图已可用；真实设备、生产构建与交互压力待验证。
 - **Phase 2（验证通过）**：捕获回放、删除、同意流程、成本模型与小样本体验测试。
 - **Phase 3（Genie 4 / 备选）**：Genie 4 可用后用世界模型渲染梦逻辑；Marble、Reactor 或开源模型作为备选。
 - **R4 清理**：旧三维前端、资料准备服务与 147 MB 旧模型资产已移除；核心保持 symbolic-only。

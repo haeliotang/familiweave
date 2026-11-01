@@ -1,0 +1,115 @@
+import { breaths, regions, sensations, type BreathState, type SomaticRegion, type SomaticSensation } from './somatic'
+
+export type RelationshipResponse = 'approach' | 'freeze' | 'fawn' | 'flee' | 'fight' | 'numb'
+
+export interface RelationshipTrigger {
+  version: 'relationship-trigger-v1'
+  id: string
+  createdAt: string
+  role: string
+  situation: string
+  cue: string
+  region: SomaticRegion
+  sensation: SomaticSensation
+  intensity: 1 | 2 | 3 | 4 | 5
+  breath: BreathState
+  response: RelationshipResponse
+}
+
+export interface RelationshipStorageLike {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+  removeItem(key: string): void
+}
+
+export const relationshipStorageKey = 'familiweave.relationship-triggers.v1'
+const maxEntries = 100
+
+export const responses: Array<{ value: RelationshipResponse; label: string }> = [
+  { value: 'approach', label: '靠近' },
+  { value: 'freeze', label: '僵住' },
+  { value: 'fawn', label: '讨好' },
+  { value: 'flee', label: '逃离' },
+  { value: 'fight', label: '反击' },
+  { value: 'numb', label: '麻木/断开' },
+]
+
+export const responseLabels: Record<RelationshipResponse, string> = Object.fromEntries(responses.map(item => [item.value, item.label])) as Record<RelationshipResponse, string>
+
+function trim(value: string, max: number) {
+  return value.trim().slice(0, max)
+}
+
+export function isRelationshipTrigger(value: unknown): value is RelationshipTrigger {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<RelationshipTrigger>
+  return entry.version === 'relationship-trigger-v1'
+    && typeof entry.id === 'string' && entry.id.length > 0
+    && typeof entry.createdAt === 'string' && !Number.isNaN(Date.parse(entry.createdAt))
+    && typeof entry.role === 'string' && typeof entry.situation === 'string' && typeof entry.cue === 'string'
+    && regions.some(item => item.value === entry.region)
+    && sensations.some(item => item.value === entry.sensation)
+    && Number.isInteger(entry.intensity) && entry.intensity! >= 1 && entry.intensity! <= 5
+    && breaths.some(item => item.value === entry.breath)
+    && responses.some(item => item.value === entry.response)
+}
+
+export function loadRelationshipTriggers(storage: RelationshipStorageLike): RelationshipTrigger[] {
+  try {
+    const raw = storage.getItem(relationshipStorageKey)
+    if (!raw) return []
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.filter(isRelationshipTrigger).slice(0, maxEntries) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveRelationshipTriggers(storage: RelationshipStorageLike, entries: RelationshipTrigger[]) {
+  storage.setItem(relationshipStorageKey, JSON.stringify(entries.slice(0, maxEntries)))
+}
+
+export function addRelationshipTrigger(storage: RelationshipStorageLike, input: {
+  role?: string
+  situation: string
+  cue: string
+  region: SomaticRegion
+  sensation: SomaticSensation
+  intensity: 1 | 2 | 3 | 4 | 5
+  breath: BreathState
+  response: RelationshipResponse
+  now?: string
+}): RelationshipTrigger[] {
+  if (!input.situation.trim() && !input.cue.trim()) throw new Error('请至少写下一个触发瞬间')
+  const entry: RelationshipTrigger = {
+    version: 'relationship-trigger-v1',
+    id: crypto.randomUUID(),
+    createdAt: input.now ?? new Date().toISOString(),
+    role: trim(input.role ?? '', 40),
+    situation: trim(input.situation, 100),
+    cue: trim(input.cue, 100),
+    region: input.region,
+    sensation: input.sensation,
+    intensity: input.intensity,
+    breath: input.breath,
+    response: input.response,
+  }
+  const entries = [entry, ...loadRelationshipTriggers(storage)].slice(0, maxEntries)
+  saveRelationshipTriggers(storage, entries)
+  return entries
+}
+
+export function removeRelationshipTrigger(storage: RelationshipStorageLike, id: string): RelationshipTrigger[] {
+  const entries = loadRelationshipTriggers(storage).filter(entry => entry.id !== id)
+  saveRelationshipTriggers(storage, entries)
+  return entries
+}
+
+export function clearRelationshipTriggers(storage: RelationshipStorageLike): RelationshipTrigger[] {
+  storage.removeItem(relationshipStorageKey)
+  return []
+}
+
+export function exportRelationshipTriggers(entries: RelationshipTrigger[]) {
+  return JSON.stringify({ version: 'relationship-export-v1', exportedAt: new Date().toISOString(), entries }, null, 2)
+}

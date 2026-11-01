@@ -147,3 +147,18 @@ textarea { display: block; width: 100%; min-height: 130px; padding: 18px; border
 .motif-date { color: #8a9186; font-size: 12px }
 .motif-meta { margin: 6px 0 8px; color: #71786d; font-size: 12px; line-height: 1.6 }
 .motif-item .small { padding: 4px 8px; font-size: 12px }
+/* v2 user-authored relationship trigger map; no inference or matching. */
+.relationship-journal { margin-top: 32px; padding-top: 22px; border-top: 1px solid #deded3 }
+.relationship-form { margin: 16px 0; padding: 16px; border: 1px solid #deded3; border-radius: 14px; background: #f4f1e8; display: grid; gap: 10px }
+.relationship-form > label { display: flex; flex-direction: column; gap: 5px; color: #596158; font-size: 13px }
+.relationship-form input, .relationship-form select { padding: 8px 10px; border: 1px solid #cdd4c9; border-radius: 8px; background: #fffcf5; color: #292d29; font: inherit }
+.relationship-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px }
+.trigger-map { display: block; width: min(100%, 360px); height: auto; margin: 12px auto; overflow: visible }
+.trigger-orbit { fill: none; stroke: #ded7c9; stroke-width: 1; stroke-dasharray: 3 5 }
+.trigger-self { fill: #8b5e54 }
+.trigger-self-label { fill: #fffcf5; font-size: 13px; font-weight: 600 }
+.trigger-edge { stroke: #d3c9ba; stroke-width: 1 }
+.trigger-node { fill: #e7d9cb; stroke: #8b5e54; stroke-width: 1 }
+.trigger-node-label { fill: #5a3c35; font-size: 11px }
+.trigger-more { fill: #8a9186; font-size: 11px }
+@media (max-width: 720px) { .relationship-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
