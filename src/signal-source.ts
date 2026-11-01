@@ -1,0 +1,160 @@
+import { isSignalConsent, type SignalConsent } from './somatic-signal'
+
+export type SignalKind = 'heart_rate' | 'eda' | 'breath_phase' | 'voice_energy' | 'body_event' | 'imagery_event' | 'relationship_event'
+
+export interface SignalSample {
+  /** Milliseconds from the start of the timeline. */
+  tMs: number
+  kind: SignalKind
+  value?: number
+  unit?: string
+  label?: string
+  sourceId: string
+}
+
+export interface SignalSourceCapabilities {
+  kinds: SignalKind[]
+  sampleRateHz?: number
+  requiresPermission: boolean
+  rawSignal: boolean
+  localOnly: true
+  simulated: boolean
+}
+
+export interface SignalTrace {
+  version: 'signal-trace-v1'
+  sourceId: string
+  startedAt: string
+  endedAt: string
+  consent: SignalConsent
+  samples: SignalSample[]
+  simulated: boolean
+}
+
+export interface SignalSource {
+  id: string
+  label: string
+  capabilities: SignalSourceCapabilities
+  start(consent: SignalConsent): void
+  stop(): SignalTrace
+  subscribe(listener: (sample: SignalSample) => void): () => void
+}
+
+export interface SignalTimeline {
+  version: 'signal-timeline-v1'
+  startedAt: string
+  endedAt: string
+  samples: SignalSample[]
+  sources: string[]
+  simulated: boolean
+}
+
+function assertLocalConsent(consent: SignalConsent) {
+  if (!isSignalConsent(consent)) throw new Error('local_signal_consent_required')
+}
+
+export function traceToTimeline(trace: SignalTrace): SignalTimeline {
+  return {
+    version: 'signal-timeline-v1',
+    startedAt: trace.startedAt,
+    endedAt: trace.endedAt,
+    samples: [...trace.samples].sort((left, right) => left.tMs - right.tMs),
+    sources: [trace.sourceId],
+    simulated: trace.simulated,
+  }
+}
+
+export function mergeSignalTraces(traces: SignalTrace[]): SignalTimeline {
+  if (!traces.length) throw new Error('no_signal_traces')
+  const start = Math.min(...traces.map(trace => Date.parse(trace.startedAt)))
+  const end = Math.max(...traces.map(trace => Date.parse(trace.endedAt)))
+  const samples = traces.flatMap(trace => {
+    const offset = Date.parse(trace.startedAt) - start
+    return trace.samples.map(sample => ({ ...sample, tMs: sample.tMs + offset }))
+  }).sort((left, right) => left.tMs - right.tMs)
+  return {
+    version: 'signal-timeline-v1',
+    startedAt: new Date(start).toISOString(),
+    endedAt: new Date(end).toISOString(),
+    samples,
+    sources: [...new Set(traces.map(trace => trace.sourceId))],
+    simulated: traces.some(trace => trace.simulated),
+  }
+}
+
+/**
+ * Deterministic LSL-like simulator. It is deliberately labelled simulated and
+ * must never be presented as physiological data from a person.
+ */
+export class SimulatedSignalSource implements SignalSource {
+  readonly id = 'lsl-simulator'
+  readonly label = 'LSL 时间轴模拟器'
+  readonly capabilities: SignalSourceCapabilities = {
+    kinds: ['heart_rate', 'eda', 'breath_phase'],
+    sampleRateHz: 10,
+    requiresPermission: false,
+    rawSignal: false,
+    localOnly: true,
+    simulated: true,
+  }
+
+  private consent: SignalConsent | null = null
+  private startedAt = 0
+  private timer: number | null = null
+  private samples: SignalSample[] = []
+  private listeners = new Set<(sample: SignalSample) => void>()
+
+  start(consent: SignalConsent) {
+    assertLocalConsent(consent)
+    if (this.timer !== null) return
+    this.consent = consent
+    this.startedAt = Date.now()
+    this.samples = []
+    this.timer = window.setInterval(() => {
+      const elapsedMs = Date.now() - this.startedAt
+      const tSec = elapsedMs / 1000
+      const tick = Math.floor(elapsedMs / 100)
+      const heartRate = 64 + Math.sin(tick / 9) * 3 + Math.sin(tick / 23) * 2
+      const eda = 2.2 + Math.sin(tick / 13) * 0.35
+      const breathPhase = (Math.sin(tick / 7) + 1) / 2
+      const samples: SignalSample[] = [
+        { tMs: elapsedMs, kind: 'heart_rate', value: Number(heartRate.toFixed(2)), unit: 'bpm', sourceId: this.id },
+        { tMs: elapsedMs, kind: 'eda', value: Number(eda.toFixed(3)), unit: 'uS', sourceId: this.id },
+        { tMs: elapsedMs, kind: 'breath_phase', value: Number(breathPhase.toFixed(3)), label: breathPhase > .5 ? 'inhale' : 'exhale', sourceId: this.id },
+      ]
+      this.samples.push(...samples)
+      for (const sample of samples) for (const listener of this.listeners) listener(sample)
+      if (tSec > 15) this.stop()
+    }, 100)
+  }
+
+  stop(): SignalTrace {
+    if (this.timer !== null) { window.clearInterval(this.timer); this.timer = null }
+    if (!this.consent) throw new Error('signal_source_not_started')
+    return {
+      version: 'signal-trace-v1',
+      sourceId: this.id,
+      startedAt: new Date(this.startedAt).toISOString(),
+      endedAt: new Date().toISOString(),
+      consent: this.consent,
+      samples: [...this.samples],
+      simulated: true,
+    }
+  }
+
+  subscribe(listener: (sample: SignalSample) => void) {
+    this.listeners.add(listener)
+    return () => { this.listeners.delete(listener) }
+  }
+}
+
+export function summarizeTimeline(timeline: SignalTimeline) {
+  const byKind = new Map<SignalKind, number>()
+  for (const sample of timeline.samples) byKind.set(sample.kind, (byKind.get(sample.kind) ?? 0) + 1)
+  return {
+    durationSec: Math.max(0, Math.round((Date.parse(timeline.endedAt) - Date.parse(timeline.startedAt)) / 1000)),
+    sampleCount: timeline.samples.length,
+    byKind: [...byKind.entries()].map(([kind, count]) => ({ kind, count })),
+    simulated: timeline.simulated,
+  }
+}

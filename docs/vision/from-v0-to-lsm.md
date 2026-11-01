@@ -64,11 +64,15 @@
 - 关系地图的同意、第三方隐私与滥用风险。
 - 任何临床声明前的安全性与有效性证据。
 
-## 5. BCI 参考
+## 5. BCI-1 已实现
+
+设备无关的 `SignalSource`、15 秒 LSL 模拟器、本机事件时间轴与导出已落地；没有真实硬件。见 [BCI-1](bci-1-signal-layer.md)。
+
+## 6. BCI 参考
 
 Neuralink 目前公开的相关仓库是数据平台 [datarepo](https://github.com/neuralinkcorp/datarepo)，没有公开 N1 SDK/固件。更现实的参考是 OpenBCI、BrainFlow、LSL 等开放生态；详见 [BCI 开源生态调研](bci-open-source-landscape.md)。
 
-## 6. 当前明确未做
+## 7. 当前明确未做
 
 - 没有传感器、没有 LSM 模型、没有跨用户数据集。
 - 没有关系拓扑、没有匹配、没有临床干预。

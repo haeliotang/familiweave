@@ -6,9 +6,9 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-BMAjYVky.js` | 263,009 | 主入口（本机数据导出后） |
-| `index-CuXHJoom.css` | 15,647 | 样式 |
-| 合计 | 278,656 | 两个产物；无 scene 分包 |
+| `index-Ba3Rd8uh.js` | 268,674 | 主入口（BCI-1 信号层后） |
+| `index-CW9VXHB_.css` | 15,996 | 样式 |
+| 合计 | 284,670 | 两个产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。

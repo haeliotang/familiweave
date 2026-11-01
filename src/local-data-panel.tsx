@@ -1,4 +1,5 @@
 import { buildLocalDataset, clearLocalDataset, exportLocalDataset } from './local-dataset'
+import { exportLocalTimeline } from './local-timeline'
 
 export function LocalDataPanel() {
   const exportAll = () => {
@@ -24,6 +25,16 @@ export function LocalDataPanel() {
     <p className="note">母题、关系触发点与可选声音摘要都保存在这个浏览器；不会上传。可以整体导出或删除。</p>
     <div className="actions">
       <button type="button" className="quiet" onClick={exportAll}>导出全部本机数据</button>
+      <button type="button" className="quiet" onClick={() => {
+        if (typeof window === 'undefined') return
+        const blob = new Blob([exportLocalTimeline(buildLocalDataset(window.localStorage))], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'familiweave-local-timeline.json'
+        link.click()
+        URL.revokeObjectURL(url)
+      }}>导出本机时间轴</button>
       <button type="button" className="quiet" onClick={clearAll}>删除全部本机数据</button>
     </div>
   </section>
