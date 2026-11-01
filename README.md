@@ -110,6 +110,7 @@ symbolic 渲染器
 - **可选本机声音测量**：8 秒音量/停顿摘要；明确同意、不保存原始音频、不上传。
 - **本机数据**：可整体导出母题、关系触发点与声音摘要，或一键删除；可导出本机事件时间轴。
 - **BCI-1 信号实验台**：15 秒 LSL 风格模拟信号，验证采样与时间轴；明确标注模拟，不采集真实神经数据。
+- **BCI-2 设备桥接**：仅连接本机 WebSocket 桥接；需明确同意，原始信号默认不保存；真实硬件尚未验收。
 - **安全**：不解释、不评分、不诊断；离开随时可用。
 
 v0 不会测量潜意识或生理信号，也不会把意象解释成某段记忆。详细边界见 [v0：躯体地图 + 意象碎片](docs/inner/v0-somatic-capture.md)。
@@ -196,6 +197,8 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/signal-source.ts`](src/signal-source.ts)：设备无关信号源接口、LSL 风格模拟器与时间轴。
 - [`src/local-timeline.ts`](src/local-timeline.ts)：把本机记录转成结构化事件时间轴。
 - [`src/signal-simulator.tsx`](src/signal-simulator.tsx)：BCI-1 模拟信号实验台。
+- [`src/device-signal-source.ts`](src/device-signal-source.ts)：BCI-2 本机 WebSocket 桥接契约。
+- [`src/device-signal-panel.tsx`](src/device-signal-panel.tsx)：BCI-2 设备桥接 UI。
 - [`src/inner-entry.tsx`](src/inner-entry.tsx)：文字输入模式。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声渲染器。
@@ -209,7 +212,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
 - [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点、v3 本机信号与安全/共鸣评估。
-- [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界、[BCI 开源生态调研](docs/vision/bci-open-source-landscape.md) 与 [BCI-1 信号层](docs/vision/bci-1-signal-layer.md)。
+- [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界、[BCI 开源生态调研](docs/vision/bci-open-source-landscape.md)、[BCI-1 信号层](docs/vision/bci-1-signal-layer.md) 与 [BCI-2 设备桥接](docs/vision/bci-2-device-bridge.md)。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划、基线。
 - [`docs/evaluation/`](docs/evaluation/)：生成实验模板、评分表与日志示例。
 - [`docs/api/`](docs/api/)：Genie 4 API 开放检查清单。

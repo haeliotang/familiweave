@@ -8,6 +8,7 @@ import { MotifJournal } from './motif-journal-view'
 import { RelationshipJournal } from './relationship-map'
 import { LocalDataPanel } from './local-data-panel'
 import { SignalSimulator } from './signal-simulator'
+import { DeviceSignalPanel } from './device-signal-panel'
 import { addMotif, clearMotifs, loadMotifs, removeMotif, type MotifEntry } from './motif-journal'
 import { SceneView } from './scene-loader'
 import './style.css'
@@ -41,6 +42,7 @@ function App() {
       <RelationshipJournal />
       <LocalDataPanel />
       <SignalSimulator />
+      <DeviceSignalPanel />
     </section> : <section className="view">
       <div className="view-header">
         <button className="quiet" onClick={() => setCurrent(null)}>← 返回</button>

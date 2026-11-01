@@ -73,6 +73,6 @@ UI 在首页「BCI-1 信号实验台」：
 
 ## 6. 下一步
 
-- BCI-2：在明确同意下接 OpenBCI/BrainFlow 或 LSL 流；仍不做临床声明。
+- BCI-2：本机 WebSocket 桥接契约与 UI 已实现；真实 LSL/OpenBCI/BrainFlow 桥接尚未验收。见 [BCI-2](bci-2-device-bridge.md)。
 - 真实硬件前先验证：时间同步、丢包、采样率漂移、设备断开、数据删除。
 - 见 [BCI 开源生态调研](bci-open-source-landscape.md) 与 [从 v0 到 LSM / 关系拓扑](from-v0-to-lsm.md)。
