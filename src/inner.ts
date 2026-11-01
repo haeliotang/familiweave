@@ -1,3 +1,5 @@
+import { breaths, fragments, isSomaticCapture, regions, sensations, type SomaticCapture } from './somatic'
+
 export type InnerFormat = 'encounter' | 'space'
 
 export type InnerMotif = 'corridor' | 'door' | 'water' | 'house' | 'forest' | 'station' | 'mirror' | 'field'
@@ -32,6 +34,7 @@ export interface InnerPlan {
   figure: InnerFigure
   beats: InnerBeat[]
   prompts: InnerPromptPack
+  somatic?: SomaticCapture
   safety: {
     notDiagnosis: true
     noInterpretation: true
@@ -130,6 +133,48 @@ export function innerPlan(input: { fragment: string; feeling?: InnerFeeling }): 
 }
 
 /**
+ * Build a 75-second encounter from a pre-verbal capture: a body location, a
+ * sensation, breath and one to three associative fragments. No free text is
+ * accepted or inferred.
+ */
+export function innerPlanFromCapture(capture: SomaticCapture): InnerPlan {
+  if (!isSomaticCapture(capture)) throw new Error('请先选择身体部位、感觉和至少一块意象。')
+  const selected = capture.fragments
+    .map(id => fragments.find(fragment => fragment.id === id))
+    .filter((fragment): fragment is NonNullable<typeof fragment> => Boolean(fragment))
+  if (!selected.length) throw new Error('请先选择至少一块意象。')
+  const motifs = [...new Set(selected.flatMap(fragment => fragment.motifs))].slice(0, 3) as InnerMotif[]
+  const region = regions.find(item => item.value === capture.region)?.label ?? capture.region
+  const sensation = sensations.find(item => item.value === capture.sensation)?.label ?? capture.sensation
+  const breath = breaths.find(item => item.value === capture.breath)?.label ?? capture.breath
+  return {
+    version: 'inner-v1',
+    format: 'encounter',
+    durationSec: 75,
+    motifs: motifs.length ? motifs : ['corridor', 'door', 'water'],
+    figure: 'none',
+    somatic: capture,
+    beats: [
+      { startSec: 0, endSec: 12, action: 'arrive', intent: '进入空间，先感觉身体，不急着解释' },
+      { startSec: 12, endSec: 28, action: 'notice', intent: '留意身体里最明显的那个位置' },
+      { startSec: 28, endSec: 43, action: 'approach', intent: '让空间靠近那个感觉，但不强迫' },
+      { startSec: 43, endSec: 55, action: 'pause', intent: '允许感觉存在，不命名它' },
+      { startSec: 55, endSec: 68, action: 'transform', intent: '光、材质或距离发生变化，不解释变化' },
+      { startSec: 68, endSec: 75, action: 'leave', intent: '可以离开；离开也是这段经验的一部分' },
+    ],
+    prompts: {
+      space: `A symbolic, dreamlike space built from: ${motifs.join(', ')}. The viewer reports a bodily sense of ${capture.sensation} at the ${capture.region}, with breath ${capture.breath}. Do not diagnose, interpret, or name an emotion. No readable text, no maps, no labels.`,
+      figure: 'No figure is required. Keep the space non-identifying and non-diagnostic.',
+      sound: selected.map(fragment => fragment.sound).join(' '),
+      light: selected.map(fragment => fragment.light).join(' '),
+      camera: 'Slow first-person drift; the viewer may stop, look, approach, or leave at any time. No jump cuts.',
+      negative: negativePrompts(),
+    },
+    safety,
+  }
+}
+
+/**
  * A space is not an encounter: no required arc, no required figure, and no
  * built-in ending. The viewer can stay, look, or leave at any time.
  */
@@ -166,6 +211,13 @@ export function innerStoryboardMarkdown(plan: InnerPlan): string {
     `- 时长：${plan.durationSec} 秒`,
     `- 母题：${plan.motifs.join(' / ')}`,
     `- 影子：${plan.figure}`,
+    ...(plan.somatic ? [
+      `- 身体部位：${plan.somatic.region}`,
+      `- 身体感觉：${plan.somatic.sensation}`,
+      `- 强度：${plan.somatic.intensity}/5`,
+      `- 呼吸：${plan.somatic.breath}`,
+      `- 意象碎片：${plan.somatic.fragments.join(' / ')}`,
+    ] : []),
     '- 本文件不包含输入原文，也不对输入做解释。',
     '',
     '## 节拍',

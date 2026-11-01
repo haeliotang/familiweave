@@ -1,5 +1,6 @@
 import type { Encounter } from './encounter'
-import { innerPlan, innerSpace, type InnerFeeling, type InnerFormat } from './inner'
+import { innerPlan, innerPlanFromCapture, innerSpace, type InnerFeeling, type InnerFormat } from './inner'
+import type { SomaticCapture } from './somatic'
 
 // Local, synthetic entry points for the symbolic-space prototype. They never
 // contain personal material and never call a model.
@@ -33,6 +34,19 @@ export function createInnerEncounter(input: { fragment: string; feeling?: InnerF
   const inner = input.format === 'space'
     ? innerSpace({ fragment: input.fragment, feeling: input.feeling })
     : innerPlan({ fragment: input.fragment, feeling: input.feeling })
+  return {
+    id: `demo-inner-${crypto.randomUUID()}`,
+    seed: Math.floor(Math.random() * 0xffffffff),
+    durationSec: inner.durationSec,
+    createdAt: new Date().toISOString(),
+    rendererKind: 'symbolic',
+    innerPlan: inner,
+    plan: { version: 'episode-plan-v1', kind: 'inner', rendererKind: 'symbolic', inner },
+  }
+}
+
+export function createInnerCaptureEncounter(capture: SomaticCapture): Encounter {
+  const inner = innerPlanFromCapture(capture)
   return {
     id: `demo-inner-${crypto.randomUUID()}`,
     seed: Math.floor(Math.random() * 0xffffffff),

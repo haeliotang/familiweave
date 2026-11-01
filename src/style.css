@@ -91,3 +91,43 @@ textarea { display: block; width: 100%; min-height: 130px; padding: 18px; border
 .legacy-entry { margin-top: 30px; border-top: 1px solid #deded3; padding-top: 18px }
 .legacy-entry summary { cursor: pointer; color: #8b5e54; font-size: 14px }
 .legacy-entry[open] summary { margin-bottom: 18px }
+/* v0 pre-verbal capture: body map + associative fragments, no text box. */
+.entry-switch { display: flex; gap: 8px; margin: 18px 0 14px; border-bottom: 1px solid #deded3 }
+.entry-switch button { background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: #71786d; padding: 9px 4px; font-size: 14px }
+.entry-switch button.selected { color: #292d29; border-bottom-color: #8b5e54 }
+.somatic-entry { margin: 0 0 28px; padding: 18px 20px; border: 1px solid #deded3; border-radius: 16px; background: #f4f1e8 }
+.somatic-step { padding: 18px 0; border-top: 1px solid #e4e0d5 }
+.somatic-step:first-child { padding-top: 4px; border-top: 0 }
+.somatic-step h2 { margin: 0 0 6px; font: 600 17px/1.4 Georgia, serif; color: #292d29 }
+.somatic-step h2 span { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-right: 8px; border: 1px solid #b9b4a6; border-radius: 50%; color: #8b5e54; font: 12px/1 system-ui, sans-serif }
+.step-note { margin: 0 0 12px; color: #71786d; font-size: 13px }
+.body-map-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 320px }
+.body-map { width: 100%; height: auto; max-height: 360px }
+.body-outline { fill: #eee9dd; stroke: #b9b4a6; stroke-width: 1.2 }
+.body-region { fill: rgba(139, 94, 84, .10); stroke: rgba(139, 94, 84, .35); stroke-width: 1; cursor: pointer; transition: fill .16s ease, stroke .16s ease }
+.body-region:hover, .body-region:focus-visible, .body-region.selected { fill: rgba(139, 94, 84, .38); stroke: #8b5e54; outline: none }
+.body-back { align-self: flex-end; margin-top: -46px; margin-right: 8px; padding: 6px 10px; border: 1px solid #cdd4c9; border-radius: 999px; background: #fffcf5; color: #596158; font-size: 12px }
+.body-back.selected { border-color: #8b5e54; color: #8b5e54; background: #f2e9e1 }
+.selection-summary { margin: 8px 0 0; color: #8b5e54; font-size: 13px }
+.chip-row, .intensity-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 }
+.intensity-row > span { color: #71786d; font-size: 13px; margin-right: 2px }
+.chip { padding: 7px 12px; border: 1px solid #cdd4c9; border-radius: 999px; background: #fffcf5; color: #596158; font-size: 13px }
+.chip:hover, .chip:focus-visible { border-color: #8b5e54; outline: none }
+.chip.selected { border-color: #8b5e54; background: #f2e9e1; color: #6f443c }
+.chip.small { min-width: 32px; padding: 6px 8px; text-align: center }
+.fragment-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px }
+.fragment-card { padding: 0; overflow: hidden; border: 1px solid #d6d2c6; border-radius: 12px; background: #fffcf5; color: #444a42; text-align: left }
+.fragment-card:hover, .fragment-card:focus-visible { border-color: #8b5e54; outline: none }
+.fragment-card.selected { border-color: #8b5e54; box-shadow: 0 0 0 2px rgba(139, 94, 84, .22) }
+.fragment-card:disabled { opacity: .48; cursor: not-allowed }
+.fragment-visual { display: block; height: 82px; background: #d9d5ca }
+.fragment-label { display: block; padding: 8px 9px; font-size: 12px; line-height: 1.35 }
+.palette-dusk .fragment-visual { background: linear-gradient(135deg, #d59a5b, #6d4a3a 55%, #2b2621) }
+.palette-wet .fragment-visual { background: linear-gradient(160deg, #728d86, #314541 55%, #111b1b) }
+.palette-cold .fragment-visual { background: linear-gradient(135deg, #d8ddd9, #70818a 52%, #1f282b) }
+.palette-rain .fragment-visual { background: linear-gradient(160deg, #aab7b5, #667774 55%, #2b3532) }
+.palette-station .fragment-visual { background: linear-gradient(120deg, #c8c9b7, #7f8274 52%, #33382f) }
+.palette-warm .fragment-visual { background: linear-gradient(135deg, #e2b57d, #875a3c 55%, #2b211b) }
+.palette-forest .fragment-visual { background: linear-gradient(140deg, #9dae86, #496247 52%, #1b2a1e) }
+.palette-mirror .fragment-visual { background: linear-gradient(135deg, #d8e0de, #889ca0 50%, #2e3d40) }
+@media (max-width: 720px) { .fragment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } .somatic-entry { padding: 14px } }

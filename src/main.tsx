@@ -3,21 +3,27 @@ import { createRoot } from 'react-dom/client'
 import type { Encounter } from './encounter'
 import { demoInnerEncounter, demoInnerSpaceEncounter } from './inner-encounter'
 import { InnerEntry } from './inner-entry'
+import { SomaticEntry } from './somatic-entry'
 import { SceneView } from './scene-loader'
 import './style.css'
 
 function App() {
   const [current, setCurrent] = useState<Encounter | null>(null)
   const [replay, setReplay] = useState(0)
+  const [entryMode, setEntryMode] = useState<'somatic' | 'text'>('somatic')
   const isSpace = current?.innerPlan?.format === 'space'
 
   return <main>
     <header><span className="brand">Familiweave</span><span className="edition">体验原型 · 本地示例</span></header>
     {!current ? <section className="intro">
       <p className="eyebrow">一个象征空间 · 不解释</p>
-      <h1>写下一个画面，<br />不急着解释它。</h1>
-      <p className="lead">一段梦、一个地点、一种说不清的感觉。Familiweave 会把它变成一段可进入、可退出的空间；不分析，也不告诉你它“意味着什么”。</p>
-      <InnerEntry onStart={setCurrent} />
+      <h1>先感觉，<br />不用急着命名。</h1>
+      <p className="lead">你可以从身体开始：点按一个位置，选几块更接近此刻的意象。系统不分析，也不告诉你它“意味着什么”。</p>
+      <div className="entry-switch" role="tablist" aria-label="输入方式">
+        <button role="tab" aria-selected={entryMode === 'somatic'} className={entryMode === 'somatic' ? 'selected' : ''} onClick={() => setEntryMode('somatic')}>从身体开始</button>
+        <button role="tab" aria-selected={entryMode === 'text'} className={entryMode === 'text' ? 'selected' : ''} onClick={() => setEntryMode('text')}>用文字</button>
+      </div>
+      {entryMode === 'somatic' ? <SomaticEntry onStart={setCurrent} /> : <InnerEntry onStart={setCurrent} />}
       <div className="actions">
         <button className="quiet" onClick={() => setCurrent(demoInnerEncounter())}>相遇示例</button>
         <button className="quiet" onClick={() => setCurrent(demoInnerSpaceEncounter())}>空间示例</button>

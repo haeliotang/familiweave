@@ -8,6 +8,8 @@ Familiweave 是一个关于内在经验的公开探索项目，由 **Inceptless 
 
 Familiweave 不解释这些经验，也不声称知道它们“真正意味着什么”。它的一个基本动作，是把它们变成一段象征空间——有门、走廊、水、房子、车站、镜子或田野，有一个影子般的存在，有几段声音与光。你可以进入、靠近、停留，也可以随时离开。
 
+现在，你也可以不从语言开始：点按身体、选择几块意象，让系统把它们变成一段空间。
+
 ## 起点：不可言说
 
 我们不是从“如何解释一个梦”开始的。我们从一个更基础的问题开始：
@@ -85,7 +87,7 @@ symbolic 渲染器
 
 | 部分 | 状态 |
 | --- | --- |
-| 输入 | 本地表单：一段梦/画面/地点/感觉，可选情绪 |
+| 输入 | 躯体地图 + 感觉/强度/呼吸 + 意象碎片（v0）；也可用文字 |
 | 形式 | 75 秒相遇、180 秒空间 |
 | 内在导演层 | `InnerPlan`：母题、影子、节拍、空间/声音/光/镜头提示词、安全字段 |
 | 计划信封 | `EpisodePlan`：`kind: inner`，只写入 `inner` |
@@ -97,6 +99,15 @@ symbolic 渲染器
 | 本地持久化 | 暂无服务端；页面刷新后不保留输入 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
+
+## 当前可以体验什么
+
+- **从身体开始（默认）**：点按身体位置，选择感觉、强度、呼吸，再选 1–3 块意象；生成 75 秒相遇。
+- **用文字**：输入一段梦/画面/地点/感觉；选择 75 秒相遇或 180 秒空间。
+- **示例**：直接进入相遇或空间示例。
+- **安全**：不解释、不评分、不诊断；离开随时可用。
+
+v0 不会测量潜意识或生理信号，也不会把意象解释成某段记忆。详细边界见 [v0：躯体地图 + 意象碎片](docs/inner/v0-somatic-capture.md)。
 
 ## 技术栈
 
@@ -166,8 +177,10 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 
 ## 项目地图
 
-- [`src/inner.ts`](src/inner.ts)：`InnerPlan`、`innerPlan` / `innerSpace`、母题/影子/节拍/提示词与安全字段。
-- [`src/inner-entry.tsx`](src/inner-entry.tsx)：默认的内在景观输入表单。
+- [`src/inner.ts`](src/inner.ts)：`InnerPlan`、`innerPlan` / `innerSpace` / `innerPlanFromCapture`、母题/影子/节拍/提示词与安全字段。
+- [`src/somatic.ts`](src/somatic.ts)：身体部位、感觉、呼吸、意象碎片库与 `SomaticCapture`。
+- [`src/somatic-entry.tsx`](src/somatic-entry.tsx)：v0 默认入口：身体地图 + 意象选择，无文字框。
+- [`src/inner-entry.tsx`](src/inner-entry.tsx)：文字输入模式。
 - [`src/inner-encounter.ts`](src/inner-encounter.ts)：本地相遇/空间示例与用户输入工厂。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：相遇（75 秒）与空间（180 秒）的无声渲染器。
 - [`src/episode-plan.ts`](src/episode-plan.ts)：统一的 `EpisodePlan` 信封。
@@ -179,7 +192,8 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/genie/`](src/genie/)：Genie 4 适配器接口与未配置占位实现（不联网）。
 - [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
-- [`docs/inner/`](docs/inner/)：内在景观方向、形式与安全/共鸣评估。
+- [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获与安全/共鸣评估。
+- [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划、基线。
 - [`docs/evaluation/`](docs/evaluation/)：生成实验模板、评分表与日志示例。
 - [`docs/api/`](docs/api/)：Genie 4 API 开放检查清单。
@@ -188,7 +202,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 ## 路线图
 
 - **Phase 0（已完成）**：`InnerPlan`、`WorldRenderer` 接口、manifest 接入、捕获 schema、同意记录、Rust 工具、Genie 适配器骨架与 API 清单。
-- **Phase 1（当前）**：相遇与空间两种 symbolic 形式；真实设备、生产构建与交互压力待验证。
+- **Phase 1（当前）**：相遇与空间两种 symbolic 形式；v0 躯体地图/意象捕获已可用；真实设备、生产构建与交互压力待验证。
 - **Phase 2（验证通过）**：捕获回放、删除、同意流程、成本模型与小样本体验测试。
 - **Phase 3（Genie 4 / 备选）**：Genie 4 可用后用世界模型渲染梦逻辑；Marble、Reactor 或开源模型作为备选。
 - **R4 清理**：旧三维前端、资料准备服务与 147 MB 旧模型资产已移除；核心保持 symbolic-only。
@@ -198,7 +212,8 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 1. 象征空间能否让难以言说的经验获得形式，而不被解释？
 2. 75 秒、可退出的限制，会让人更安全，还是更疏离？
 3. 系统不解释时，用户会觉得被尊重，还是觉得空洞？
-4. 除了 75 秒相遇，用户是否真的需要空间、仪式、物件或档案形式？
+4. 当用户不用文字、只用身体定位与意象选择时，是否更接近那个“说不清”的东西？
+5. 除了 75 秒相遇，用户是否真的需要空间、仪式、物件或档案形式？
 5. 谁适合、谁不适合？急性哀伤、创伤、焦虑、或只是想玩的人，反应可能完全不同。
 
 这些问题没有答案前，Familiweave 更像一个研究型产品，而不是一项已经证明有效的服务。
