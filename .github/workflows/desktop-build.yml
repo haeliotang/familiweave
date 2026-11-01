@@ -104,8 +104,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          if ! gh release view "$TAG" >/dev/null 2>&1; then
-            gh release create "$TAG" --verify-tag --title "$TAG" --notes "Desktop builds for $TAG."
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TAG" --notes "Desktop builds for $TAG."
           fi
           find release-assets -type f -print
-          find release-assets -type f -exec gh release upload "$TAG" --clobber {} +
+          find release-assets -type f -exec gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber {} +
