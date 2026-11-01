@@ -219,11 +219,20 @@ fn copy_legacy_file(source: &Path, destination: &Path) -> Result<(), std::io::Er
     Ok(())
 }
 
+fn legacy_app_data_dir(data: &Path) -> Option<PathBuf> {
+    let parent = data.parent()?;
+    let name = data.file_name()?.to_string_lossy();
+    if !name.contains("inceptless") {
+        return None;
+    }
+    // The corrected identifier differs from the legacy identifier by one "n".
+    Some(parent.join(name.replacen("in", "i", 1)))
+}
+
 fn migrate_legacy_app_data(data: &Path) -> Result<(), std::io::Error> {
-    let Some(parent) = data.parent() else {
+    let Some(legacy) = legacy_app_data_dir(data) else {
         return Ok(());
     };
-    let legacy = parent.join("com.inceptless.familiweave");
     if legacy == data || !legacy.is_dir() {
         return Ok(());
     }
@@ -347,8 +356,8 @@ mod tests {
                 .unwrap()
                 .as_nanos()
         ));
-        let legacy = root.join("com.inceptless.familiweave");
         let current = root.join("com.inceptless.familiweave");
+        let legacy = super::legacy_app_data_dir(&current).unwrap();
         std::fs::create_dir_all(legacy.join("local-files")).unwrap();
         std::fs::write(legacy.join("familiweave.db"), b"legacy-db").unwrap();
         std::fs::write(legacy.join("local-files/note.json"), b"{\"ok\":true}").unwrap();

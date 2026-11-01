@@ -43,7 +43,7 @@ src/
 | `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
 - SQLite 位于 app data：`familiweave.db`。
-- bundle id 已修正为 `com.inceptless.familiweave`；启动时会把旧拼写 `com.inceptless.familiweave` 下的 `familiweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
+- bundle id 已修正为 `com.inceptless.familiweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `familiweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
 - 已建 `local_meta` 与 `local_state` 表；界面中的母题/关系触发点通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
