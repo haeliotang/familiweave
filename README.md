@@ -6,7 +6,9 @@
 >
 > A local-first symbolic interface for the pre-verbal layer.
 
-![Familiweave 桌面外壳（英文界面）](docs/assets/desktop-shell-en.png)
+![Familiweave 桌面外壳（浅色，英文界面）](docs/assets/desktop-shell-en.png)
+
+![Familiweave 桌面外壳（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
 
 Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层潜意识**的公开研究项目。
 
@@ -84,6 +86,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
 | BCI-2 | 本机 WebSocket 设备桥接契约 |
 | 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |
+| 主题 | 明 / 暗主题切换 |
 | 双语 | 中文 / English 界面切换 |
 | 数据 | 本机 SQLite 或浏览器 localStorage；可导出/导入/删除 |
 
@@ -243,7 +246,7 @@ pnpm tauri:build --bundles app
 
 ## 10. 路线图：从 BCI 接缝到 LSM
 
-- **现在**：v0–v3 本机原型、BCI-1/2 接缝、Tauri 外壳、SQLite、双语。
+- **现在**：v0–v3 本机原型、BCI-1/2 接缝、Tauri 外壳、SQLite、双语与明暗主题。
 - **下一步（主攻）**：真实 OpenBCI/BrainFlow/LSL 采集；真实设备声音验收；把信号摘要并入 SQLite；Tauri 窗口目视验收。
 - **研究阶段**：在明确同意、可删除的小样本上训练 LSM-0 跨模态对齐；先证明“信号—意象—关系”存在可复现结构，再谈产品化。
 - **产品阶段**：关系拓扑成为一等入口；闭环象征空间根据信号调整，但用户始终拥有解释权与退出权。

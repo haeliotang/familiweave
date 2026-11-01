@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 export type Language = 'zh' | 'en'
 
@@ -209,6 +209,9 @@ const en: Record<string, string> = {
   '再进入一次': 'Enter once more',
   '本机设置': 'Local settings',
   '关系触发点地图': 'Relationship trigger map',
+  '切换到浅色': 'Switch to light',
+  '切换到深色': 'Switch to dark',
+
 }
 
 type LanguageContextValue = {
@@ -226,6 +229,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (saved === 'zh' || saved === 'en') return saved
     return navigator.language.startsWith('zh') ? 'zh' : 'en'
   })
+  useEffect(() => { document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN' }, [lang])
+
   const value = useMemo(() => ({
     lang,
     setLang: (next: Language) => {

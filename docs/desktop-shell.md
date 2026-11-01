@@ -46,7 +46,14 @@ src/
 - 已建 `local_meta` 与 `local_state` 表；界面中的母题/关系触发点通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
-## 3. 三栏工作台
+## 3. 主题与语言
+
+- 顶栏提供「明 / 暗」主题切换；默认跟随系统，选择写入 `familiweave.theme`。
+- 顶栏提供「中文 / English」切换；默认跟随浏览器语言，选择写入 `familiweave.lang`。
+- `index.html` 在 React 启动前写入 `data-theme`，避免深色主题闪白。
+- 深色主题覆盖侧栏、工作区、上下文面板、卡片、身体地图、日记、关系表单与实验台。
+
+## 4. 三栏工作台
 
 参考 inceptless 的布局与中性纸面/墨色美术：
 
@@ -62,7 +69,7 @@ src/
 - 标题用 Georgia/宋体，正文用系统 sans
 - 胶囊按钮、少量朱砂色 `#8b5e54`
 
-## 4. 运行
+## 5. 运行
 
 Web 预览：
 
@@ -78,7 +85,7 @@ pnpm tauri:dev
 
 首次会编译 Tauri Rust 依赖（数百个 crate）。`beforeDevCommand` 会启动根目录 Vite；`frontendDist` 指向根 `dist`。
 
-## 5. 本会话验证
+## 6. 本会话验证
 
 - `pnpm build`：通过
 - `pnpm test`：51 项通过
@@ -91,7 +98,7 @@ pnpm tauri:dev
 - 签名、公证与正式安装包尚未验收。
 - Web 预览截图：见上方图片。
 
-## 6. 签名、公证与分发边界
+## 7. 签名、公证与分发边界
 
 当前产物是 **ad-hoc 签名**，只适合本机验证；`spctl --assess` 会拒绝它。
 
@@ -113,7 +120,7 @@ sh scripts/desktop-sign-adhoc.sh
 - ad-hoc `codesign` 可以带上 hardened runtime entitlements；
 - `spctl` 仍然拒绝（符合未公证预期）。
 
-## 7. 下一步
+## 8. 下一步
 
 1. 在正常 macOS 用户会话运行 `pnpm tauri:dev`，目视检查交通灯、拖拽区与三栏布局。
 2. 迁移已完成基础链路；继续把信号摘要/BCI 时间轴也纳入 SQLite。

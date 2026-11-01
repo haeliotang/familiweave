@@ -14,6 +14,7 @@ import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipI
 import { clearLocalSnapshot, loadLocalSnapshot, saveLocalSnapshot } from './local-store'
 import type { LocalSnapshot } from './local-dataset'
 import { useLanguage, type Language } from './i18n'
+import { useTheme } from './theme'
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
 
@@ -155,6 +156,7 @@ function ContextPanel({ motif, encounter, onEnter, onBack }: { motif: MotifEntry
 
 export function DesktopShell() {
   const { lang, setLang, t } = useLanguage()
+  const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState<View>('new')
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
@@ -280,7 +282,10 @@ export function DesktopShell() {
               ? topTabs.map(tab => <button key={tab.id} role="tab" aria-selected={tab.active} className={tab.active ? 'active' : ''} onClick={tab.onClick}>{tab.label}</button>)
               : <span className="top-label">{view === 'space' ? (encounter?.innerPlan?.format === 'space' ? '空间' : '相遇') : t(navItems.find(item => item.id === navView)?.label ?? '')}</span>}
           </div>
-          <button className="lang-toggle" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}>{lang === 'en' ? '中文' : 'EN'}</button>
+          <div className="ui-controls">
+            <button className="ui-toggle" onClick={toggleTheme} aria-label={theme === 'dark' ? t('切换到浅色') : t('切换到深色')} title={theme === 'dark' ? t('切换到浅色') : t('切换到深色')}>{theme === 'dark' ? '☀' : '☾'}</button>
+            <button className="lang-toggle" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}>{lang === 'en' ? '中文' : 'EN'}</button>
+          </div>
           <span className="workspace-path">{view === 'space' ? t('内在景观') : view === 'motif' ? (selected?.name || t('未命名')) : t('本地研究原型')}</span>
         </div>
         <div className="workspace-scroll">

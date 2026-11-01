@@ -6,7 +6,9 @@
 >
 > An enterable, exit-able, self-interpreted space for pre-verbal experience.
 
-![Familiweave desktop shell](docs/assets/desktop-shell-en.png)
+![Familiweave desktop shell — light](docs/assets/desktop-shell-en.png)
+
+![Familiweave desktop shell — dark](docs/assets/desktop-shell-dark-en.png)
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 
@@ -87,6 +89,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | BCI-1 | Signal source contract, simulator, local event timeline |
 | BCI-2 | Local WebSocket device bridge contract |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
+| Theme | Light / dark theme |
 | Bilingual | Chinese / English UI switch |
 | Data | Local SQLite or browser localStorage; export/import/delete |
 
