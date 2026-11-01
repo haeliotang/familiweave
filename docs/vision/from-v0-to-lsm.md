@@ -64,7 +64,11 @@
 - 关系地图的同意、第三方隐私与滥用风险。
 - 任何临床声明前的安全性与有效性证据。
 
-## 5. 当前明确未做
+## 5. BCI 参考
+
+Neuralink 目前公开的相关仓库是数据平台 [datarepo](https://github.com/neuralinkcorp/datarepo)，没有公开 N1 SDK/固件。更现实的参考是 OpenBCI、BrainFlow、LSL 等开放生态；详见 [BCI 开源生态调研](bci-open-source-landscape.md)。
+
+## 6. 当前明确未做
 
 - 没有传感器、没有 LSM 模型、没有跨用户数据集。
 - 没有关系拓扑、没有匹配、没有临床干预。

@@ -205,7 +205,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/main.tsx`](src/main.tsx)：纯象征空间的本地入口。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
 - [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点、v3 本机信号与安全/共鸣评估。
-- [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界。
+- [`docs/vision/`](docs/vision/)：从 v0 到 LSM / 关系拓扑的分阶段边界，以及 [BCI 开源生态调研](docs/vision/bci-open-source-landscape.md)。
 - [`docs/refactor/`](docs/refactor/)：核心重构与性能计划、基线。
 - [`docs/evaluation/`](docs/evaluation/)：生成实验模板、评分表与日志示例。
 - [`docs/api/`](docs/api/)：Genie 4 API 开放检查清单。
