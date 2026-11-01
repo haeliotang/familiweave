@@ -212,6 +212,21 @@ const en: Record<string, string> = {
   '切换到浅色': 'Switch to light',
   '切换到深色': 'Switch to dark',
 
+  '场域': 'Field',
+  '你的内在地形': 'Your inner terrain',
+  '母题、意象与关系触发点并列在这里；没有解释，只有你写下的结构。': 'Motifs, imagery and relationship triggers sit side by side. No interpretation, only the structure you wrote.',
+  '场域还是空的。先从一个身体位置开始。': 'The field is empty. Start with one body location.',
+  '开始捕获': 'Start capture',
+  '内在场域地图': 'Inner field map',
+  '星座': 'Constellation',
+  '镜头': 'Lens',
+  '时间轴': 'Timeline',
+  '还没有记录': 'No records yet',
+  '现在': 'Now',
+  '打开母题详情': 'Open motif details',
+  '信号': 'Signal',
+  '本机信号层': 'local signal layer',
+  'BCI-1/2 就绪': 'BCI-1/2 ready',
 }
 
 type LanguageContextValue = {

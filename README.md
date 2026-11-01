@@ -6,9 +6,9 @@
 >
 > A local-first symbolic interface for the pre-verbal layer.
 
-![Familiweave 桌面外壳（浅色，英文界面）](docs/assets/desktop-shell-en.png)
+![Familiweave 内在场域（浅色，英文界面）](docs/assets/desktop-shell-en.png)
 
-![Familiweave 桌面外壳（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
+![Familiweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
 
 Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层潜意识**的公开研究项目。
 
@@ -83,6 +83,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | v1 母题日记 | 本机命名、保存、删除、导出 |
 | v2 关系触发点 | 自述场景/反应、地图、描述性计数 |
 | v3 声音摘要 | 8 秒音量/停顿；显式同意；不保存原始音频 |
+| 场域 | 母题星座、关系节点、镜头切换、时间轴、信号状态 |
 | BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
 | BCI-2 | 本机 WebSocket 设备桥接契约 |
 | 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |

@@ -304,3 +304,82 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 [data-theme='dark'] .motif-item .small, [data-theme='dark'] .quiet.small { border-color: #3a3c41; color: #b8babc }
 [data-theme='dark'] .host-dot { background: #6a6c70 }
 [data-theme='dark'] .host-dot.native { background: #7f9d83 }
+/* Familiweave field: a spatial constellation, not a document editor. */
+.field-view { min-height: calc(100vh - 48px - 64px); padding: 26px 34px 10px; display: flex; flex-direction: column; gap: 10px }
+.field-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px }
+.field-heading .eyebrow { margin-bottom: 7px; color: #8b8c90; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase }
+.field-heading h1 { margin: 0; font: 600 24px/1.3 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif; color: #242528 }
+.field-canvas { flex: 1; min-height: 380px; display: flex; align-items: center; justify-content: center; border: 1px solid #e3e3e5; border-radius: 12px; background: radial-gradient(ellipse at 50% 46%, rgba(0,0,0,.025), transparent 58%), #f7f7f7 }
+.field-canvas svg { width: 100%; height: auto; max-height: 540px; overflow: visible }
+.field-orbit { fill: none; stroke: #dfe0e2; stroke-width: 1; stroke-dasharray: 2 6 }
+.field-orbit.inner { stroke: #e7e8ea }
+.field-glow { color: #8b5e54; opacity: .55 }
+.field-edge { stroke: #d6d7d9; stroke-width: 1 }
+.field-edge.relation-edge { stroke-dasharray: 3 5; stroke: #c7b8b0 }
+.field-self { fill: #2f3430; stroke: #f7f7f7; stroke-width: 4 }
+.field-self-label { fill: #f7f7f7; font: 600 12px system-ui, sans-serif }
+.field-node { cursor: pointer; outline: none }
+.field-node circle { fill: #e9e9e6; stroke: #b9bcb9; stroke-width: 1; transition: fill .16s ease, stroke .16s ease }
+.field-node:hover circle, .field-node:focus-visible circle { fill: #dedfdb; stroke: #6f7a70 }
+.field-node.selected circle { fill: #8b5e54; stroke: #8b5e54; stroke-width: 2; filter: drop-shadow(0 0 8px rgba(139,94,84,.28)) }
+.field-node text { fill: #4e554e; font: 600 10px system-ui, sans-serif; pointer-events: none }
+.field-node.selected text { fill: #fff }
+.field-node-sub { fill: #8b8e89 !important; font-weight: 400 !important; font-size: 9px !important }
+.field-node.region-head circle { fill: #e9e6e2 } .field-node.region-jaw circle { fill: #ece7e1 } .field-node.region-throat circle { fill: #e8e6e3 } .field-node.region-shoulders circle { fill: #e6e9e4 } .field-node.region-chest circle { fill: #eee4df } .field-node.region-stomach circle { fill: #eee6df } .field-node.region-back circle { fill: #e6e8e4 } .field-node.region-hands circle { fill: #e8e8e2 } .field-node.region-legs circle { fill: #e4e8e3 }
+.field-node.region-chest.selected circle, .field-node.region-stomach.selected circle, .field-node.region-head.selected circle, .field-node.region-jaw.selected circle, .field-node.region-throat.selected circle, .field-node.region-shoulders.selected circle, .field-node.region-back.selected circle, .field-node.region-hands.selected circle, .field-node.region-legs.selected circle { fill: #8b5e54; stroke: #8b5e54 }
+.field-relation-node rect { fill: transparent; stroke: #b78a79; stroke-width: 1; opacity: .65 }
+.field-legend { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; color: #85878b; font-size: 10px }
+.field-legend > span { display: inline-flex; align-items: center; gap: 6px }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #b9bcb9 }
+.legend-dot.relation { border-radius: 2px; transform: rotate(45deg); background: transparent; border: 1px solid #b78a79 }
+.field-lens-note { margin-left: auto; color: #989a9d }
+.field-empty { flex: 1; min-height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 1px dashed #dcdddf; border-radius: 12px; color: #85878b; font-size: 12px }
+.field-empty p { margin: 0 }
+.timeline-rail { flex: 0 0 64px; display: flex; align-items: center; gap: 12px; padding: 0 28px; border-top: 1px solid #e3e3e5; background: #f7f7f7; min-width: 0 }
+.timeline-label, .timeline-now { flex: 0 0 auto; color: #8f9195; font-size: 10px; letter-spacing: .3px }
+.timeline-now { color: #6d6f73 }
+.timeline-track { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; overflow: hidden }
+.timeline-empty { color: #a0a2a5; font-size: 10px }
+.timeline-item { display: flex; align-items: center; gap: 5px; min-width: 0; max-width: 150px; padding: 5px 6px; border: 0; border-radius: 6px; background: transparent; color: #626468; font-size: 9px; text-align: left }
+.timeline-item:hover:not(:disabled) { background: #ececee; color: #2c2e31 }
+.timeline-item:disabled { cursor: default; opacity: .62 }
+.timeline-dot { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #9da09d }
+.timeline-item.relation .timeline-dot { border-radius: 1px; transform: rotate(45deg); background: transparent; border: 1px solid #b78a79 }
+.timeline-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.timeline-date { color: #a4a6a9; white-space: nowrap; font-size: 8px }
+.quiet-button.wide { width: 100%; margin-top: 8px }
+[data-theme='dark'] .field-canvas { background: radial-gradient(ellipse at 50% 46%, rgba(255,255,255,.04), transparent 58%), #1a1b1e; border-color: #33353a }
+[data-theme='dark'] .field-heading h1 { color: #f0f0ec }
+[data-theme='dark'] .field-orbit { stroke: #34363b }
+[data-theme='dark'] .field-orbit.inner { stroke: #2b2d31 }
+[data-theme='dark'] .field-edge { stroke: #33353a }
+[data-theme='dark'] .field-edge.relation-edge { stroke: #5a4943 }
+[data-theme='dark'] .field-node circle { fill: #26282c; stroke: #4a4d51 }
+[data-theme='dark'] .field-node:hover circle, [data-theme='dark'] .field-node:focus-visible circle { fill: #303237; stroke: #8b8f89 }
+[data-theme='dark'] .field-node.selected circle { fill: #b78a79; stroke: #d2a593 }
+[data-theme='dark'] .field-node text { fill: #c7c9c6 }
+[data-theme='dark'] .field-node.selected text { fill: #17181a }
+[data-theme='dark'] .field-node-sub { fill: #929498 !important }
+[data-theme='dark'] .field-self { fill: #e7e7e3; stroke: #1a1b1e }
+[data-theme='dark'] .field-self-label { fill: #17181a }
+[data-theme='dark'] .field-node.region-head circle, [data-theme='dark'] .field-node.region-jaw circle, [data-theme='dark'] .field-node.region-throat circle, [data-theme='dark'] .field-node.region-shoulders circle, [data-theme='dark'] .field-node.region-chest circle, [data-theme='dark'] .field-node.region-stomach circle, [data-theme='dark'] .field-node.region-back circle, [data-theme='dark'] .field-node.region-hands circle, [data-theme='dark'] .field-node.region-legs circle { fill: #26282c }
+[data-theme='dark'] .field-node.selected[class*="region-"] circle { fill: #b78a79; stroke: #d2a593 }
+[data-theme='dark'] .field-legend, [data-theme='dark'] .timeline-label, [data-theme='dark'] .timeline-now, [data-theme='dark'] .timeline-empty { color: #929498 }
+[data-theme='dark'] .field-lens-note { color: #7f8185 }
+[data-theme='dark'] .field-empty { border-color: #3a3c41; color: #929498 }
+[data-theme='dark'] .timeline-rail { background: #1b1c1f; border-top-color: #33353a }
+[data-theme='dark'] .timeline-item { color: #b0b2b4 }
+[data-theme='dark'] .timeline-item:hover:not(:disabled) { background: #26282c; color: #f0f0ec }
+[data-theme='dark'] .timeline-dot { background: #707377 }
+[data-theme='dark'] .timeline-date { color: #7f8185 }
+.field-node-label { fill: #4e554e; font: 600 10px system-ui, sans-serif; pointer-events: none }
+.field-node.selected .field-node-label { fill: #8b5e54 }
+.field-signal { display: inline-flex; align-items: center; gap: 6px; color: #85878b }
+.signal-pulse { width: 6px; height: 6px; border-radius: 50%; background: #6f8d70; box-shadow: 0 0 0 3px rgba(111,141,112,.14) }
+[data-theme='dark'] .field-node-label { fill: #c7c9c6 }
+[data-theme='dark'] .field-node.selected .field-node-label { fill: #e1bba9 }
+[data-theme='dark'] .field-signal { color: #929498 }
+.field-view { position: relative }
+.field-legend { position: absolute; left: 48px; bottom: 78px; z-index: 2; padding: 6px 10px; border: 1px solid #e3e3e5; border-radius: 999px; background: rgba(247,247,247,.92); backdrop-filter: blur(6px); font-size: 9px; gap: 12px }
+[data-theme='dark'] .field-legend { background: rgba(27,28,31,.92); border-color: #33353a; color: #929498 }
+[data-theme='dark'] .timeline-rail { background: #1b1c1f }

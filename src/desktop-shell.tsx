@@ -18,10 +18,12 @@ import { useTheme } from './theme'
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
 
-type View = 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
+type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
+type FieldLens = 'constellation' | 'body' | 'imagery' | 'relations'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
 
 const navItems: Array<{ id: Exclude<View, 'motif' | 'space'>; label: string; icon: string }> = [
+  { id: 'field', label: '场域', icon: '◌' },
   { id: 'journal', label: '母题日记', icon: '◫' },
   { id: 'relationship', label: '关系触发点', icon: '◇' },
   { id: 'lab', label: '信号实验台', icon: '◉' },
@@ -114,7 +116,73 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
   </>
 }
 
-function ContextPanel({ motif, encounter, onEnter, onBack }: { motif: MotifEntry | null; encounter: Encounter | null; onEnter: () => void; onBack: () => void }) {
+function FieldView({ motifs, relationships, selectedId, lens, onSelect, onNew }: { motifs: MotifEntry[]; relationships: RelationshipTrigger[]; selectedId: string | null; lens: FieldLens; onSelect: (id: string) => void; onNew: () => void }) {
+  const { lang, t } = useLanguage()
+  const center = { x: 380, y: 268 }
+  const motifNodes = motifs.slice(0, 14).map((motif, index) => {
+    const angle = (Math.PI * 2 * index) / Math.max(motifs.slice(0, 14).length, 1) - Math.PI / 2
+    return { motif, x: center.x + Math.cos(angle) * 170, y: center.y + Math.sin(angle) * 152, angle }
+  })
+  const relationNodes = relationships.slice(0, 10).map((entry, index) => {
+    const angle = (Math.PI * 2 * index) / Math.max(relationships.slice(0, 10).length, 1) + Math.PI / 7
+    return { entry, x: center.x + Math.cos(angle) * 94, y: center.y + Math.sin(angle) * 82 }
+  })
+  const showRelations = lens === 'relations'
+  return <div className={`field-view lens-${lens}`}>
+    <div className="field-heading">
+      <div><p className="eyebrow">{t('场域')}</p><h1>{t('你的内在地形')}</h1><p className="workspace-meta">{t('母题、意象与关系触发点并列在这里；没有解释，只有你写下的结构。')}</p></div>
+      <button className="primary-button" onClick={onNew}>{t('新建片段')}</button>
+    </div>
+    {motifs.length === 0 && relationships.length === 0
+      ? <div className="field-empty"><p>{t('场域还是空的。先从一个身体位置开始。')}</p><button className="primary-button" onClick={onNew}>{t('开始捕获')}</button></div>
+      : <>
+        <div className="field-canvas">
+          <svg viewBox="0 0 760 536" role="img" aria-label={t('内在场域地图')}>
+            <defs><radialGradient id="field-glow"><stop offset="0%" stopColor="currentColor" stopOpacity=".16" /><stop offset="100%" stopColor="currentColor" stopOpacity="0" /></radialGradient></defs>
+            <circle cx={center.x} cy={center.y} r="210" className="field-orbit" />
+            <circle cx={center.x} cy={center.y} r="136" className="field-orbit inner" />
+            <circle cx={center.x} cy={center.y} r="220" fill="url(#field-glow)" className="field-glow" />
+            {motifNodes.map(node => <line key={`e-${node.motif.id}`} x1={center.x} y1={center.y} x2={node.x} y2={node.y} className="field-edge" />)}
+            {showRelations && relationNodes.map(node => <line key={`re-${node.entry.id}`} x1={center.x} y1={center.y} x2={node.x} y2={node.y} className="field-edge relation-edge" />)}
+            <circle cx={center.x} cy={center.y} r="34" className="field-self" />
+            <text x={center.x} y={center.y + 4} textAnchor="middle" className="field-self-label">{t('我')}</text>
+            {motifNodes.map(node => <g key={node.motif.id} role="button" tabIndex={0} className={`field-node region-${node.motif.capture.region} ${selectedId === node.motif.id ? 'selected' : ''}`} onClick={() => onSelect(node.motif.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(node.motif.id) } }}>
+              <circle cx={node.x} cy={node.y} r={lens === 'imagery' ? 14 + node.motif.capture.fragments.length * 2 : 17} />
+              <text x={node.x} y={node.y + 34} textAnchor="middle" className="field-node-label">{node.motif.name ? node.motif.name.slice(0, 14) : t('未命名')}</text>
+              {lens === 'body' && <text x={node.x} y={node.y + 48} textAnchor="middle" className="field-node-sub">{localizedLabel(regions, node.motif.capture.region, lang)}</text>}
+            </g>)}
+            {showRelations && relationNodes.map(node => <g key={node.entry.id} className="field-relation-node" transform={`translate(${node.x},${node.y}) rotate(45)`}>
+              <rect x="-9" y="-9" width="18" height="18" rx="3" />
+            </g>)}
+          </svg>
+        </div>
+        <div className="field-legend">
+          <span><i className="legend-dot motif" />{t('母题')} · {motifs.length}</span>
+          <span><i className="legend-dot relation" />{t('关系触发点')} · {relationships.length}</span>
+          <span className="field-signal"><i className="signal-pulse" />{t('信号')}：{t('本机信号层')} · BCI-1/2</span>
+          <span className="field-lens-note">{t('镜头')}：{t(lens === 'constellation' ? '星座' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系')}</span>
+        </div>
+      </>}
+  </div>
+}
+
+function TimelineRail({ motifs, relationships, onSelect }: { motifs: MotifEntry[]; relationships: RelationshipTrigger[]; onSelect: (id: string) => void }) {
+  const { lang, t } = useLanguage()
+  const items = [...motifs.map(entry => ({ kind: 'motif' as const, id: entry.id, at: entry.createdAt, name: entry.name || t('未命名') })), ...relationships.map(entry => ({ kind: 'relation' as const, id: entry.id, at: entry.createdAt, name: entry.role || t('关系触发点') }))]
+    .sort((left, right) => Date.parse(left.at) - Date.parse(right.at)).slice(-12)
+  return <div className="timeline-rail">
+    <span className="timeline-label">{t('时间轴')}</span>
+    <div className="timeline-track">
+      {items.length === 0 && <span className="timeline-empty">{t('还没有记录')}</span>}
+      {items.map(item => <button key={`${item.kind}-${item.id}`} className={`timeline-item ${item.kind}`} disabled={item.kind === 'relation'} onClick={() => item.kind === 'motif' && onSelect(item.id)} title={item.name}>
+        <span className="timeline-dot" /><span className="timeline-name">{item.name}</span><span className="timeline-date">{dateLabel(item.at, lang)}</span>
+      </button>)}
+    </div>
+    <span className="timeline-now">{t('现在')}</span>
+  </div>
+}
+
+function ContextPanel({ motif, encounter, onEnter, onBack, onDetail }: { motif: MotifEntry | null; encounter: Encounter | null; onEnter: () => void; onBack: () => void; onDetail: () => void }) {
   const { lang, t } = useLanguage()
   if (encounter) {
     return <aside className="context-panel">
@@ -142,6 +210,7 @@ function ContextPanel({ motif, encounter, onEnter, onBack }: { motif: MotifEntry
       {checkItem(t('关系触发点'), false, t('不进入空间；保持独立'))}
     </ul>
     <button className="primary-button wide" disabled={!motif} onClick={onEnter}>{t('进入 75 秒空间')}</button>
+    {motif && <button className="quiet-button wide" onClick={onDetail}>{t('打开母题详情')}</button>}
     <div className="context-section">
       <p className="card-label">{t('事件流')}</p>
       <p className="muted">{t('还没有活动。进入空间后，这里会显示当前会话。')}</p>
@@ -157,7 +226,8 @@ function ContextPanel({ motif, encounter, onEnter, onBack }: { motif: MotifEntry
 export function DesktopShell() {
   const { lang, setLang, t } = useLanguage()
   const { theme, toggleTheme } = useTheme()
-  const [view, setView] = useState<View>('new')
+  const [view, setView] = useState<View>('field')
+  const [fieldLens, setFieldLens] = useState<FieldLens>('constellation')
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
   const [relationships, setRelationships] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
@@ -191,11 +261,11 @@ export function DesktopShell() {
   const selected = motifs.find(motif => motif.id === selectedId) ?? null
   const filtered = useMemo(() => motifs.filter(motif => !search.trim() || (motif.name || '未命名').includes(search.trim())), [motifs, search])
 
-  const openNew = () => { setEncounter(null); setSelectedId(null); setView('new'); setDetailTab('overview') }
-  const openMotif = (id: string) => { setSelectedId(id); setEncounter(null); setView('motif'); setDetailTab('overview') }
+  const openNew = () => { setEncounter(null); setSelectedId(null); setView('field'); setDetailTab('overview') }
+  const openMotif = (id: string) => { setSelectedId(id); setEncounter(null); setView('field'); setDetailTab('overview') }
   const start = (next: Encounter) => { setEncounter(next); setView('space') }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
-  const backFromSpace = () => { setEncounter(null); setView(selected ? 'motif' : 'new') }
+  const backFromSpace = () => { setEncounter(null); setView(selected ? 'field' : 'new') }
   const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[]) => {
     void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships })
   }
@@ -235,9 +305,11 @@ export function DesktopShell() {
     void clearLocalSnapshot()
   }
 
-  const navView = view === 'motif' || view === 'space' ? (selected ? 'journal' : 'new') : view
+  const navView = view === 'motif' || view === 'space' ? 'field' : view
 
-  const topTabs = view === 'new'
+  const topTabs = view === 'field'
+    ? (['constellation', 'body', 'imagery', 'relations'] as FieldLens[]).map(lens => ({ id: lens, label: t(lens === 'constellation' ? '星座' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系'), active: fieldLens === lens, onClick: () => setFieldLens(lens) }))
+    : view === 'new'
     ? [
         { id: 'somatic', label: t('从身体开始'), active: !textMode, onClick: () => setTextMode(false) },
         { id: 'text', label: t('用文字'), active: textMode, onClick: () => setTextMode(true) },
@@ -296,6 +368,7 @@ export function DesktopShell() {
               <div className="scene-footer"><span>{t('不解释、不诊断；离开随时可用。')}</span><button className="quiet-button" onClick={() => setReplay(value => value + 1)}>{t('重新进入')}</button></div>
             </div>
             : <>
+              {view === 'field' && <FieldView motifs={motifs} relationships={relationships} selectedId={selectedId} lens={fieldLens} onSelect={openMotif} onNew={openNew} />}
               {(view === 'new' || view === 'motif') && <>
                 {view === 'new' && <WorkspaceHeader eyebrow={t('内在工作台')} title={t('先感觉，不用急着命名。')} meta={t('从身体、意象与关系开始；不解释，也不替你下结论。')} action={<span className="status-pill">{t('本地研究原型')}</span>} />}
                 {view === 'new' && (textMode
@@ -328,9 +401,10 @@ export function DesktopShell() {
               </>}
             </>}
         </div>
+        {view !== 'space' && <TimelineRail motifs={motifs} relationships={relationships} onSelect={openMotif} />}
       </main>
 
-      <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} />
+      <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />
     </div>
   </div>
 

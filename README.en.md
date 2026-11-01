@@ -6,9 +6,9 @@
 >
 > An enterable, exit-able, self-interpreted space for pre-verbal experience.
 
-![Familiweave desktop shell — light](docs/assets/desktop-shell-en.png)
+![Familiweave inner field — light](docs/assets/desktop-shell-en.png)
 
-![Familiweave desktop shell — dark](docs/assets/desktop-shell-dark-en.png)
+![Familiweave inner field — dark](docs/assets/desktop-shell-dark-en.png)
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 
@@ -86,6 +86,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | v1 motif journal | Local naming, save, delete, export |
 | v2 relationship triggers | Self-authored moments/reactions, map, descriptive counts |
 | v3 voice summary | 8s volume/pause; explicit consent; no raw audio |
+| Field | Motif constellation, relationship nodes, lens switch, timeline, signal status |
 | BCI-1 | Signal source contract, simulator, local event timeline |
 | BCI-2 | Local WebSocket device bridge contract |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
