@@ -69,7 +69,7 @@ export function saveRelationshipTriggers(storage: RelationshipStorageLike, entri
   storage.setItem(relationshipStorageKey, JSON.stringify(entries.slice(0, maxEntries)))
 }
 
-export function addRelationshipTrigger(storage: RelationshipStorageLike, input: {
+export interface RelationshipInput {
   role?: string
   situation: string
   cue: string
@@ -79,9 +79,11 @@ export function addRelationshipTrigger(storage: RelationshipStorageLike, input: 
   breath: BreathState
   response: RelationshipResponse
   now?: string
-}): RelationshipTrigger[] {
+}
+
+export function createRelationshipTrigger(input: RelationshipInput): RelationshipTrigger {
   if (!input.situation.trim() && !input.cue.trim()) throw new Error('请至少写下一个触发瞬间')
-  const entry: RelationshipTrigger = {
+  return {
     version: 'relationship-trigger-v1',
     id: crypto.randomUUID(),
     createdAt: input.now ?? new Date().toISOString(),
@@ -94,6 +96,10 @@ export function addRelationshipTrigger(storage: RelationshipStorageLike, input: 
     breath: input.breath,
     response: input.response,
   }
+}
+
+export function addRelationshipTrigger(storage: RelationshipStorageLike, input: RelationshipInput): RelationshipTrigger[] {
+  const entry = createRelationshipTrigger(input)
   const entries = [entry, ...loadRelationshipTriggers(storage)].slice(0, maxEntries)
   saveRelationshipTriggers(storage, entries)
   return entries

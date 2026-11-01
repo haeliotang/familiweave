@@ -23,7 +23,7 @@ function normalizeName(name: string) {
   return name.trim().slice(0, 60)
 }
 
-function isMotifEntry(value: unknown): value is MotifEntry {
+export function isMotifEntry(value: unknown): value is MotifEntry {
   if (!value || typeof value !== 'object') return false
   const entry = value as Partial<MotifEntry>
   return entry.version === 'motif-v1'
@@ -49,10 +49,10 @@ export function saveMotifs(storage: StorageLike, entries: MotifEntry[]) {
   storage.setItem(motifStorageKey, JSON.stringify(entries.slice(0, maxEntries)))
 }
 
-export function addMotif(storage: StorageLike, input: { name?: string; capture: SomaticCapture; signals?: MotifSignals; now?: string }): MotifEntry[] {
+export function createMotif(input: { name?: string; capture: SomaticCapture; signals?: MotifSignals; now?: string }): MotifEntry {
   if (!isSomaticCapture(input.capture)) throw new Error('capture is incomplete')
   if (input.signals && (!isSignalConsent(input.signals.consent) || (input.signals.voice && !isVoiceTrace(input.signals.voice)))) throw new Error('signals are incomplete')
-  const entry: MotifEntry = {
+  return {
     version: 'motif-v1',
     id: crypto.randomUUID(),
     createdAt: input.now ?? new Date().toISOString(),
@@ -60,6 +60,10 @@ export function addMotif(storage: StorageLike, input: { name?: string; capture: 
     capture: input.capture,
     ...(input.signals ? { signals: input.signals } : {}),
   }
+}
+
+export function addMotif(storage: StorageLike, input: { name?: string; capture: SomaticCapture; signals?: MotifSignals; now?: string }): MotifEntry[] {
+  const entry = createMotif(input)
   const entries = [entry, ...loadMotifs(storage)].slice(0, maxEntries)
   saveMotifs(storage, entries)
   return entries

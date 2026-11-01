@@ -9,7 +9,10 @@ import { SignalSimulator } from './signal-simulator'
 import { DeviceSignalPanel } from './device-signal-panel'
 import { LocalDataPanel } from './local-data-panel'
 import { SceneView } from './scene-loader'
-import { addMotif, clearMotifs, loadMotifs, removeMotif, type MotifEntry } from './motif-journal'
+import { createMotif, loadMotifs, type MotifEntry } from './motif-journal'
+import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipInput, type RelationshipTrigger } from './relationship'
+import { clearLocalSnapshot, loadLocalSnapshot, saveLocalSnapshot } from './local-store'
+import type { LocalSnapshot } from './local-dataset'
 import { getDbStatus, getHostInfo, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
 
@@ -150,6 +153,7 @@ export function DesktopShell() {
   const [view, setView] = useState<View>('new')
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
+  const [relationships, setRelationships] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [encounter, setEncounter] = useState<Encounter | null>(null)
   const [replay, setReplay] = useState(0)
@@ -166,6 +170,17 @@ export function DesktopShell() {
     })()
   }, [])
 
+  useEffect(() => {
+    let active = true
+    void loadLocalSnapshot().then(snapshot => {
+      if (!active) return
+      setMotifs(snapshot.motifs)
+      setRelationships(snapshot.relationships)
+      setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
+    })
+    return () => { active = false }
+  }, [])
+
   const selected = motifs.find(motif => motif.id === selectedId) ?? null
   const filtered = useMemo(() => motifs.filter(motif => !search.trim() || (motif.name || '未命名').includes(search.trim())), [motifs, search])
 
@@ -174,12 +189,44 @@ export function DesktopShell() {
   const start = (next: Encounter) => { setEncounter(next); setView('space') }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
   const backFromSpace = () => { setEncounter(null); setView(selected ? 'motif' : 'new') }
-  const remember = (capture: Parameters<typeof addMotif>[1]['capture'], name: string, signals?: Parameters<typeof addMotif>[1]['signals']) => {
-    const next = addMotif(window.localStorage, { capture, name, signals })
-    setMotifs(next)
-    setSelectedId(next[0]?.id ?? null)
+  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[]) => {
+    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships })
   }
-  const remove = (id: string) => { setMotifs(removeMotif(window.localStorage, id)); if (selectedId === id) setSelectedId(null) }
+  const remember = (capture: Parameters<typeof createMotif>[0]['capture'], name: string, signals?: Parameters<typeof createMotif>[0]['signals']) => {
+    const entry = createMotif({ capture, name, signals })
+    const next = [entry, ...motifs]
+    setMotifs(next)
+    setSelectedId(entry.id)
+    persist(next, relationships)
+  }
+  const remove = (id: string) => {
+    const next = motifs.filter(motif => motif.id !== id)
+    setMotifs(next)
+    if (selectedId === id) setSelectedId(null)
+    persist(next, relationships)
+  }
+  const addRelationship = (input: RelationshipInput) => {
+    const next = [createRelationshipTrigger(input), ...relationships]
+    setRelationships(next)
+    persist(motifs, next)
+  }
+  const removeRelationship = (id: string) => {
+    const next = relationships.filter(entry => entry.id !== id)
+    setRelationships(next)
+    persist(motifs, next)
+  }
+  const importSnapshot = (snapshot: LocalSnapshot) => {
+    setMotifs(snapshot.motifs)
+    setRelationships(snapshot.relationships)
+    setSelectedId(null)
+    void saveLocalSnapshot(snapshot)
+  }
+  const clearAll = () => {
+    setMotifs([])
+    setRelationships([])
+    setSelectedId(null)
+    void clearLocalSnapshot()
+  }
 
   const navView = view === 'motif' || view === 'space' ? (selected ? 'journal' : 'new') : view
 
@@ -237,11 +284,11 @@ export function DesktopShell() {
             </>}
             {view === 'journal' && <>
               <WorkspaceHeader eyebrow="本机母题日记" title="反复出现的东西，先放在一起。" meta="不推断因果，只做并列、回看与导出。" />
-              <MotifJournal entries={motifs} onRemove={remove} onClear={() => { setMotifs(clearMotifs(window.localStorage)); setSelectedId(null) }} />
+              <MotifJournal entries={motifs} onRemove={remove} onClear={() => { setMotifs([]); setSelectedId(null); persist([], relationships) }} />
             </>}
             {view === 'relationship' && <>
               <WorkspaceHeader eyebrow="关系触发点" title="只画你自己的地图。" meta="不推断对方，不做匹配，也不把关系变成评分。" />
-              <RelationshipJournal />
+              <RelationshipJournal entries={relationships} onAdd={addRelationship} onRemove={removeRelationship} onClear={() => { setRelationships([]); persist(motifs, []) }} />
             </>}
             {view === 'lab' && <>
               <WorkspaceHeader eyebrow="实验台" title="先把信号管线立住。" meta="模拟数据和设备桥接都明确标注；没有真实神经数据。" />
@@ -255,7 +302,7 @@ export function DesktopShell() {
                 <p>{host ? `Tauri 2 · ${host.platform} · 沙箱 ${host.sandbox}` : 'Web 预览 · 没有 Tauri 宿主'}</p>
                 <p className="muted">{host ? `SQLite: ${host.database_path}` : '启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。'}</p>
               </div>
-              <LocalDataPanel />
+              <LocalDataPanel snapshot={{ motifs, relationships }} onImport={importSnapshot} onClear={clearAll} />
             </>}
           </>}
       </main>

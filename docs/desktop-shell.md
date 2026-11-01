@@ -24,7 +24,7 @@ src/
 
 - 前端：React 19 + TypeScript + Vite。
 - 桌面宿主：Tauri 2 + Rust。
-- 当前前端仍以 `localStorage` 为数据源；SQLite 宿主句柄已建立，但尚未迁移业务数据。
+- 前端通过 `src/local-store.ts` 读取/写入本地快照：Tauri 下走 SQLite，Web 预览回退到 `localStorage`；首次在 Tauri 打开时会把已有 Web 数据迁移到 SQLite。
 
 ## 2. Rust 宿主
 
@@ -36,9 +36,14 @@ src/
 | `db_status` | SQLite 是否就绪、表数量 |
 | `read_local_text` | 只读 app data/local-files 下的文本，限制 1 MB |
 | `write_local_text` | 只写 app data/local-files，文件名禁止路径分隔符/`..`，限制 1 MB |
+| `load_local_state` | 从 SQLite `local_state` 读取母题/关系触发点快照 |
+| `save_local_state` | 写入/更新母题与关系触发点快照 |
+| `clear_local_state` | 删除本机快照 |
+| `export_local_state` | 把当前快照写到 app data/local-files/familiweave-export-*.json |
+| `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
 - SQLite 位于 app data：`familiweave.db`。
-- 已建 `local_meta` 表；业务表尚未迁移。
+- 已建 `local_meta` 与 `local_state` 表；界面中的母题/关系触发点通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
 ## 3. 三栏工作台
@@ -78,13 +83,17 @@ pnpm tauri:dev
 - `pnpm build`：通过
 - `pnpm test`：51 项通过
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
-- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：2 个宿主沙箱测试通过
-- `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。**打包、签名与正式安装包尚未验收。**
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：4 个宿主测试通过（文件沙箱 + SQLite 快照）
+- `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
+- `pnpm tauri:build --bundles app`：成功生成未签名 `Familiweave.app`（约 10.28 MiB）。
+- 启动打包后的 App：成功创建 `~/Library/Application Support/com.inceptless.familiweave/familiweave.db`，包含 `local_meta` 与 `local_state` 表。
+- 导出/导入：Rust 命令写入/读取 app data/local-files；前端也支持 JSON 下载与文件导入。
+- 签名、公证与正式安装包尚未验收。
 - Web 预览截图：见上方图片。
 
 ## 6. 下一步
 
-1. 在正常 macOS 用户会话运行 `pnpm tauri:dev`，验证窗口、拖拽区、交通灯位置。
-2. 把母题/关系/信号从 `localStorage` 迁移到 Rust SQLite（通过 `invoke`，不暴露路径）。
-3. 增加导出/导入命令与 app data 文件沙箱测试。
-4. 打包：`pnpm tauri:build`（需要签名/公证时再配置）。
+1. 在正常 macOS 用户会话运行 `pnpm tauri:dev`，目视检查交通灯、拖拽区与三栏布局。
+2. 迁移已完成基础链路；继续把信号摘要/BCI 时间轴也纳入 SQLite。
+3. 继续补导出/导入命令的端到端测试。
+4. 打包已能生成未签名 `.app`；下一步是签名/公证与正式安装包。

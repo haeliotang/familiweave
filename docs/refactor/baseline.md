@@ -6,9 +6,9 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-CJROHmX7.js` | 283,358 | 主入口（Tauri 桌面外壳后） |
-| `index-Bgnwv9Zo.css` | 25,947 | 样式（桌面三栏外壳） |
-| 合计 | 309,305 | 两个产物；无 scene 分包 |
+| `index-ChaGWtIT.js` | 285,133 | 主入口（SQLite/导入导出后） |
+| `index-inHBQTPK.css` | 27,428 | 样式（桌面三栏外壳） |
+| 合计 | 312,561 | 两个产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。

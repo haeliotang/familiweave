@@ -105,3 +105,32 @@ body { overflow: hidden; background: #f3f0e7; color: #2b2d29 }
 @media (max-width: 1180px) { .shell-body { grid-template-columns: 220px minmax(0, 1fr) 280px } .workspace-header, .detail-grid, .capture-wrap, .workspace-tabs, .motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel, .host-card { padding-left: 28px; padding-right: 28px; margin-left: 28px; margin-right: 28px } .workspace-tabs { padding-left: 28px; padding-right: 28px; margin: 0 } }
 @media (max-width: 920px) { .shell-body { grid-template-columns: 208px minmax(0, 1fr) } .context-panel { display: none } }
 @media (max-width: 680px) { .shell-body { grid-template-columns: minmax(0, 1fr) } .sidebar { display: none } .window-bar { padding-left: 16px } .window-path { display: none } .workspace-header, .detail-grid, .capture-wrap, .motif-journal, .relationship-journal, .signal-lab, .device-lab, .local-data-panel, .host-card { padding-left: 18px; padding-right: 18px; margin-left: 18px; margin-right: 18px } .workspace-tabs { padding: 0 18px; margin: 0 } }
+/* Neutral reference palette: closer to the Inceptless screenshot's paper/ink look. */
+body, .desktop-shell { background: #f3f3f0; color: #252825 }
+.window-bar { background: #f6f6f3; border-bottom-color: #e2e2dc }
+.window-path { color: #858881; border-left-color: #e2e2dc }
+.sidebar { background: #f2f2ef; border-right-color: #e2e2dc }
+.workspace { background: #fbfbf9 }
+.context-panel { background: #f7f7f4; border-left-color: #e2e2dc }
+.new-button { background: #33423a }
+.search-box { background: #fbfbf8; border-color: #deded7; color: #999c96 }
+.sidebar-nav button { color: #5f645d }
+.sidebar-nav button:hover { background: #e9e9e4 }
+.sidebar-nav button.active { background: #e4e4de; color: #242824 }
+.recent-item:hover { background: #ebebe6 }
+.recent-item.active { background: #e6e6df; border-left-color: #8a5b50 }
+.sidebar-recent, .sidebar-footer { border-top-color: #e4e4de }
+.workspace-header .eyebrow { color: #8a5b50 }
+.workspace-tabs { border-bottom-color: #e6e6e0 }
+.paper-card, .motif-item, .host-card { background: #fbfbf8; border-color: #e4e4de }
+.capture-wrap .inner-entry { background: #f7f7f4; border-color: #e4e4de }
+.capture-wrap .somatic-entry { background: transparent }
+.chip { background: #fbfbf8; border-color: #dcdcd5; color: #5f645d }
+.chip.selected { background: #eee9e4; border-color: #8a5b50; color: #68463f }
+.fragment-card { background: #fbfbf8; border-color: #deded7 }
+.somatic-step { border-top-color: #e6e6e0 }
+.somatic-name { border-top-color: #e6e6e0 }
+.voice-trace { background: #f7f7f4; border-color: #e4e4de }
+.primary-button { background: #33423a }
+.check-item { background: #fbfbf8; border-color: #e4e4de }
+.context-note, .trigger-summary, .local-data-panel, .signal-lab, .device-lab { background-color: #fbfbf8; border-color: #e4e4de }

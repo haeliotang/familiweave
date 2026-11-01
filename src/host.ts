@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
+import type { LocalSnapshot } from './local-dataset'
 
 export interface HostInfo {
   platform: string
@@ -36,4 +37,14 @@ export async function readLocalText(name: string): Promise<string | null> {
 export async function writeLocalText(name: string, contents: string): Promise<boolean> {
   if (!isTauriRuntime()) return false
   try { await invoke('write_local_text', { name, contents }); return true } catch { return false }
+}
+
+export async function exportLocalStateFile(): Promise<string | null> {
+  if (!isTauriRuntime()) return null
+  try { return await invoke<string>('export_local_state') } catch { return null }
+}
+
+export async function importLocalStateFile(name: string): Promise<LocalSnapshot | null> {
+  if (!isTauriRuntime()) return null
+  try { return await invoke<LocalSnapshot>('import_local_state', { name }) } catch { return null }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { breaths, regions, sensations, type BreathState, type SomaticRegion, type SomaticSensation } from './somatic'
-import { addRelationshipTrigger, clearRelationshipTriggers, exportRelationshipTriggers, loadRelationshipTriggers, removeRelationshipTrigger, responseLabels, responses, summarizeRelationshipTriggers, type RelationshipResponse, type RelationshipSummary, type RelationshipTrigger } from './relationship'
+import { exportRelationshipTriggers, responseLabels, responses, summarizeRelationshipTriggers, type RelationshipInput, type RelationshipResponse, type RelationshipSummary, type RelationshipTrigger } from './relationship'
 
 function TriggerSummary({ summary }: { summary: RelationshipSummary }) {
   if (!summary.total) return null
@@ -41,8 +41,7 @@ function TriggerMap({ entries }: { entries: RelationshipTrigger[] }) {
   </svg>
 }
 
-export function RelationshipJournal() {
-  const [entries, setEntries] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
+export function RelationshipJournal({ entries, onAdd, onRemove, onClear }: { entries: RelationshipTrigger[]; onAdd: (input: RelationshipInput) => void; onRemove: (id: string) => void; onClear: () => void }) {
   const [open, setOpen] = useState(false)
   const [role, setRole] = useState('')
   const [situation, setSituation] = useState('')
@@ -57,8 +56,7 @@ export function RelationshipJournal() {
 
   const save = () => {
     if (!canSave) return
-    const next = addRelationshipTrigger(window.localStorage, { role, situation, cue, region, sensation, intensity, breath, response })
-    setEntries(next)
+    onAdd({ role, situation, cue, region, sensation, intensity, breath, response })
     setRole(''); setSituation(''); setCue(''); setOpen(false)
   }
   const exportAll = () => {
@@ -81,7 +79,7 @@ export function RelationshipJournal() {
       <div className="actions">
         <button type="button" className="quiet" onClick={() => setOpen(value => !value)}>{open ? '收起' : '添加触发点'}</button>
         {entries.length > 0 && <button type="button" className="quiet" onClick={exportAll}>导出 JSON</button>}
-        {entries.length > 0 && <button type="button" className="quiet" onClick={() => { if (confirm('删除本机全部关系触发点？此操作不可撤销。')) setEntries(clearRelationshipTriggers(window.localStorage)) }}>全部删除</button>}
+        {entries.length > 0 && <button type="button" className="quiet" onClick={() => { if (confirm('删除本机全部关系触发点？此操作不可撤销。')) onClear() }}>全部删除</button>}
       </div>
     </div>
 
@@ -111,7 +109,7 @@ export function RelationshipJournal() {
           {entries.map(entry => <li key={entry.id} className="motif-item">
             <div className="motif-main"><span className="motif-name">{entry.role || '未命名的角色'}</span><span className="motif-date">{new Date(entry.createdAt).toLocaleDateString('zh-CN')}</span></div>
             <p className="motif-meta">{entry.situation || '未写场景'} · {entry.cue || '未写瞬间'}<br />{regions.find(item => item.value === entry.region)?.label} · {sensations.find(item => item.value === entry.sensation)?.label} · 强度 {entry.intensity}/5 · {responseLabels[entry.response]}</p>
-            <button type="button" className="quiet small" onClick={() => setEntries(removeRelationshipTrigger(window.localStorage, entry.id))}>删除这条</button>
+            <button type="button" className="quiet small" onClick={() => onRemove(entry.id)}>删除这条</button>
           </li>)}
         </ul>
       </>}

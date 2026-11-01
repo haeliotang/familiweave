@@ -96,8 +96,8 @@ symbolic 渲染器
 | 同意与隐私 | 用途绑定 consent；梦、感觉与真实资料默认不上传 |
 | 评估工具 | Rust `familiweave-ops`：实验日志校验与汇总 |
 | Genie 4 | 适配器接口 + Rust 配置检查；没有网络调用 |
-| 本地持久化 | 母题、关系触发点与可选声音摘要存于浏览器 `localStorage`；可整体导出/删除；无服务端、无账号、无同步 |
-| 桌面外壳 | Tauri 2 三栏工作台；Rust 宿主提供 app data 文件沙箱与 SQLite 句柄；窗口已启动验证，打包/签名未验收 |
+| 本地持久化 | Tauri 下母题/关系触发点经 `invoke` 写入 SQLite；Web 预览回退 `localStorage`；可整体导出/导入/删除 |
+| 桌面外壳 | Tauri 2 三栏工作台；Rust 宿主提供 app data 文件沙箱与 SQLite 持久化；未签名 `.app` 已构建，窗口已启动 |
 
 当前是**本地研究原型**：无声、无服务端保存、无临床与真人验证。
 
@@ -118,7 +118,7 @@ v0 不会测量潜意识或生理信号，也不会把意象解释成某段记�
 
 ## 桌面外壳
 
-前端已经收进 Tauri 2 三栏工作台：左侧导航与最近母题，中间捕获/母题详情，右侧“空间将收到的内容”。Rust 宿主在 `apps/desktop/src-tauri` 管理 app data 文件沙箱、SQLite 句柄与打包配置。
+前端已经收进 Tauri 2 三栏工作台：左侧导航与最近母题，中间捕获/母题详情，右侧“空间将收到的内容”。Rust 宿主在 `apps/desktop/src-tauri` 管理 app data 文件沙箱、SQLite 持久化与打包配置；配色参考 inceptless 的纸面/墨色三栏。
 
 ![桌面外壳](docs/assets/desktop-shell.png)
 
@@ -126,7 +126,7 @@ v0 不会测量潜意识或生理信号，也不会把意象解释成某段记�
 pnpm tauri:dev
 ```
 
-详见 [桌面外壳](docs/desktop-shell.md)。当前窗口已启动验证；正式打包、签名与公证尚未验收。
+详见 [桌面外壳](docs/desktop-shell.md)。未签名 `.app` 已构建并启动；正式签名、公证与安装包尚未验收。
 
 ## 技术栈
 
@@ -240,6 +240,7 @@ pnpm eval:validate docs/evaluation/experiment-log.example.json
 - [`src/main.tsx`](src/main.tsx)：桌面外壳入口。
 - [`src/desktop-shell.tsx`](src/desktop-shell.tsx)：三栏工作台（侧栏 / 中间 / 上下文面板）。
 - [`src/host.ts`](src/host.ts)：Tauri invoke 桥；Web 预览自动降级。
+- [`src/local-store.ts`](src/local-store.ts)：SQLite/本地快照读写与 Web 回退。
 - [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/)：Tauri 2 Rust 宿主（文件沙箱、SQLite 句柄、打包配置）。
 - [`rust/`](rust/)：Rust workspace；`familiweave-ops` 负责捕获 hash/verify、实验日志校验与 Genie 配置检查。
 - [`docs/inner/`](docs/inner/)：内在景观方向、形式、v0 躯体捕获、v1 母题日记、v2 关系触发点、v3 本机信号与安全/共鸣评估。
