@@ -146,3 +146,23 @@ node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
 ```
 
 - 打包后的 `Familiweave.app` 已包含新的 `icon.icns` / `icon.ico` 与 Windows/Linux PNG。
+
+
+## 10. 跨平台构建
+
+`.github/workflows/desktop-build.yml` 会在以下环境构建桌面产物：
+
+| 平台 | Runner | 产物 |
+| --- | --- | --- |
+| Linux | ubuntu-22.04 | `.AppImage`、`.deb` |
+| Windows | windows-latest | NSIS `.exe` |
+
+- Linux 依赖：`libwebkit2gtk-4.1-dev`、`libayatana-appindicator3-dev`、`librsvg2-dev`、`patchelf` 等。
+- 构建完成后，产物会以 workflow artifact 保留 7 天，并自动附加到对应 tag 的 GitHub Release。
+- 当前产物未签名：macOS 为 ad-hoc，Windows/Linux 为未签名构建。
+- 本地原机构建命令：
+
+```sh
+pnpm tauri:build --bundles appimage,deb   # Linux
+pnpm tauri:build --bundles nsis           # Windows
+```

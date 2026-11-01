@@ -10,6 +10,17 @@
 
 ![Familiweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
 
+## 下载
+
+[v0.1.0 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.0) 提供：
+
+- macOS 12+ Apple Silicon：`Familiweave-v0.1.0-macos-arm64.zip`
+- Windows 10/11 x64：`Familiweave_0.1.0_x64-setup.exe`
+- Linux x86_64：`Familiweave_0.1.0_amd64.AppImage` / `.deb`
+- `SHA256SUMS.txt` 校验所有产物
+
+macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
+
 Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层潜意识**的公开研究项目。
 
 它不试图造一个“更懂心理学的聊天机器人”，也不声称能读取深层潜意识。它从一个更窄、更可验证的问题开始：
