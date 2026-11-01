@@ -133,3 +133,16 @@ sh scripts/desktop-sign-adhoc.sh
 2. 迁移已完成基础链路；继续把信号摘要/BCI 时间轴也纳入 SQLite。
 3. 继续补导出/导入命令的端到端测试。
 4. 打包已能生成未签名 `.app`；下一步是签名/公证与正式安装包。
+
+## 9. 应用图标
+
+- 用户提供的单色源文件：`apps/desktop/src-tauri/icons/familiweave-mono.svg`
+- 带纸面圆角底的生成源：`apps/desktop/src-tauri/icons/icon-source.svg`
+- 重新生成：
+
+```sh
+node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
+  -o apps/desktop/src-tauri/icons
+```
+
+- 打包后的 `Familiweave.app` 已包含新的 `icon.icns` / `icon.ico` 与 Windows/Linux PNG。
