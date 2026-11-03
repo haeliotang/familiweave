@@ -401,7 +401,7 @@ export function DesktopShell() {
 
       <main className="workspace">
         <div className="workspace-topbar" data-tauri-drag-region>
-          <div className="workspace-tabs" role="tablist">
+          <div className="workspace-tabs" {...(topTabs.length ? { role: 'tablist' } : {})}>
             {topTabs.length
               ? topTabs.map(tab => <button key={tab.id} role="tab" aria-selected={tab.active} className={tab.active ? 'active' : ''} onClick={tab.onClick}>{tab.label}</button>)
               : <span className="top-label">{view === 'space' ? (encounter?.innerPlan?.format === 'space' ? '空间' : '相遇') : t(navItems.find(item => item.id === navView)?.label ?? '')}</span>}

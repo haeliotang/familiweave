@@ -121,7 +121,7 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
           <span className="field-tool-hint">{linkMode ? (linkSource ? t('再选择一个节点') : t('先选择一个节点')) : t('拖动节点排列；点击连线删除')}</span>
         </div>
         <div className="field-canvas">
-          <svg ref={svgRef} viewBox="0 0 760 536" role="img" aria-label={t('内在场域地图')} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
+          <svg ref={svgRef} viewBox="0 0 760 536" role="group" aria-label={t('内在场域地图')} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
             <defs><radialGradient id="field-glow"><stop offset="0%" stopColor="currentColor" stopOpacity=".16" /><stop offset="100%" stopColor="currentColor" stopOpacity="0" /></radialGradient></defs>
             <g transform={`translate(${center.x} ${center.y}) scale(${zoom}) translate(-${center.x} -${center.y})`}>
               <circle cx={center.x} cy={center.y} r="210" className="field-orbit" />
@@ -142,7 +142,7 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
                 <text x={node.position.x * 760} y={node.position.y * 536 + 34} textAnchor="middle" className="field-node-label">{node.motif.name ? node.motif.name.slice(0, 14) : t('未命名')}</text>
                 {lens === 'body' && <text x={node.position.x * 760} y={node.position.y * 536 + 48} textAnchor="middle" className="field-node-sub">{localizedLabel(regions, node.motif.capture.region, lang)}</text>}
               </g>)}
-              {showRelations && relationNodes.map(node => <g key={node.key} role="button" tabIndex={0} className={`field-relation-node ${linkSource === node.key ? 'link-source' : ''}`} transform={`translate(${node.position.x * 760},${node.position.y * 536}) rotate(45)`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
+              {showRelations && relationNodes.map(node => <g key={node.key} role="button" tabIndex={0} aria-label={node.entry.role || t('关系触发点')} className={`field-relation-node ${linkSource === node.key ? 'link-source' : ''}`} transform={`translate(${node.position.x * 760},${node.position.y * 536}) rotate(45)`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
                 <rect x="-9" y="-9" width="18" height="18" rx="3" />
               </g>)}
             </g>
