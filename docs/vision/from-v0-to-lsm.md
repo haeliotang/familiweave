@@ -42,7 +42,7 @@
 
 ### BCI-3 / LSM-0 / LSM-1 / LSM-2
 
-- **BCI-3**：真实 OpenBCI/BrainFlow/LSL 采集；小样本、明确同意、可删除。
+- **BCI-3**：本机 token bridge 协议已实现；真实 OpenBCI/BrainFlow/LSL 采集、小样本与硬件验收未开始。见 [BCI-3 local bridge](bci-3-local-bridge.md)。
 - **LSM-0**：从躯体/信号预测象征参数的跨模态对齐；不做情绪诊断。
 - **LSM-1**：纵向母题 + 关系拓扑的个人模型。
 - **LSM-2**：闭环自适应象征空间；用户始终可退出、可覆盖。

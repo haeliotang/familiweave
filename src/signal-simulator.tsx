@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { grantLocalSignalConsent } from './somatic-signal'
 import { SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalSample, type SignalTimeline } from './signal-source'
 import { useLanguage } from './i18n'
+import { createSignalSession, type SignalSession } from './signal-session'
 
-export function SignalSimulator() {
+export function SignalSimulator({ onSession }: { onSession?: (session: SignalSession) => void }) {
   const { t } = useLanguage()
   const [consent, setConsent] = useState(false)
   const [running, setRunning] = useState(false)
@@ -20,7 +21,9 @@ export function SignalSimulator() {
     if (!source.current) return
     try {
       const trace = source.current.stop()
-      setTimeline(traceToTimeline(trace))
+      const nextTimeline = traceToTimeline(trace)
+      setTimeline(nextTimeline)
+      onSession?.(createSignalSession(nextTimeline))
     } catch { /* already stopped */ }
     source.current = null
     setRunning(false)

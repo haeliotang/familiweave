@@ -26,7 +26,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear }: { snapshot: Loca
       onImport(next)
       setStatus(`${t('已导入')} ${next.motifs.length} ${t('个母题')}、${next.relationships.length} ${t('条关系触发点')}。`)
     } catch {
-      setStatus(t('导入失败：需要 familiweave 导出的 local-dataset-v1 JSON。'))
+      setStatus(t('导入失败：需要 familiweave 导出的 local-dataset-v1/v2 JSON。'))
     } finally {
       if (input.current) input.current.value = ''
     }

@@ -96,10 +96,10 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | v0 somatic capture | Body map + sensation/intensity/breath + image fragments |
 | v1 motif journal | Local naming, save, delete, export |
 | v2 relationship triggers | Self-authored moments/reactions, map, descriptive counts |
-| v3 voice summary | 8s volume/pause; explicit consent; no raw audio |
-| Field | Motif constellation, relationship nodes, lens switch, timeline, signal status |
+| v3 voice summary | 8s volume/pause; explicit consent; no raw audio; session summary in SQLite |
+| Field | Motif constellation, relationship nodes, lens switch, timeline, drag/zoom, user links, time filter, demo field |
 | BCI-1 | Signal source contract, simulator, local event timeline |
-| BCI-2 | Local WebSocket device bridge contract |
+| BCI-2 | Local WebSocket device bridge contract + token auth |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
 | Theme | Light / dark theme |
 | Bilingual | Chinese / English UI switch |
@@ -167,7 +167,7 @@ BCI is therefore not an optional accessory. It is the long-term core research sp
 | BCI-0 | Local voice summary + self-report + imagery | Implemented |
 | BCI-1 | Device-agnostic `SignalSource` + LSL simulator + timeline | Implemented |
 | BCI-2 | Local WebSocket device bridge | Contract/UI; no hardware validation |
-| BCI-3 | Real OpenBCI/BrainFlow/LSL capture, small consented samples | Not started; next main push |
+| BCI-3 | Local bridge protocol + token auth implemented; real OpenBCI/BrainFlow/LSL capture not validated |
 | LSM-0 | Cross-modal alignment: predict symbolic parameters from somatic/signal data, without emotion diagnosis | Not started; next research target |
 | LSM-1 | Longitudinal motif + relationship-topology personal model | Not started |
 | LSM-2 | Closed-loop adaptive symbolic space, always overridable and exit-able | Not started |
@@ -220,6 +220,7 @@ Checks:
 ```sh
 pnpm test
 pnpm build
+pnpm bci:bridge              # local BCI-3 WebSocket bridge
 pnpm check:symbolic-path
 pnpm rust:test
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
@@ -250,6 +251,15 @@ The GitHub Actions `Desktop builds` workflow produces Windows NSIS and Linux App
 
 The current artifact is ad-hoc signed for local validation; Developer ID signing and notarization need an Apple certificate.
 
+## 数据与研究文档
+
+- [Local data schema v2](docs/research/data-schema-v2.md)
+- [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
+- [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- [Release signing](docs/release-signing.md)
+- [Desktop platform QA](docs/platform-qa.md)
+- [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)
+
 ## 9. Project map
 
 - [`src/somatic.ts`](src/somatic.ts) — body regions, sensations, breath, image fragments.
@@ -258,6 +268,8 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx) — 75s encounter / 180s space.
 - [`src/motif-journal.ts`](src/motif-journal.ts) — local motif storage.
 - [`src/relationship.ts`](src/relationship.ts) — user-authored relationship triggers.
+- [`src/field.ts`](src/field.ts) — field positions, user links and validation.
+- [`src/signal-session.ts`](src/signal-session.ts) — signal sessions with summaries only.
 - [`src/signal-source.ts`](src/signal-source.ts) — BCI signal layer and LSL simulator.
 - [`src/device-signal-source.ts`](src/device-signal-source.ts) — local device bridge.
 - [`src/local-store.ts`](src/local-store.ts) — SQLite/localStorage snapshot.
@@ -265,7 +277,8 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [`src/i18n.tsx`](src/i18n.tsx) — Chinese/English UI.
 - [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/) — Tauri 2 Rust host.
 - [`docs/inner/`](docs/inner/) — formats, v0–v3 and capture boundaries.
-- [`docs/vision/`](docs/vision/) — BCI landscape, BCI-1/2, LSM/relationship path.
+- [`docs/vision/`](docs/vision/) — BCI landscape, BCI-1/2/3, LSM/relationship path.
+- [`scripts/bci3-bridge.ts`](scripts/bci3-bridge.ts) — local token-authenticated WebSocket bridge.
 - [`docs/desktop-shell.md`](docs/desktop-shell.md) — desktop shell, SQLite and signing.
 
 ## 10. Roadmap: from BCI seam to LSM

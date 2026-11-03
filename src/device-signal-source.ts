@@ -5,6 +5,8 @@ export type DeviceSourceState = 'idle' | 'connecting' | 'connected' | 'stopped' 
 
 export interface BridgePacket {
   type: 'hello' | 'sample' | 'samples' | 'error'
+  token?: string
+  client?: string
   sourceId?: string
   kinds?: SignalKind[]
   sampleRateHz?: number
@@ -68,7 +70,7 @@ export class WebSocketSignalSource implements SignalSource {
   private samples: SignalSample[] = []
   private listeners = new Set<(sample: SignalSample) => void>()
 
-  constructor(private readonly url: string, private readonly onState?: (state: DeviceSourceState, message?: string) => void) {
+  constructor(private readonly url: string, private readonly token: string, private readonly onState?: (state: DeviceSourceState, message?: string) => void) {
     if (!isLocalBridgeUrl(url)) throw new Error('local_bridge_url_required')
   }
 
@@ -81,7 +83,10 @@ export class WebSocketSignalSource implements SignalSource {
     this.onState?.('connecting')
     const socket = new WebSocket(this.url)
     this.socket = socket
-    socket.onopen = () => this.onState?.('connected')
+    socket.onopen = () => {
+      socket.send(JSON.stringify({ type: 'hello', client: 'familiweave', token: this.token }))
+      this.onState?.('connected')
+    }
     socket.onerror = () => this.onState?.('error', 'bridge_connection_error')
     socket.onclose = () => {
       if (this.socket) this.onState?.('error', 'bridge_closed')

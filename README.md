@@ -93,10 +93,10 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | v0 躯体捕获 | 身体地图 + 感觉/强度/呼吸 + 意象碎片 |
 | v1 母题日记 | 本机命名、保存、删除、导出 |
 | v2 关系触发点 | 自述场景/反应、地图、描述性计数 |
-| v3 声音摘要 | 8 秒音量/停顿；显式同意；不保存原始音频 |
-| 场域 | 母题星座、关系节点、镜头切换、时间轴、信号状态 |
+| v3 声音摘要 | 8 秒音量/停顿；显式同意；不保存原始音频；session 摘要写入 SQLite |
+| 场域 | 母题星座、关系节点、镜头切换、时间轴、拖拽/缩放、用户连线、时间过滤、示例场域 |
 | BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
-| BCI-2 | 本机 WebSocket 设备桥接契约 |
+| BCI-2 | 本机 WebSocket 设备桥接契约 + token 鉴权 |
 | 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |
 | 主题 | 明 / 暗主题切换 |
 | 双语 | 中文 / English 界面切换 |
@@ -164,7 +164,7 @@ Familiweave 不是“给聊天机器人加几个生理传感器”。我们的�
 | BCI-0 | 本机声音摘要 + 自报 + 意象 | 已实现 |
 | BCI-1 | 设备无关 `SignalSource` + LSL 模拟器 + 时间轴 | 已实现 |
 | BCI-2 | 本机 WebSocket 设备桥接 | 契约/UI 已实现；真实硬件未验收 |
-| BCI-3 | OpenBCI/BrainFlow/LSL 真实采集，小样本、明确同意 | 未开始；下一主攻 |
+| BCI-3 | 本机 bridge 协议与 token 鉴权已实现；真实 OpenBCI/BrainFlow/LSL 采集未验收 | 协议完成，硬件未验收 |
 | LSM-0 | 跨模态对齐：从躯体/信号预测象征参数，不做情绪诊断 | 未开始；下一研究目标 |
 | LSM-1 | 纵向母题 + 关系拓扑的个人模型 | 未开始 |
 | LSM-2 | 闭环自适应象征空间，用户始终可退出/覆盖 | 未开始 |
@@ -217,6 +217,7 @@ pnpm tauri:dev    # Tauri 2 桌面外壳
 ```sh
 pnpm test
 pnpm build
+pnpm bci:bridge              # 本机 BCI-3 WebSocket bridge
 pnpm check:symbolic-path
 pnpm rust:test
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
@@ -247,6 +248,15 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 
 当前产物是 ad-hoc 签名的本机验证包；正式签名与公证需要 Apple 证书。
 
+## 数据与研究文档
+
+- [Local data schema v2](docs/research/data-schema-v2.md)
+- [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
+- [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- [Release signing](docs/release-signing.md)
+- [Desktop platform QA](docs/platform-qa.md)
+- [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)
+
 ## 9. 项目地图
 
 - [`src/somatic.ts`](src/somatic.ts)：身体部位、感觉、呼吸、意象碎片。
@@ -255,6 +265,8 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：75 秒相遇 / 180 秒空间。
 - [`src/motif-journal.ts`](src/motif-journal.ts)：本机母题存储。
 - [`src/relationship.ts`](src/relationship.ts)：用户自述关系触发点。
+- [`src/field.ts`](src/field.ts)：场域位置、用户连线与校验。
+- [`src/signal-session.ts`](src/signal-session.ts)：只含摘要的信号 session。
 - [`src/signal-source.ts`](src/signal-source.ts)：BCI 信号层与 LSL 模拟器。
 - [`src/device-signal-source.ts`](src/device-signal-source.ts)：本机设备桥接。
 - [`src/local-store.ts`](src/local-store.ts)：SQLite / localStorage 快照。
@@ -262,7 +274,8 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [`src/i18n.tsx`](src/i18n.tsx)：中文/English。
 - [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/)：Tauri 2 Rust 宿主。
 - [`docs/inner/`](docs/inner/)：形式、v0–v3、v0 捕获边界。
-- [`docs/vision/`](docs/vision/)：BCI 生态、BCI-1/2、LSM/关系拓扑路线。
+- [`docs/vision/`](docs/vision/)：BCI 生态、BCI-1/2/3、LSM/关系拓扑路线。
+- [`scripts/bci3-bridge.ts`](scripts/bci3-bridge.ts)：本机 token 鉴权 WebSocket bridge。
 - [`docs/desktop-shell.md`](docs/desktop-shell.md)：桌面外壳、SQLite、签名边界。
 
 ## 10. 路线图：从 BCI 接缝到 LSM

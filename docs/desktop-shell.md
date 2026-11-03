@@ -42,9 +42,9 @@ src/
 | `export_local_state` | 把当前快照写到 app data/local-files/familiweave-export-*.json |
 | `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
-- SQLite 位于 app data：`familiweave.db`。
+- SQLite 位于 app data：`familiweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`。
 - bundle id 已修正为 `com.inceptless.familiweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `familiweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
-- 已建 `local_meta` 与 `local_state` 表；界面中的母题/关系触发点通过 `local_state` 持久化。
+- 已建 `local_meta` 与 `local_state` 表；界面中的母题、关系触发点、场域节点位置/用户连线与信号 session 摘要通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
 ## 3. 主题与语言
@@ -59,6 +59,8 @@ src/
 Familiweave 自己的默认布局不是文档编辑器，而是 **场域（Field）**：
 
 - 中间：母题星座 + 关系节点；顶部镜头切换 Constellation / Body / Imagery / Relationship；底部时间轴。
+- 节点可拖拽、缩放、重置；用户可主动连接节点，连接与位置写入 SQLite。
+- 支持全部/近 30 天/近 90 天过滤，以及可删除的示例场域。
 - 右侧：所选母题将送入空间的内容、事件流、下一步。
 - 左侧：模式导航、最近母题、宿主状态。
 
@@ -148,7 +150,13 @@ node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
 - 打包后的 `Familiweave.app` 已包含新的 `icon.icns` / `icon.ico` 与 Windows/Linux PNG。
 
 
-## 10. 跨平台构建
+## 10. 安全与 BCI-3
+
+- Tauri CSP 已从 `null` 收紧；只允许本机 IPC、应用自身资源与本机 WebSocket。
+- BCI-3 bridge：`pnpm bci:bridge`，只监听 `127.0.0.1`，要求 token 与来源检查；协议见 [BCI-3](vision/bci-3-local-bridge.md)。
+- 原始音频/原始神经数据不持久化；只保存摘要。
+
+## 11. 跨平台构建
 
 `.github/workflows/desktop-build.yml` 会在以下环境构建桌面产物：
 

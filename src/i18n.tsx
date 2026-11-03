@@ -227,6 +227,24 @@ const en: Record<string, string> = {
   '信号': 'Signal',
   '本机信号层': 'local signal layer',
   'BCI-1/2 就绪': 'BCI-1/2 ready',
+  '载入示例场域': 'Load demo field',
+  '场域工具': 'Field tools',
+  '时间范围': 'Time range',
+  '全部时间': 'All time',
+  '近 30 天': 'Last 30 days',
+  '近 90 天': 'Last 90 days',
+  '取消连接': 'Cancel connect',
+  '放大': 'Zoom in',
+  '缩小': 'Zoom out',
+  '重置布局': 'Reset layout',
+  '再选择一个节点': 'Choose the second node',
+  '先选择一个节点': 'Choose the first node',
+  '拖动节点排列；点击连线删除': 'Drag to arrange; click a link to remove',
+  '点击删除连接': 'Click to remove link',
+  '桥接 token（可选）': 'Bridge token (optional)',
+  '由本机 bridge 启动时打印': 'Printed by the local bridge on startup',
+  '本机桥接已连接': 'Local bridge connected',
+
 }
 
 type LanguageContextValue = {

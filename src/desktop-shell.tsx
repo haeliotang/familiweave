@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import type { Encounter } from './encounter'
 import { createInnerCaptureEncounter } from './inner-encounter'
 import { InnerEntry } from './inner-entry'
@@ -17,9 +17,12 @@ import { useLanguage, type Language } from './i18n'
 import { useTheme } from './theme'
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
+import { addFieldLink, clampFieldPosition, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFieldLink, removeFieldNode, resetFieldPositions, setFieldPosition, type FieldLayout } from './field'
+import { createSignalSession, loadSignalSessions, type SignalSession } from './signal-session'
 
 type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
 type FieldLens = 'constellation' | 'body' | 'imagery' | 'relations'
+type FieldRange = 'all' | '30d' | '90d'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
 
 const navItems: Array<{ id: Exclude<View, 'motif' | 'space'>; label: string; icon: string }> = [
@@ -116,50 +119,144 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
   </>
 }
 
-function FieldView({ motifs, relationships, selectedId, lens, onSelect, onNew }: { motifs: MotifEntry[]; relationships: RelationshipTrigger[]; selectedId: string | null; lens: FieldLens; onSelect: (id: string) => void; onNew: () => void }) {
+function FieldView({ motifs, relationships, selectedId, lens, range, layout, onChange, onSelect, onNew, onDemo, onRangeChange }: { motifs: MotifEntry[]; relationships: RelationshipTrigger[]; selectedId: string | null; lens: FieldLens; range: FieldRange; layout: FieldLayout; onChange: (layout: FieldLayout) => void; onSelect: (id: string) => void; onNew: () => void; onDemo: () => void; onRangeChange: (range: FieldRange) => void }) {
   const { lang, t } = useLanguage()
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [linkMode, setLinkMode] = useState(false)
+  const [linkSource, setLinkSource] = useState<string | null>(null)
+  const [drag, setDrag] = useState<{ key: string; dx: number; dy: number } | null>(null)
+  const [draft, setDraft] = useState<FieldLayout['positions'] | null>(null)
   const center = { x: 380, y: 268 }
-  const motifNodes = motifs.slice(0, 14).map((motif, index) => {
-    const angle = (Math.PI * 2 * index) / Math.max(motifs.slice(0, 14).length, 1) - Math.PI / 2
-    return { motif, x: center.x + Math.cos(angle) * 170, y: center.y + Math.sin(angle) * 152, angle }
-  })
-  const relationNodes = relationships.slice(0, 10).map((entry, index) => {
-    const angle = (Math.PI * 2 * index) / Math.max(relationships.slice(0, 10).length, 1) + Math.PI / 7
-    return { entry, x: center.x + Math.cos(angle) * 94, y: center.y + Math.sin(angle) * 82 }
-  })
   const showRelations = lens === 'relations'
+  const motifLimit = motifs.slice(0, 14)
+  const relationLimit = relationships.slice(0, 10)
+  const fallback = (index: number, count: number, inner = false) => {
+    const angle = (Math.PI * 2 * index) / Math.max(count, 1) + (inner ? Math.PI / 7 : -Math.PI / 2)
+    const radiusX = inner ? 0.12 : 0.22
+    const radiusY = inner ? 0.1 : 0.2
+    return { x: 0.5 + Math.cos(angle) * radiusX, y: 0.5 + Math.sin(angle) * radiusY }
+  }
+  const positionOf = (key: string, fallbackPosition: { x: number; y: number }) => draft?.[key] ?? layout.positions[key] ?? fallbackPosition
+  const motifNodes = motifLimit.map((motif, index) => ({ motif, key: fieldNodeKey('motif', motif.id), position: positionOf(fieldNodeKey('motif', motif.id), fallback(index, motifLimit.length)) }))
+  const relationNodes = relationLimit.map((entry, index) => ({ entry, key: fieldNodeKey('relationship', entry.id), position: positionOf(fieldNodeKey('relationship', entry.id), fallback(index, relationLimit.length, true)) }))
+  const nodeMap = new Map<string, { x: number; y: number; kind: 'motif' | 'relationship'; id: string; label: string }>()
+  motifNodes.forEach(node => nodeMap.set(node.key, { x: node.position.x * 760, y: node.position.y * 536, kind: 'motif', id: node.motif.id, label: node.motif.name || t('未命名') }))
+  relationNodes.forEach(node => nodeMap.set(node.key, { x: node.position.x * 760, y: node.position.y * 536, kind: 'relationship', id: node.entry.id, label: node.entry.role || t('关系触发点') }))
+  const visibleLinks = layout.links.filter(link => nodeMap.has(link.from) && nodeMap.has(link.to) && (showRelations || (!link.from.startsWith('relationship:') && !link.to.startsWith('relationship:'))))
+
+  const pointToField = (clientX: number, clientY: number) => {
+    const rect = svgRef.current?.getBoundingClientRect()
+    if (!rect) return { x: center.x, y: center.y }
+    const x = ((clientX - rect.left) / rect.width) * 760
+    const y = ((clientY - rect.top) / rect.height) * 536
+    return { x: center.x + (x - center.x) / zoom, y: center.y + (y - center.y) / zoom }
+  }
+
+  const startDrag = (key: string, event: ReactPointerEvent<SVGGElement>) => {
+    if (event.button !== 0) return
+    event.stopPropagation()
+    if (linkMode) {
+      if (linkSource === key) setLinkSource(null)
+      else if (!linkSource) setLinkSource(key)
+      else {
+        onChange(addFieldLink(layout, linkSource, key))
+        setLinkSource(null)
+        setLinkMode(false)
+      }
+      return
+    }
+    const node = nodeMap.get(key)
+    if (!node) return
+    const point = pointToField(event.clientX, event.clientY)
+    setDrag({ key, dx: node.x - point.x, dy: node.y - point.y })
+    svgRef.current?.setPointerCapture?.(event.pointerId)
+  }
+
+  const moveDrag = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!drag) return
+    const point = pointToField(event.clientX, event.clientY)
+    const next = clampFieldPosition({ x: (point.x + drag.dx) / 760, y: (point.y + drag.dy) / 536 })
+    setDraft(current => ({ ...(current ?? {}), [drag.key]: next }))
+  }
+
+  const endDrag = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (!drag) return
+    if (draft) {
+      let next = layout
+      for (const [key, position] of Object.entries(draft)) next = setFieldPosition(next, key, position)
+      onChange(next)
+    }
+    setDrag(null)
+    setDraft(null)
+    svgRef.current?.releasePointerCapture?.(event.pointerId)
+  }
+
+  const activateNode = (key: string) => {
+    if (linkMode) return
+    const node = nodeMap.get(key)
+    if (node?.kind === 'motif') onSelect(node.id)
+  }
+
+  const resetLayout = () => {
+    if (drag || linkMode) return
+    onChange(resetFieldPositions(layout))
+  }
+
   return <div className={`field-view lens-${lens}`}>
     <div className="field-heading">
       <div><p className="eyebrow">{t('场域')}</p><h1>{t('你的内在地形')}</h1><p className="workspace-meta">{t('母题、意象与关系触发点并列在这里；没有解释，只有你写下的结构。')}</p></div>
       <button className="primary-button" onClick={onNew}>{t('新建片段')}</button>
     </div>
     {motifs.length === 0 && relationships.length === 0
-      ? <div className="field-empty"><p>{t('场域还是空的。先从一个身体位置开始。')}</p><button className="primary-button" onClick={onNew}>{t('开始捕获')}</button></div>
+      ? <div className="field-empty"><p>{t('场域还是空的。先从一个身体位置开始。')}</p><div className="field-empty-actions"><button className="primary-button" onClick={onNew}>{t('开始捕获')}</button><button className="quiet-button" onClick={onDemo}>{t('载入示例场域')}</button></div></div>
       : <>
+        <div className="field-tools" role="toolbar" aria-label={t('场域工具')}>
+          <select value={range} onChange={event => onRangeChange(event.target.value as FieldRange)} aria-label={t('时间范围')}>
+            <option value="all">{t('全部时间')}</option>
+            <option value="30d">{t('近 30 天')}</option>
+            <option value="90d">{t('近 90 天')}</option>
+          </select>
+          <span className="field-tool-sep" />
+          <button type="button" className={linkMode ? 'active' : ''} aria-pressed={linkMode} onClick={() => { setLinkMode(value => !value); setLinkSource(null) }}>{linkMode ? t('取消连接') : t('连接')}</button>
+          <button type="button" onClick={() => setZoom(value => Math.min(1.6, Math.round((value + 0.1) * 10) / 10))} aria-label={t('放大')}>＋</button>
+          <span className="field-zoom">{Math.round(zoom * 100)}%</span>
+          <button type="button" onClick={() => setZoom(value => Math.max(0.7, Math.round((value - 0.1) * 10) / 10))} aria-label={t('缩小')}>−</button>
+          <button type="button" onClick={resetLayout}>{t('重置布局')}</button>
+          <span className="field-tool-hint">{linkMode ? (linkSource ? t('再选择一个节点') : t('先选择一个节点')) : t('拖动节点排列；点击连线删除')}</span>
+        </div>
         <div className="field-canvas">
-          <svg viewBox="0 0 760 536" role="img" aria-label={t('内在场域地图')}>
+          <svg ref={svgRef} viewBox="0 0 760 536" role="img" aria-label={t('内在场域地图')} onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={endDrag}>
             <defs><radialGradient id="field-glow"><stop offset="0%" stopColor="currentColor" stopOpacity=".16" /><stop offset="100%" stopColor="currentColor" stopOpacity="0" /></radialGradient></defs>
-            <circle cx={center.x} cy={center.y} r="210" className="field-orbit" />
-            <circle cx={center.x} cy={center.y} r="136" className="field-orbit inner" />
-            <circle cx={center.x} cy={center.y} r="220" fill="url(#field-glow)" className="field-glow" />
-            {motifNodes.map(node => <line key={`e-${node.motif.id}`} x1={center.x} y1={center.y} x2={node.x} y2={node.y} className="field-edge" />)}
-            {showRelations && relationNodes.map(node => <line key={`re-${node.entry.id}`} x1={center.x} y1={center.y} x2={node.x} y2={node.y} className="field-edge relation-edge" />)}
-            <circle cx={center.x} cy={center.y} r="34" className="field-self" />
-            <text x={center.x} y={center.y + 4} textAnchor="middle" className="field-self-label">{t('我')}</text>
-            {motifNodes.map(node => <g key={node.motif.id} role="button" tabIndex={0} className={`field-node region-${node.motif.capture.region} ${selectedId === node.motif.id ? 'selected' : ''}`} onClick={() => onSelect(node.motif.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(node.motif.id) } }}>
-              <circle cx={node.x} cy={node.y} r={lens === 'imagery' ? 14 + node.motif.capture.fragments.length * 2 : 17} />
-              <text x={node.x} y={node.y + 34} textAnchor="middle" className="field-node-label">{node.motif.name ? node.motif.name.slice(0, 14) : t('未命名')}</text>
-              {lens === 'body' && <text x={node.x} y={node.y + 48} textAnchor="middle" className="field-node-sub">{localizedLabel(regions, node.motif.capture.region, lang)}</text>}
-            </g>)}
-            {showRelations && relationNodes.map(node => <g key={node.entry.id} className="field-relation-node" transform={`translate(${node.x},${node.y}) rotate(45)`}>
-              <rect x="-9" y="-9" width="18" height="18" rx="3" />
-            </g>)}
+            <g transform={`translate(${center.x} ${center.y}) scale(${zoom}) translate(-${center.x} -${center.y})`}>
+              <circle cx={center.x} cy={center.y} r="210" className="field-orbit" />
+              <circle cx={center.x} cy={center.y} r="136" className="field-orbit inner" />
+              <circle cx={center.x} cy={center.y} r="220" fill="url(#field-glow)" className="field-glow" />
+              {motifNodes.map(node => <line key={`e-${node.motif.id}`} x1={center.x} y1={center.y} x2={node.position.x * 760} y2={node.position.y * 536} className="field-edge" />)}
+              {showRelations && relationNodes.map(node => <line key={`re-${node.entry.id}`} x1={center.x} y1={center.y} x2={node.position.x * 760} y2={node.position.y * 536} className="field-edge relation-edge" />)}
+              {visibleLinks.map(link => {
+                const from = nodeMap.get(link.from)
+                const to = nodeMap.get(link.to)
+                if (!from || !to) return null
+                return <line key={link.id} x1={from.x} y1={from.y} x2={to.x} y2={to.y} className="field-user-link" onClick={event => { event.stopPropagation(); onChange(removeFieldLink(layout, link.id)) }}><title>{t('点击删除连接')}</title></line>
+              })}
+              <circle cx={center.x} cy={center.y} r="34" className="field-self" />
+              <text x={center.x} y={center.y + 4} textAnchor="middle" className="field-self-label">{t('我')}</text>
+              {motifNodes.map(node => <g key={node.key} role="button" tabIndex={0} className={`field-node region-${node.motif.capture.region} ${selectedId === node.motif.id ? 'selected' : ''} ${linkSource === node.key ? 'link-source' : ''} ${drag?.key === node.key ? 'dragging' : ''}`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
+                <circle cx={node.position.x * 760} cy={node.position.y * 536} r={lens === 'imagery' ? 14 + node.motif.capture.fragments.length * 2 : 17} />
+                <text x={node.position.x * 760} y={node.position.y * 536 + 34} textAnchor="middle" className="field-node-label">{node.motif.name ? node.motif.name.slice(0, 14) : t('未命名')}</text>
+                {lens === 'body' && <text x={node.position.x * 760} y={node.position.y * 536 + 48} textAnchor="middle" className="field-node-sub">{localizedLabel(regions, node.motif.capture.region, lang)}</text>}
+              </g>)}
+              {showRelations && relationNodes.map(node => <g key={node.key} role="button" tabIndex={0} className={`field-relation-node ${linkSource === node.key ? 'link-source' : ''}`} transform={`translate(${node.position.x * 760},${node.position.y * 536}) rotate(45)`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
+                <rect x="-9" y="-9" width="18" height="18" rx="3" />
+              </g>)}
+            </g>
           </svg>
         </div>
         <div className="field-legend">
           <span><i className="legend-dot motif" />{t('母题')} · {motifs.length}</span>
           <span><i className="legend-dot relation" />{t('关系触发点')} · {relationships.length}</span>
-          <span className="field-signal"><i className="signal-pulse" />{t('信号')}：{t('本机信号层')} · BCI-1/2</span>
+          <span className="field-signal"><i className="signal-pulse" />{t('信号')}{lang === 'en' ? ': ' : '：'}{t('本机信号层')} · BCI-1/2</span>
           <span className="field-lens-note">{t('镜头')}：{t(lens === 'constellation' ? '星座' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系')}</span>
         </div>
       </>}
@@ -228,6 +325,9 @@ export function DesktopShell() {
   const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState<View>('field')
   const [fieldLens, setFieldLens] = useState<FieldLens>('constellation')
+  const [fieldRange, setFieldRange] = useState<FieldRange>('all')
+  const [fieldLayout, setFieldLayout] = useState<FieldLayout>(() => typeof window === 'undefined' ? emptyFieldLayout() : loadFieldLayout(window.localStorage))
+  const [signalSessions, setSignalSessions] = useState<SignalSession[]>(() => typeof window === 'undefined' ? [] : loadSignalSessions(window.localStorage))
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
   const [relationships, setRelationships] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
@@ -253,11 +353,17 @@ export function DesktopShell() {
       if (!active) return
       setMotifs(snapshot.motifs)
       setRelationships(snapshot.relationships)
+      setFieldLayout(snapshot.field ?? emptyFieldLayout())
+      setSignalSessions(snapshot.signals ?? [])
       setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
     })
     return () => { active = false }
   }, [])
 
+  const rangeDays = fieldRange === 'all' ? Infinity : fieldRange === '90d' ? 90 : 30
+  const rangeStart = Number.isFinite(rangeDays) ? Date.now() - rangeDays * 86_400_000 : 0
+  const visibleMotifs = rangeStart ? motifs.filter(motif => Date.parse(motif.createdAt) >= rangeStart) : motifs
+  const visibleRelationships = rangeStart ? relationships.filter(entry => Date.parse(entry.createdAt) >= rangeStart) : relationships
   const selected = motifs.find(motif => motif.id === selectedId) ?? null
   const filtered = useMemo(() => motifs.filter(motif => !search.trim() || (motif.name || '未命名').includes(search.trim())), [motifs, search])
 
@@ -266,43 +372,82 @@ export function DesktopShell() {
   const start = (next: Encounter) => { setEncounter(next); setView('space') }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
   const backFromSpace = () => { setEncounter(null); setView(selected ? 'field' : 'new') }
-  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[]) => {
-    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships })
+  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[], nextField = fieldLayout, nextSignals = signalSessions) => {
+    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals })
   }
   const remember = (capture: Parameters<typeof createMotif>[0]['capture'], name: string, signals?: Parameters<typeof createMotif>[0]['signals']) => {
     const entry = createMotif({ capture, name, signals })
     const next = [entry, ...motifs]
     setMotifs(next)
     setSelectedId(entry.id)
-    persist(next, relationships)
+    persist(next, relationships, fieldLayout, signalSessions)
   }
   const remove = (id: string) => {
     const next = motifs.filter(motif => motif.id !== id)
     setMotifs(next)
     if (selectedId === id) setSelectedId(null)
-    persist(next, relationships)
+    const nextField = removeFieldNode(fieldLayout, fieldNodeKey('motif', id))
+    setFieldLayout(nextField)
+    persist(next, relationships, nextField, signalSessions)
   }
   const addRelationship = (input: RelationshipInput) => {
     const next = [createRelationshipTrigger(input), ...relationships]
     setRelationships(next)
-    persist(motifs, next)
+    persist(motifs, next, fieldLayout, signalSessions)
   }
   const removeRelationship = (id: string) => {
     const next = relationships.filter(entry => entry.id !== id)
     setRelationships(next)
-    persist(motifs, next)
+    const nextField = removeFieldNode(fieldLayout, fieldNodeKey('relationship', id))
+    setFieldLayout(nextField)
+    persist(motifs, next, nextField, signalSessions)
   }
   const importSnapshot = (snapshot: LocalSnapshot) => {
     setMotifs(snapshot.motifs)
     setRelationships(snapshot.relationships)
+    setFieldLayout(snapshot.field ?? emptyFieldLayout())
+    setSignalSessions(snapshot.signals ?? [])
     setSelectedId(null)
-    void saveLocalSnapshot(snapshot)
+    void saveLocalSnapshot({ ...snapshot, field: snapshot.field ?? emptyFieldLayout(), signals: snapshot.signals ?? [] })
   }
   const clearAll = () => {
     setMotifs([])
     setRelationships([])
+    setFieldLayout(emptyFieldLayout())
+    setSignalSessions([])
     setSelectedId(null)
     void clearLocalSnapshot()
+  }
+
+  const updateFieldLayout = (next: FieldLayout) => {
+    setFieldLayout(next)
+    void saveLocalSnapshot({ motifs, relationships, field: next, signals: signalSessions })
+  }
+
+  const recordSignalSession = (session: SignalSession) => {
+    const next = [session, ...signalSessions].slice(0, 100)
+    setSignalSessions(next)
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next })
+  }
+
+  const loadDemo = () => {
+    const demoMotifs = [
+      createMotif({ name: lang === 'en' ? 'Demo · door in the chest' : '示例 · 胸口的旧门', capture: { region: 'chest', sensation: 'pressure', intensity: 4, breath: 'held', fragments: ['wet-corridor', 'dusk-stairs'] } }),
+      createMotif({ name: lang === 'en' ? 'Demo · empty platform' : '示例 · 空站台', capture: { region: 'stomach', sensation: 'hollowness', intensity: 3, breath: 'shallow', fragments: ['empty-platform'] } }),
+    ]
+    const demoRelationship = createRelationshipTrigger({ role: lang === 'en' ? 'Someone busy' : '一个总在忙的人', situation: lang === 'en' ? 'No reply for days' : '很久没有回复', cue: lang === 'en' ? 'The screen goes dark' : '屏幕暗下去', region: 'chest', sensation: 'tightness', intensity: 3, breath: 'shallow', response: 'freeze' })
+    const layout = { ...emptyFieldLayout(), positions: {
+      [fieldNodeKey('motif', demoMotifs[0].id)]: { x: 0.34, y: 0.38 },
+      [fieldNodeKey('motif', demoMotifs[1].id)]: { x: 0.68, y: 0.68 },
+      [fieldNodeKey('relationship', demoRelationship.id)]: { x: 0.46, y: 0.7 },
+    }, links: [] as FieldLayout['links'] }
+    const linked = addFieldLink(addFieldLink(layout, fieldNodeKey('motif', demoMotifs[0].id), fieldNodeKey('motif', demoMotifs[1].id)), fieldNodeKey('motif', demoMotifs[1].id), fieldNodeKey('relationship', demoRelationship.id))
+    setMotifs(demoMotifs)
+    setRelationships([demoRelationship])
+    setFieldLayout(linked)
+    setSelectedId(demoMotifs[0].id)
+    setFieldLens('relations')
+    persist(demoMotifs, [demoRelationship], linked, signalSessions)
   }
 
   const navView = view === 'motif' || view === 'space' ? 'field' : view
@@ -368,7 +513,7 @@ export function DesktopShell() {
               <div className="scene-footer"><span>{t('不解释、不诊断；离开随时可用。')}</span><button className="quiet-button" onClick={() => setReplay(value => value + 1)}>{t('重新进入')}</button></div>
             </div>
             : <>
-              {view === 'field' && <FieldView motifs={motifs} relationships={relationships} selectedId={selectedId} lens={fieldLens} onSelect={openMotif} onNew={openNew} />}
+              {view === 'field' && <FieldView motifs={visibleMotifs} relationships={visibleRelationships} selectedId={selectedId} lens={fieldLens} range={fieldRange} layout={fieldLayout} onChange={updateFieldLayout} onSelect={openMotif} onNew={openNew} onDemo={loadDemo} onRangeChange={setFieldRange} />}
               {(view === 'new' || view === 'motif') && <>
                 {view === 'new' && <WorkspaceHeader eyebrow={t('内在工作台')} title={t('先感觉，不用急着命名。')} meta={t('从身体、意象与关系开始；不解释，也不替你下结论。')} action={<span className="status-pill">{t('本地研究原型')}</span>} />}
                 {view === 'new' && (textMode
@@ -387,8 +532,8 @@ export function DesktopShell() {
               </>}
               {view === 'lab' && <>
                 <WorkspaceHeader eyebrow={t('实验台')} title={t('先把信号管线立住。')} meta={t('模拟数据和设备桥接都明确标注；没有真实神经数据。')} />
-                <SignalSimulator />
-                <DeviceSignalPanel />
+                <SignalSimulator onSession={recordSignalSession} />
+                <DeviceSignalPanel onSession={recordSignalSession} />
               </>}
               {view === 'settings' && <>
                 <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : '浏览器预览：数据在 localStorage'} />
@@ -397,11 +542,11 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · 沙箱 ${host.sandbox}` : 'Web 预览 · 没有 Tauri 宿主'}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
-                <LocalDataPanel snapshot={{ motifs, relationships }} onImport={importSnapshot} onClear={clearAll} />
+                <LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} />
               </>}
             </>}
         </div>
-        {view !== 'space' && <TimelineRail motifs={motifs} relationships={relationships} onSelect={openMotif} />}
+        {view !== 'space' && <TimelineRail motifs={visibleMotifs} relationships={visibleRelationships} onSelect={openMotif} />}
       </main>
 
       <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />

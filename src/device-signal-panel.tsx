@@ -3,10 +3,12 @@ import { grantLocalSignalConsent } from './somatic-signal'
 import { WebSocketSignalSource, type DeviceSourceState } from './device-signal-source'
 import { summarizeTimeline, traceToTimeline, type SignalSample, type SignalTimeline } from './signal-source'
 import { useLanguage } from './i18n'
+import { createSignalSession, type SignalSession } from './signal-session'
 
-export function DeviceSignalPanel() {
+export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalSession) => void }) {
   const { t } = useLanguage()
   const [url, setUrl] = useState('ws://127.0.0.1:8765')
+  const [token, setToken] = useState('')
   const [consent, setConsent] = useState(false)
   const [state, setState] = useState<DeviceSourceState>('idle')
   const [message, setMessage] = useState('')
@@ -21,7 +23,9 @@ export function DeviceSignalPanel() {
     if (!source.current) return
     try {
       const trace = source.current.stop()
-      setTimeline(traceToTimeline(trace))
+      const nextTimeline = traceToTimeline(trace)
+      setTimeline(nextTimeline)
+      onSession?.(createSignalSession(nextTimeline))
     } catch { /* no trace */ }
     source.current = null
     setState('stopped')
@@ -36,7 +40,7 @@ export function DeviceSignalPanel() {
     setTimeline(null)
     setMessage('')
     try {
-      const next = new WebSocketSignalSource(url, (nextState, nextMessage) => {
+      const next = new WebSocketSignalSource(url, token, (nextState, nextMessage) => {
         setState(nextState)
         if (nextMessage) setMessage(nextMessage)
       })
@@ -65,6 +69,9 @@ export function DeviceSignalPanel() {
     <p className="note">{t('连接')}<strong>{t('本机')}</strong>{t(' WebSocket 桥接，接收 JSON 样本。浏览器不直接读 LSL，也不上传数据；原始信号默认不保存。')}</p>
     <label className="device-url">{t('本机桥接地址')}
       <input value={url} onChange={event => setUrl(event.target.value)} placeholder="ws://127.0.0.1:8765" />
+    </label>
+    <label className="device-url">{t('桥接 token（可选）')}
+      <input value={token} onChange={event => setToken(event.target.value)} placeholder={t('由本机 bridge 启动时打印')} autoComplete="off" />
     </label>
     <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('我同意连接本机设备桥接，并理解这不是临床数据')}</label>
     <div className="actions">

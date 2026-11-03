@@ -25,6 +25,14 @@ describe('local dataset import/export', () => {
   it('rejects a dataset with the wrong version or malformed records', () => {
     expect(() => parseLocalDataset('{}')).toThrow()
     expect(() => parseLocalDataset(JSON.stringify({ version: 'local-dataset-v1', motifs: [{ nope: true }], relationships: [] }))).toThrow()
+    expect(() => parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], field: { version: 'nope' } }))).toThrow()
+  })
+
+  it('imports v1 datasets and round-trips v2 field layouts', () => {
+    const v1 = parseLocalDataset(JSON.stringify({ version: 'local-dataset-v1', motifs: [], relationships: [] }))
+    expect(v1.field).toBeUndefined()
+    const v2 = parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], field: { version: 'field-layout-v1', positions: { 'motif:a': { x: 0.5, y: 0.5 } }, links: [] } }))
+    expect(v2.field?.positions['motif:a']).toEqual({ x: 0.5, y: 0.5 })
   })
 })
 
@@ -34,7 +42,7 @@ describe('local dataset export', () => {
     addMotif(storage, { name: '旧门', capture, now: '2026-11-01T00:00:00Z' })
     addRelationshipTrigger(storage, { role: '一个总在忙的人', situation: '很久没回复', cue: '屏幕暗下去', region: 'chest', sensation: 'tightness', intensity: 4, breath: 'shallow', response: 'freeze', now: '2026-11-01T00:00:00Z' })
     const dataset = buildLocalDataset(storage, '2026-11-01T00:00:00Z')
-    expect(dataset).toMatchObject({ version: 'local-dataset-v1', motifs: [{ name: '旧门' }], relationships: [{ role: '一个总在忙的人' }] })
+    expect(dataset).toMatchObject({ version: 'local-dataset-v2', motifs: [{ name: '旧门' }], relationships: [{ role: '一个总在忙的人' }] })
     expect(exportLocalDataset(storage)).not.toMatch(/audioData|rawAudio|diagnos|score/i)
   })
 

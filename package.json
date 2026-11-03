@@ -19,7 +19,8 @@
     "rust:test": "cargo test --manifest-path rust/Cargo.toml",
     "tauri": "cd apps/desktop && ../../node_modules/.bin/tauri",
     "tauri:dev": "cd apps/desktop && ../../node_modules/.bin/tauri dev",
-    "tauri:build": "cd apps/desktop && ../../node_modules/.bin/tauri build"
+    "tauri:build": "cd apps/desktop && ../../node_modules/.bin/tauri build",
+    "bci:bridge": "tsx scripts/bci3-bridge.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",
@@ -33,9 +34,11 @@
     "@tauri-apps/cli": "^2.12.4",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
+    "@types/ws": "^8.18.2",
     "tsx": "^4.23.15",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.0"
+    "vitest": "^3.2.0",
+    "ws": "^8.22.1"
   },
   "license": "Apache-2.0"
 }

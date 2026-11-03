@@ -13,7 +13,9 @@ const LOCAL_STATE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS local_state (\n  ke
 
 fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut statement = connection
-        .prepare("SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships')")
+        .prepare(
+            "SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals')",
+        )
         .map_err(|error| error.to_string())?;
     let rows = statement
         .query_map([], |row| {
@@ -22,6 +24,8 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
         .map_err(|error| error.to_string())?;
     let mut motifs = Value::Array(Vec::new());
     let mut relationships = Value::Array(Vec::new());
+    let mut field = json!({ "version": "field-layout-v1", "positions": {}, "links": [] });
+    let mut signals = Value::Array(Vec::new());
     for row in rows {
         let (key, value) = row.map_err(|error| error.to_string())?;
         let parsed: Value = serde_json::from_str(&value).map_err(|error| error.to_string())?;
@@ -29,9 +33,15 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
             motifs = parsed;
         } else if key == "relationships" {
             relationships = parsed;
+        } else if key == "field" {
+            field = parsed;
+        } else if key == "signals" {
+            signals = parsed;
         }
     }
-    Ok(json!({ "motifs": motifs, "relationships": relationships }))
+    Ok(
+        json!({ "motifs": motifs, "relationships": relationships, "field": field, "signals": signals }),
+    )
 }
 
 fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), String> {
@@ -43,25 +53,43 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         .get("relationships")
         .and_then(Value::as_array)
         .ok_or("invalid_relationships")?;
+    let field = snapshot
+        .get("field")
+        .cloned()
+        .unwrap_or_else(|| json!({ "version": "field-layout-v1", "positions": {}, "links": [] }));
+    let signals = snapshot
+        .get("signals")
+        .cloned()
+        .unwrap_or_else(|| Value::Array(Vec::new()));
+    if field.get("version").and_then(Value::as_str) != Some("field-layout-v1")
+        || !field
+            .get("positions")
+            .map(Value::is_object)
+            .unwrap_or(false)
+        || !field.get("links").map(Value::is_array).unwrap_or(false)
+    {
+        return Err("invalid_field".into());
+    }
+    if !signals.is_array() {
+        return Err("invalid_signals".into());
+    }
     let statement = "INSERT INTO local_state (key, value) VALUES (?1, ?2) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP";
-    connection
-        .execute(
-            statement,
-            [
-                "motifs",
-                &serde_json::to_string(motifs).map_err(|error| error.to_string())?,
-            ],
-        )
-        .map_err(|error| error.to_string())?;
-    connection
-        .execute(
-            statement,
-            [
-                "relationships",
-                &serde_json::to_string(relationships).map_err(|error| error.to_string())?,
-            ],
-        )
-        .map_err(|error| error.to_string())?;
+    for (key, value) in [
+        ("motifs", Value::Array(motifs.clone())),
+        ("relationships", Value::Array(relationships.clone())),
+        ("field", field),
+        ("signals", signals),
+    ] {
+        connection
+            .execute(
+                statement,
+                [
+                    key,
+                    &serde_json::to_string(&value).map_err(|error| error.to_string())?,
+                ],
+            )
+            .map_err(|error| error.to_string())?;
+    }
     Ok(())
 }
 
@@ -325,12 +353,14 @@ mod tests {
         connection.execute_batch(super::LOCAL_STATE_SCHEMA).unwrap();
         write_snapshot(
             &connection,
-            &json!({ "motifs": [{"name":"a"}], "relationships": [] }),
+            &json!({ "motifs": [{"name":"a"}], "relationships": [], "field": { "version": "field-layout-v1", "positions": { "motif:a": { "x": 0.2, "y": 0.4 } }, "links": [] } }),
         )
         .unwrap();
         let snapshot = read_snapshot(&connection).unwrap();
         assert_eq!(snapshot["motifs"][0]["name"], "a");
         assert_eq!(snapshot["relationships"].as_array().unwrap().len(), 0);
+        assert_eq!(snapshot["field"]["positions"]["motif:a"]["x"], 0.2);
+        assert_eq!(snapshot["signals"].as_array().unwrap().len(), 0);
     }
 
     #[test]
@@ -338,6 +368,13 @@ mod tests {
         let connection = Connection::open_in_memory().unwrap();
         connection.execute_batch(super::LOCAL_STATE_SCHEMA).unwrap();
         assert!(write_snapshot(&connection, &json!({ "motifs": [] })).is_err());
+        assert!(
+            write_snapshot(
+                &connection,
+                &json!({ "motifs": [], "relationships": [], "field": { "version": "nope" } })
+            )
+            .is_err()
+        );
     }
 
     #[test]

@@ -99,6 +99,13 @@ jobs:
         with:
           path: release-assets
 
+      - name: Generate SHA256SUMS
+        run: |
+          find release-assets -type f ! -name SHA256SUMS.txt -print0 | while IFS= read -r -d '' file; do
+            (cd "$(dirname "$file")" && sha256sum "$(basename "$file")")
+          done | sort -k2 > release-assets/SHA256SUMS.txt
+          cat release-assets/SHA256SUMS.txt
+
       - name: Upload assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

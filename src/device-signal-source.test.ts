@@ -10,7 +10,7 @@ describe('BCI-2 device bridge contract', () => {
     expect(isLocalBridgeUrl('ws://localhost:8765')).toBe(true)
     expect(isLocalBridgeUrl('wss://example.com')).toBe(false)
     expect(isLocalBridgeUrl('https://127.0.0.1:8765')).toBe(false)
-    expect(() => new WebSocketSignalSource('ws://example.com:8765')).toThrow()
+    expect(() => new WebSocketSignalSource('ws://example.com:8765', '')).toThrow()
   })
 
   it('parses single and batched bridge samples', () => {
@@ -22,7 +22,7 @@ describe('BCI-2 device bridge contract', () => {
   })
 
   it('requires local consent before starting', () => {
-    const source = new WebSocketSignalSource('ws://127.0.0.1:8765')
+    const source = new WebSocketSignalSource('ws://127.0.0.1:8765', '')
     expect(() => source.start({ ...consent, localOnly: false } as unknown as typeof consent)).toThrow()
     expect(() => source.stop()).toThrow()
   })
