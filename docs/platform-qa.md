@@ -1,6 +1,6 @@
 # Desktop platform QA
 
-日期：2026-11-03。状态：macOS 已本机启动并截图；Windows/Linux 已在 CI 中完成启动 smoke test。
+日期：2026-11-03。状态：macOS 已本机启动并截图；Windows/Linux 已在 CI 中完成当前 main 的构建与启动 smoke test。
 
 ## 共同
 
@@ -14,6 +14,8 @@
 - [x] 打包应用在收紧 CSP 后正常渲染
 
 macOS 本机截图：[desktop-tauri-dark.png](assets/desktop-tauri-dark.png)
+
+当前 main 的 Desktop builds run `41687589049`：Linux AppImage 在 xvfb 中启动成功，Windows NSIS 安装与进程启动成功；release 上传在该次校验中按设计跳过。
 
 场域拖拽、连线、时间过滤与示例场域的浏览器验证已通过；Tauri 窗口内的交互尚未逐项手测。
 

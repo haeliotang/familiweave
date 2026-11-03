@@ -103,7 +103,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
 | Theme | Light / dark theme |
 | App lock | Local PIN privacy curtain; not disk encryption |
-| Cross-platform | Windows NSIS / Linux AppImage+DEB builds; CI startup smoke |
+| Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
 | Bilingual | Chinese / English UI switch |
 | Data | Local SQLite or browser localStorage; export/import/delete |
 

@@ -100,7 +100,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |
 | 主题 | 明 / 暗主题切换 |
 | 应用锁 | 本机 PIN 遮挡界面；不是磁盘加密 |
-| 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；CI 启动 smoke |
+| 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
 | 双语 | 中文 / English 界面切换 |
 | 数据 | 本机 SQLite 或浏览器 localStorage；可导出/导入/删除 |
 
