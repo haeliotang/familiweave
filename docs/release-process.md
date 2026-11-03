@@ -33,7 +33,7 @@ git tag -a v0.1.1 -m "Familiweave v0.1.1"
 git push origin v0.1.1
 ```
 
-标签会触发 `Desktop builds`：
+标签会触发 `Desktop builds`。workflow 会先检查 tag 与 `tauri.conf.json` 的版本是否一致，然后：
 
 - Linux AppImage/DEB
 - Windows NSIS

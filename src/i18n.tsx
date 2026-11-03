@@ -270,6 +270,17 @@ const en: Record<string, string> = {
 
   '忘记 PIN 会删除本机数据并解除应用锁。继续？': 'Forgot PIN will delete local data and remove app lock. Continue?',
 
+  '更新': 'Updates',
+  '当前版本': 'Current version',
+  '只在你点击时访问 GitHub Releases 检查版本，不上传本机数据。': 'Checks GitHub Releases only when you click; local data is not uploaded.',
+  '检查中…': 'Checking…',
+  '检查更新': 'Check for updates',
+  '发现新版本': 'A new version is available',
+  '已是最新版本': 'You are up to date',
+  '无法比较版本': 'Could not compare versions',
+  '检查更新失败；应用离线可用，不会自动下载。': 'Update check failed; the app stays offline and will not download automatically.',
+  '自动下载/安装尚未启用；需要 updater key 与更新 endpoint。': 'Automatic download/install is not enabled; it needs an updater key and endpoint.',
+
 }
 
 type LanguageContextValue = {

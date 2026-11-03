@@ -50,6 +50,10 @@ jobs:
         with:
           ref: ${{ github.event.inputs.ref || github.event.inputs.tag || github.ref }}
 
+      - name: Verify release tag matches app version
+        shell: bash
+        run: node scripts/check-release-version.mjs "${{ github.event.inputs.tag || github.ref_name }}"
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10.32.1

@@ -103,6 +103,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
 | 双语 | 中文 / English 界面切换 |
 | 数据 | 本机 SQLite 或浏览器 localStorage；可导出/导入/删除 |
+| 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
 
 当前**没有**：
 

@@ -26,6 +26,7 @@ const RelationshipJournal = lazy(() => import('./relationship-map').then(module 
 const SignalSimulator = lazy(() => import('./signal-simulator').then(module => ({ default: module.SignalSimulator })))
 const DeviceSignalPanel = lazy(() => import('./device-signal-panel').then(module => ({ default: module.DeviceSignalPanel })))
 const LocalDataPanel = lazy(() => import('./local-data-panel').then(module => ({ default: module.LocalDataPanel })))
+const UpdatePanel = lazy(() => import('./update-panel').then(module => ({ default: module.UpdatePanel })))
 
 type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
@@ -449,6 +450,7 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · 沙箱 ${host.sandbox}` : 'Web 预览 · 没有 Tauri 宿主'}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
+                <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.0'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
               </>}
