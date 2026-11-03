@@ -23,7 +23,8 @@
     "bci:bridge": "tsx scripts/bci3-bridge.ts",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
-    "release:check": "sh scripts/release-check.sh"
+    "release:check": "sh scripts/release-check.sh",
+    "package:macos": "sh scripts/package-macos.sh"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

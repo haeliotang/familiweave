@@ -14,6 +14,7 @@
 pnpm e2e:install   # 首次
 pnpm release:check
 sh scripts/desktop-sign-adhoc.sh   # 仅本机 ad-hoc，不是正式签名
+sh scripts/package-macos.sh        # macOS 构建 + strip + ad-hoc + zip
 ```
 
 `release:check` 会运行：

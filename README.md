@@ -135,7 +135,7 @@ As of the latest `main`:
 - 6 Rust host tests
 - WCAG A/AA structural and contrast checks in light/dark themes
 - main JS bundle about 293 KB, with heavy views lazy-loaded
-- macOS app bundle about 10.45 MiB, ad-hoc signed
+- macOS app bundle about 10.45 MiB before packaging; `pnpm package:macos` strips to about 8.4 MiB / ~3.4 MB zip, ad-hoc signed
 - Linux/Windows release builds plus startup smoke in CI
 - GitHub Actions checks: Symbolic space, Rust operational and Browser E2E
 
@@ -269,6 +269,8 @@ Desktop build:
 
 ```sh
 pnpm tauri:build --bundles app
+# or build + strip + ad-hoc sign + zip:
+pnpm package:macos
 ```
 
 Cross-platform builds (run natively on the target OS):

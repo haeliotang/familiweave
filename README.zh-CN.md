@@ -132,7 +132,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 - 6 项 Rust 宿主测试
 - 明暗主题 WCAG A/AA（结构 + 对比度）
 - 主 JS 约 293 KB，重组件 lazy load
-- macOS app 约 10.45 MiB，ad-hoc 签名
+- macOS app 原始约 10.45 MiB；`pnpm package:macos` 可 strip 到约 8.4 MiB / 3.4 MB zip，ad-hoc 签名
 - Linux/Windows Release 构建 + 启动 smoke
 - CI：Symbolic space / Rust operational / Browser E2E
 
@@ -266,6 +266,8 @@ pnpm measure:browser:full
 
 ```sh
 pnpm tauri:build --bundles app
+# 或构建 + strip + ad-hoc 签名 + zip：
+pnpm package:macos
 ```
 
 跨平台构建（需要对应系统原生环境）：

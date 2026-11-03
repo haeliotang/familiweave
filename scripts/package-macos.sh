@@ -1,0 +1,21 @@
+#!/bin/sh
+# Build, strip, ad-hoc sign and zip the macOS app for local distribution.
+# This is still NOT a Developer ID signature or notarization.
+set -eu
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT/apps/desktop"
+CARGO_PROFILE_RELEASE_STRIP=none ../../node_modules/.bin/tauri build --bundles app
+APP="$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Familiweave.app"
+[ -d "$APP" ] || { echo "app bundle missing" >&2; exit 1; }
+EXEC="$APP/Contents/MacOS/familiweave-desktop"
+strip -x "$EXEC"
+codesign --force --deep --sign - --entitlements "$ROOT/apps/desktop/src-tauri/Entitlements.plist" "$APP"
+VERSION=$(node -p "require('$ROOT/apps/desktop/src-tauri/tauri.conf.json').version")
+ARCH=$(uname -m)
+OUT="$ROOT/dist/release"
+mkdir -p "$OUT"
+ZIP="$OUT/Familiweave-v${VERSION}-macos-${ARCH}.zip"
+ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
+(cd "$OUT" && shasum -a 256 "$(basename "$ZIP")" > "Familiweave-v${VERSION}-macos-${ARCH}.sha256")
+echo "Built $ZIP"
+ls -lh "$APP" "$ZIP"
