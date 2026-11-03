@@ -259,6 +259,7 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
 - [自动更新方案](docs/updater-plan.md)
 - [Release signing](docs/release-signing.md)
+- [发布流程](docs/release-process.md)
 - [签名配置](docs/signing-setup.md)：Apple / Windows secrets 的逐步配置
 - [Desktop platform QA](docs/platform-qa.md)
 - [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)

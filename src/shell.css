@@ -414,3 +414,12 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 .app-lock-form { display: flex; flex-direction: column; gap: 6px; margin-top: 4px }
 .app-lock-form button { align-self: flex-start; margin-top: 4px }
 .lock-card .error-inline, .app-lock-panel .error-inline { margin: 0; color: #e0a79c; font-size: 11px }
+.error-fallback { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px; background: #f7f7f7; color: #242528 }
+.error-fallback > div { max-width: 660px; display: flex; flex-direction: column; gap: 12px }
+.error-fallback h1 { margin: 0; font: 600 28px/1.3 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif }
+.error-fallback p { color: #6f7074; line-height: 1.65; margin: 0; max-width: 560px }
+.error-fallback code { display: block; padding: 12px; border: 1px solid #e1e1e3; border-radius: 8px; background: #fff; color: #8b5e54; white-space: pre-wrap; word-break: break-word; font-size: 11px }
+.error-fallback .primary-button { align-self: flex-start }
+[data-theme='dark'] .error-fallback { background: #17181a; color: #f0f0ec }
+[data-theme='dark'] .error-fallback p { color: #a7a9ab }
+[data-theme='dark'] .error-fallback code { background: #1d1e21; border-color: #33353a; color: #e1bba9 }
