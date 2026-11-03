@@ -291,7 +291,7 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
 - [Auto-update plan](docs/updater-plan.md)
 - [Release signing](docs/release-signing.md)
-- [Release process](docs/release-process.md)
+- [Release process](docs/release-process.md): tag builds, checksums and GitHub build provenance
 - [Signing setup](docs/signing-setup.md): step-by-step Apple / Windows secrets
 - [Desktop platform QA](docs/platform-qa.md)
 - [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)

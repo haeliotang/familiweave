@@ -61,6 +61,7 @@ Release 若不存在会创建；若已存在会更新资产。
 
 - 检查 Release 是 Latest 还是 Pre-release，与稳定性一致。
 - 下载并校验 `SHA256SUMS.txt`。
+- 使用 `gh attestation verify <artifact> --repo haeliotang/familiweave` 验证构建出处。
 - 记录已知问题与回滚版本。
 - 如果发现凭据泄露：吊销证书、轮换 secrets、重新构建并撤销旧 Release。
 
