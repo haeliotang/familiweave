@@ -114,12 +114,15 @@ jobs:
           if (-not $installer) { throw "NSIS installer not found" }
           $installDir = Join-Path $env:RUNNER_TEMP "Familiweave"
           Start-Process -FilePath $installer.FullName -ArgumentList "/S", "/D=$installDir" -Wait
-          $app = Get-ChildItem -Path $env:LOCALAPPDATA, $installDir -Filter "Familiweave.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $app) { throw "Installed Familiweave.exe not found" }
+          $app = Get-ChildItem -Path $env:LOCALAPPDATA, $env:ProgramFiles, ${env:ProgramFiles(x86)}, $installDir -Include "familiweave-desktop.exe", "Familiweave.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $app) {
+            Get-ChildItem -Path $env:LOCALAPPDATA, $installDir -Recurse -ErrorAction SilentlyContinue | Select-Object -First 40 FullName
+            throw "Installed Familiweave executable not found"
+          }
           Start-Process -FilePath $app.FullName
           Start-Sleep -Seconds 8
-          if (-not (Get-Process -Name "Familiweave" -ErrorAction SilentlyContinue)) { throw "Familiweave process did not start" }
-          Stop-Process -Name "Familiweave" -Force
+          if (-not (Get-Process -Name "familiweave-desktop", "Familiweave" -ErrorAction SilentlyContinue)) { throw "Familiweave process did not start" }
+          Stop-Process -Name "familiweave-desktop", "Familiweave" -Force -ErrorAction SilentlyContinue
 
       - name: Upload ${{ matrix.name }} artifact
         uses: actions/upload-artifact@v4
