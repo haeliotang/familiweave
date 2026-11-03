@@ -292,6 +292,12 @@ const en: Record<string, string> = {
   '导出加密备份': 'Export encrypted backup',
   '导入失败：需要 familiweave 导出的 local-dataset-v1/v2 或加密备份 JSON。': 'Import failed: use a local-dataset-v1/v2 or an encrypted Familiweave backup.',
 
+  '只记录你自己写下的瞬间；不分析对方，不做匹配，不推断“依恋类型”。': 'Record only the moments you wrote down; do not analyse the other person, match, or infer an “attachment type”.',
+
+  '浏览器预览：数据在 localStorage': 'Browser preview: data in localStorage',
+  'Web 预览 · 没有 Tauri 宿主': 'Web preview · no Tauri host',
+  '沙箱': 'sandbox',
+
 }
 
 type LanguageContextValue = {

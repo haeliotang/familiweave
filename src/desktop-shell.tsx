@@ -216,7 +216,7 @@ export function DesktopShell() {
   const selected = motifs.find(motif => motif.id === selectedId) ?? null
   const filtered = useMemo(() => motifs.filter(motif => !search.trim() || (motif.name || '未命名').includes(search.trim())), [motifs, search])
 
-  const openNew = () => { setEncounter(null); setSelectedId(null); setView('field'); setDetailTab('overview') }
+  const openNew = () => { setEncounter(null); setSelectedId(null); setView('new'); setDetailTab('overview') }
   const openMotif = (id: string) => { setSelectedId(id); setEncounter(null); setView('field'); setDetailTab('overview') }
   const start = (next: Encounter) => { setEncounter(next); setView('space') }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
@@ -444,10 +444,10 @@ export function DesktopShell() {
                 <Suspense fallback={null}><DeviceSignalPanel onSession={recordSignalSession} /></Suspense>
               </>}
               {view === 'settings' && <>
-                <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : '浏览器预览：数据在 localStorage'} />
+                <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : t('浏览器预览：数据在 localStorage')} />
                 <div className="paper-card host-card">
                   <p className="card-label">{t('宿主')}</p>
-                  <p>{host ? `Tauri 2 · ${host.platform} · 沙箱 ${host.sandbox}` : 'Web 预览 · 没有 Tauri 宿主'}</p>
+                  <p>{host ? `Tauri 2 · ${host.platform} · ${t('沙箱')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.0'} /></Suspense>
