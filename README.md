@@ -289,7 +289,7 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
-- [Auto-update plan](docs/updater-plan.md)
+- [Auto-update plan](docs/updater-plan.md): updater key/endpoint plan and manifest generator
 - [Release signing](docs/release-signing.md)
 - [Release process](docs/release-process.md): tag builds, checksums and GitHub build provenance
 - [Signing setup](docs/signing-setup.md): step-by-step Apple / Windows secrets

@@ -24,7 +24,8 @@
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
     "release:check": "sh scripts/release-check.sh",
-    "package:macos": "sh scripts/package-macos.sh"
+    "package:macos": "sh scripts/package-macos.sh",
+    "updater:manifest": "node scripts/make-updater-manifest.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

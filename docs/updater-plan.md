@@ -46,6 +46,24 @@ pnpm tauri signer generate -w ~/.tauri/familiweave-updater.key
 - 旧版本保留可回退路径；出现安全问题时撤销 release 并发布修复版本。
 - 若 key 泄露，立即撤销/轮换 key，并发布新的签名清单；旧更新通道视为不可信。
 
+## 清单生成器（已提供）
+
+仓库提供不接触私钥的清单生成器：
+
+```sh
+node scripts/make-updater-manifest.mjs \
+  --version 0.2.0 --tag v0.2.0 --repo haeliotang/familiweave \
+  --platform windows-x86_64=path/Familiweave_0.2.0_x64-setup.exe.sig \
+  --platform linux-x86_64=path/Familiweave_0.2.0_amd64.AppImage.sig \
+  --platform darwin-aarch64=path/Familiweave_0.2.0_aarch64.app.tar.gz.sig \
+  --notes "..." --out latest.json
+```
+
+- 只读取 Tauri 生成的 `.sig` 文件，不读取或输出私钥。
+- `platforms` key 必须是 Tauri 支持的 `darwin-aarch64`、`darwin-x86_64`、`linux-x86_64`、`windows-x86_64`。
+- 产物 URL 默认指向 GitHub Release 的 tag 资产；也可用 `--base-url` 覆盖。
+- 生成的 `latest.json` 需要在启用 updater 后附加到同一个 Release。
+
 ## 当前仓库已具备
 
 - `SHA256SUMS.txt` 自动生成并附到 Release。
