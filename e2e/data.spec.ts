@@ -24,4 +24,11 @@ test('exports a v2 dataset and imports it back', async ({ page }) => {
     buffer: Buffer.from(JSON.stringify(dataset)),
   })
   await expect(page.getByText(/Imported/)).toBeVisible()
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'broken.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ version: 'local-dataset-v2', motifs: 'nope', relationships: [] })),
+  })
+  await expect(page.getByText(/Import failed/)).toBeVisible()
 })

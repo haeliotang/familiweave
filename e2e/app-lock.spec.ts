@@ -13,6 +13,9 @@ test('app lock encrypts and restores local data', async ({ page }) => {
 
   await page.reload()
   await expect(page.locator('.lock-overlay')).toBeVisible()
+  await page.locator('.lock-card input').fill('0000')
+  await page.locator('.lock-card form').getByRole('button', { name: 'Unlock' }).click()
+  await expect(page.getByText('Incorrect PIN')).toBeVisible()
   await page.locator('.lock-card input').fill('2468')
   await page.locator('.lock-card form').getByRole('button', { name: 'Unlock' }).click()
   await expect(page.locator('.lock-overlay')).toBeHidden()

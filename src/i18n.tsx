@@ -144,6 +144,7 @@ const en: Record<string, string> = {
   '个母题': 'motifs',
   '条关系触发点': 'relationship triggers',
   '导入失败：需要 familiweave 导出的 local-dataset-v1 JSON。': 'Import failed: use a local-dataset-v1 JSON exported by Familiweave.',
+  '导入失败：需要 familiweave 导出的 local-dataset-v1/v2 JSON。': 'Import failed: use a local-dataset-v1/v2 JSON exported by Familiweave.',
   '删除本机全部数据？此操作不可撤销。': 'Delete all local data? This cannot be undone.',
   '自动反应': 'Automatic response',
   '共': 'Total',

@@ -174,3 +174,6 @@ jobs:
           fi
           find release-assets -type f -print
           find release-assets -type f -exec gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber {} +
+          mkdir -p verified-assets
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir verified-assets --clobber
+          (cd verified-assets && sha256sum -c SHA256SUMS.txt)
