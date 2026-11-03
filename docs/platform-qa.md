@@ -18,7 +18,7 @@ macOS 本机截图：[desktop-tauri-dark.png](assets/desktop-tauri-dark.png)
 
 Playwright E2E：场域拖拽/持久化、主题与语言、应用锁加密/恢复、懒加载视图共 4 项；CI `Browser E2E` 已通过。
 
-当前 main（加密应用锁）的 Desktop builds run `41691584070`：Linux AppImage 在 xvfb 中启动成功，Windows NSIS 安装与进程启动成功；release 上传在该次校验中按设计跳过。
+当前 main（加密应用锁 + lazy split + error boundary）的 Desktop builds run `41697908976`：Linux AppImage 在 xvfb 中启动成功，Windows NSIS 安装与进程启动成功；release 上传在该次校验中按设计跳过。E2E 4 项也已在 CI 通过。
 
 场域拖拽、连线、时间过滤与示例场域的浏览器验证已通过；Tauri 窗口内的交互尚未逐项手测。
 
