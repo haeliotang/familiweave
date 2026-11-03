@@ -6,9 +6,10 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-D-U9JZSu.js` | 317,116 | 主入口（场域交互 + 信号摘要） |
+| `index-CGipA6Ko.js` | 310,561 | 主入口（场域 lazy split 后） |
 | `index-DvYNGR0a.css` | 47,570 | 样式（场域 + 明暗主题 + 双语） |
-| 合计 | 366,085 | 两个产物；无 scene 分包 |
+| `field-view-DpNjGahA.js` | 8,400 | 懒加载场域组件 |
+| 合计 | 367,930 | 三个产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。

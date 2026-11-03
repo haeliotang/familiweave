@@ -1,6 +1,6 @@
 # Desktop platform QA
 
-日期：2026-11-03。状态：macOS 已本机启动并截图；Windows/Linux CI 构建成功，运行时未人工验收。
+日期：2026-11-03。状态：macOS 已本机启动并截图；Windows/Linux 已在 CI 中完成启动 smoke test。
 
 ## 共同
 
@@ -25,18 +25,18 @@ macOS 本机截图：[desktop-tauri-dark.png](assets/desktop-tauri-dark.png)
 
 ## Windows
 
-- [ ] NSIS 安装/卸载
-- [ ] WebView2 可用性
-- [ ] 原生标题栏与自定义顶栏不重叠
-- [ ] 文件路径、app data、SQLite
+- [x] NSIS 安装（CI smoke）
+- [x] WebView2 启动与进程存活（CI smoke）
+- [ ] 原生标题栏与自定义顶栏不重叠（需人工）
+- [ ] 文件路径、app data、SQLite（需人工）
 - [ ] SmartScreen 警告与未签名说明
 
 ## Linux
 
-- [ ] AppImage FUSE / 执行权限
-- [ ] DEB 依赖安装
-- [ ] WebKitGTK 4.1 环境
-- [ ] 窗口装饰/拖拽区
+- [x] AppImage 启动（xvfb smoke）
+- [ ] DEB 依赖安装（需人工）
+- [x] WebKitGTK 4.1 环境（CI）
+- [ ] 窗口装饰/拖拽区（需人工）
 - [ ] AppImage 在不同发行版的最小验证
 
 运行时验收前，不应宣称 Windows/Linux 已达到与 macOS 相同的可用性。

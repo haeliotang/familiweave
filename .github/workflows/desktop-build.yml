@@ -81,6 +81,46 @@ jobs:
           cd apps/desktop
           ../../node_modules/.bin/tauri build --bundles "${{ matrix.bundles }}"
 
+      - name: Smoke test Linux bundle
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get install -y xvfb xdotool libfuse2 dbus-x11
+          APP=$(find apps/desktop/src-tauri/target/release/bundle/appimage -name '*.AppImage' | head -1)
+          test -n "$APP"
+          chmod +x "$APP"
+          dbus-run-session -- xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
+            "$1" --appimage-extract-and-run > /tmp/familiweave-linux.log 2>&1 &
+            pid=$!
+            found=0
+            for i in $(seq 1 30); do
+              if xdotool search --name Familiweave >/dev/null 2>&1; then found=1; break; fi
+              sleep 1
+            done
+            if [ "$found" != "1" ]; then
+              cat /tmp/familiweave-linux.log || true
+              kill "$pid" 2>/dev/null || true
+              exit 1
+            fi
+            sleep 2
+            kill "$pid" 2>/dev/null || true
+          ' bash "$APP"
+
+      - name: Smoke test Windows bundle
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem "apps/desktop/src-tauri/target/release/bundle/nsis/*.exe" | Select-Object -First 1
+          if (-not $installer) { throw "NSIS installer not found" }
+          $installDir = Join-Path $env:RUNNER_TEMP "Familiweave"
+          Start-Process -FilePath $installer.FullName -ArgumentList "/S", "/D=$installDir" -Wait
+          $app = Get-ChildItem -Path $env:LOCALAPPDATA, $installDir -Filter "Familiweave.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $app) { throw "Installed Familiweave.exe not found" }
+          Start-Process -FilePath $app.FullName
+          Start-Sleep -Seconds 8
+          if (-not (Get-Process -Name "Familiweave" -ErrorAction SilentlyContinue)) { throw "Familiweave process did not start" }
+          Stop-Process -Name "Familiweave" -Force
+
       - name: Upload ${{ matrix.name }} artifact
         uses: actions/upload-artifact@v4
         with:
