@@ -318,6 +318,16 @@ export function DesktopShell() {
     setLocked(true)
   }
 
+  useEffect(() => {
+    if (!lockRecord || locked || typeof window === 'undefined') return
+    const configured = Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000)
+    const timeoutMs = Number.isFinite(configured) && configured >= 1_000 ? configured : 300_000
+    let timer = window.setTimeout(() => { clearActiveEncryption(); setLocked(true) }, timeoutMs)
+    const reset = () => { window.clearTimeout(timer); timer = window.setTimeout(() => { clearActiveEncryption(); setLocked(true) }, timeoutMs) }
+    for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const) window.addEventListener(event, reset, { passive: true })
+    return () => { window.clearTimeout(timer); for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const) window.removeEventListener(event, reset) }
+  }, [lockRecord, locked])
+
   const resetAppLock = () => {
     if (!confirm(t('忘记 PIN 会删除本机数据并解除应用锁。继续？'))) return
     window.localStorage.removeItem(appLockStorageKey)

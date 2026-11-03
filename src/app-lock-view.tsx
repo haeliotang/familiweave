@@ -57,7 +57,7 @@ export function AppLockSettings({ enabled, onEnable, onDisable, onLock }: { enab
   }
   if (enabled) return <section className="paper-card app-lock-panel">
     <p className="card-label">{t('应用锁')}</p>
-    <p>{t('已开启。本机快照以 AES-GCM 加密保存；PIN 只在本机校验。')}</p>
+    <p>{t('已开启。本机快照以 AES-GCM 加密保存；PIN 只在本机校验。5 分钟无操作会自动锁定。')}</p>
     <div className="actions"><button type="button" className="quiet" onClick={onLock}>{t('立即锁定')}</button></div>
     <form onSubmit={disable} className="app-lock-form">
       <label htmlFor="disable-lock-pin">{t('输入 PIN 关闭应用锁')}</label>
