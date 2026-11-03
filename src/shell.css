@@ -446,3 +446,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .app-lock-auto select { padding: 6px 8px; border: 1px solid #dedee1; border-radius: 6px; background: #f7f7f7; color: #4f5155; font-size: 11px }
 [data-theme='dark'] .app-lock-auto { color: #b8babc }
 [data-theme='dark'] .app-lock-auto select { background: #202124; border-color: #3a3c41; color: #d6d7d4 }
+.empty-copy, .status-pill, .somatic-step .step-note, .intensity-row > span, .timeline-empty { color: #5f6165 }
+[data-theme='dark'] .empty-copy, [data-theme='dark'] .status-pill, [data-theme='dark'] .somatic-step .step-note, [data-theme='dark'] .intensity-row > span, [data-theme='dark'] .timeline-empty { color: #b8babc }
+.signal-lab .remember-line, .device-lab .remember-line { color: #5f6165 }
+[data-theme='dark'] .signal-lab .remember-line, [data-theme='dark'] .device-lab .remember-line { color: #b8babc }
+.app-lock-form label { color: #5f6165 }
+[data-theme='dark'] .app-lock-form label { color: #b8babc }
