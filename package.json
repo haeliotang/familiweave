@@ -21,7 +21,8 @@
     "tauri:dev": "cd apps/desktop && ../../node_modules/.bin/tauri dev",
     "tauri:build": "cd apps/desktop && ../../node_modules/.bin/tauri build",
     "bci:bridge": "tsx scripts/bci3-bridge.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

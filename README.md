@@ -219,6 +219,7 @@ pnpm tauri:dev    # Tauri 2 桌面外壳
 ```sh
 pnpm test
 pnpm build
+pnpm e2e:install            # 首次安装 Chromium
 pnpm e2e                    # Playwright browser E2E
 pnpm bci:bridge              # 本机 BCI-3 WebSocket bridge
 pnpm check:symbolic-path

@@ -6,11 +6,12 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-CQOBVmeB.js` | 317,308 | 主入口（加密应用锁 + lazy split） |
+| `index-DR2JW3R9.js` | 289,799 | 主入口（重组件 lazy split + 加密应用锁） |
 | `index-DvYNGR0a.css` | 47,570 | 样式（场域 + 明暗主题 + 双语） |
-| `field-view-f18OvLrQ.js` | 8,400 | 懒加载场域组件 |
-| `app-lock-view-BC7DOE9V.js` | 3,638 | 懒加载应用锁界面 |
-| 合计 | 379,583 | 四个产物；无 scene 分包 |
+| `field-view-DXCjtRUt.js` | 8,400 | 懒加载场域组件 |
+| `app-lock-view-DLbmEvuY.js` | 3,638 | 懒加载应用锁界面 |
+| 其他懒加载视图 | 29,187 | capture / journal / relationship / lab / data panel |
+| 合计 | 381,261 | 多个懒加载产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。

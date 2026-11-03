@@ -1,13 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Encounter } from './encounter'
 import { createInnerCaptureEncounter } from './inner-encounter'
-import { InnerEntry } from './inner-entry'
-import { SomaticEntry } from './somatic-entry'
-import { MotifJournal } from './motif-journal-view'
-import { RelationshipJournal } from './relationship-map'
-import { SignalSimulator } from './signal-simulator'
-import { DeviceSignalPanel } from './device-signal-panel'
-import { LocalDataPanel } from './local-data-panel'
 import { SceneView } from './scene-loader'
 import { createMotif, loadMotifs, type MotifEntry } from './motif-journal'
 import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipInput, type RelationshipTrigger } from './relationship'
@@ -26,6 +19,13 @@ const FieldView = lazy(() => import('./field-view').then(module => ({ default: m
 const TimelineRail = lazy(() => import('./field-view').then(module => ({ default: module.TimelineRail })))
 const LockScreen = lazy(() => import('./app-lock-view').then(module => ({ default: module.LockScreen })))
 const AppLockSettings = lazy(() => import('./app-lock-view').then(module => ({ default: module.AppLockSettings })))
+const SomaticEntry = lazy(() => import('./somatic-entry').then(module => ({ default: module.SomaticEntry })))
+const InnerEntry = lazy(() => import('./inner-entry').then(module => ({ default: module.InnerEntry })))
+const MotifJournal = lazy(() => import('./motif-journal-view').then(module => ({ default: module.MotifJournal })))
+const RelationshipJournal = lazy(() => import('./relationship-map').then(module => ({ default: module.RelationshipJournal })))
+const SignalSimulator = lazy(() => import('./signal-simulator').then(module => ({ default: module.SignalSimulator })))
+const DeviceSignalPanel = lazy(() => import('./device-signal-panel').then(module => ({ default: module.DeviceSignalPanel })))
+const LocalDataPanel = lazy(() => import('./local-data-panel').then(module => ({ default: module.LocalDataPanel })))
 
 type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
@@ -424,23 +424,23 @@ export function DesktopShell() {
               {(view === 'new' || view === 'motif') && <>
                 {view === 'new' && <WorkspaceHeader eyebrow={t('内在工作台')} title={t('先感觉，不用急着命名。')} meta={t('从身体、意象与关系开始；不解释，也不替你下结论。')} action={<span className="status-pill">{t('本地研究原型')}</span>} />}
                 {view === 'new' && (textMode
-                  ? <div className="capture-wrap"><InnerEntry onStart={start} /></div>
-                  : <div className="capture-wrap"><SomaticEntry onStart={start} onRemember={remember} /></div>)}
+                  ? <div className="capture-wrap"><Suspense fallback={null}><InnerEntry onStart={start} /></Suspense></div>
+                  : <div className="capture-wrap"><Suspense fallback={null}><SomaticEntry onStart={start} onRemember={remember} /></Suspense></div>)}
                 {view === 'motif' && selected && <MotifDetail motif={selected} tab={detailTab} setTab={setDetailTab} onEnter={enterSelected} />}
                 {view === 'motif' && !selected && <div className="empty-state"><h2>这个母题不在了</h2><p>它可能已被删除。可以从左侧新建一个片段。</p><button className="primary-button" onClick={openNew}>新建片段</button></div>}
               </>}
               {view === 'journal' && <>
                 <WorkspaceHeader eyebrow={t('本机母题日记')} title={t('反复出现的东西，先放在一起。')} meta={t('不推断因果，只做并列、回看与导出。')} />
-                <MotifJournal entries={motifs} onRemove={remove} onClear={() => { setMotifs([]); setSelectedId(null); persist([], relationships) }} />
+                <Suspense fallback={null}><MotifJournal entries={motifs} onRemove={remove} onClear={() => { setMotifs([]); setSelectedId(null); persist([], relationships) }} /></Suspense>
               </>}
               {view === 'relationship' && <>
                 <WorkspaceHeader eyebrow={t('关系触发点')} title={t('只画你自己的地图。')} meta={t('不推断对方，不做匹配，也不把关系变成评分。')} />
-                <RelationshipJournal entries={relationships} onAdd={addRelationship} onRemove={removeRelationship} onClear={() => { setRelationships([]); persist(motifs, []) }} />
+                <Suspense fallback={null}><RelationshipJournal entries={relationships} onAdd={addRelationship} onRemove={removeRelationship} onClear={() => { setRelationships([]); persist(motifs, []) }} /></Suspense>
               </>}
               {view === 'lab' && <>
                 <WorkspaceHeader eyebrow={t('实验台')} title={t('先把信号管线立住。')} meta={t('模拟数据和设备桥接都明确标注；没有真实神经数据。')} />
-                <SignalSimulator onSession={recordSignalSession} />
-                <DeviceSignalPanel onSession={recordSignalSession} />
+                <Suspense fallback={null}><SignalSimulator onSession={recordSignalSession} /></Suspense>
+                <Suspense fallback={null}><DeviceSignalPanel onSession={recordSignalSession} /></Suspense>
               </>}
               {view === 'settings' && <>
                 <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : '浏览器预览：数据在 localStorage'} />
@@ -450,7 +450,7 @@ export function DesktopShell() {
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
-                <LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} />
+                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
               </>}
             </>}
         </div>

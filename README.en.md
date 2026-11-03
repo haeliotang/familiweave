@@ -222,6 +222,7 @@ Checks:
 ```sh
 pnpm test
 pnpm build
+pnpm e2e:install            # first-time Chromium install
 pnpm e2e                    # Playwright browser E2E
 pnpm bci:bridge              # local BCI-3 WebSocket bridge
 pnpm check:symbolic-path
