@@ -282,6 +282,16 @@ const en: Record<string, string> = {
   '检查更新失败；应用离线可用，不会自动下载。': 'Update check failed; the app stays offline and will not download automatically.',
   '自动下载/安装尚未启用；需要 updater key 与更新 endpoint。': 'Automatic download/install is not enabled; it needs an updater key and endpoint.',
 
+  '设置备份口令（至少 8 位）': 'Set a backup passphrase (at least 8 characters)',
+  '再次输入备份口令': 'Repeat the backup passphrase',
+  '备份口令至少 8 位': 'Backup passphrase must be at least 8 characters',
+  '两次口令不一致': 'Passphrases do not match',
+  '已生成加密备份；口令无法找回。': 'Encrypted backup created; the passphrase cannot be recovered.',
+  '加密备份失败': 'Could not create encrypted backup',
+  '输入加密备份口令': 'Enter the encrypted backup passphrase',
+  '导出加密备份': 'Export encrypted backup',
+  '导入失败：需要 familiweave 导出的 local-dataset-v1/v2 或加密备份 JSON。': 'Import failed: use a local-dataset-v1/v2 or an encrypted Familiweave backup.',
+
 }
 
 type LanguageContextValue = {

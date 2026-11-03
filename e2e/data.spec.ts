@@ -56,3 +56,28 @@ test('imports a legacy v1 dataset', async ({ page }) => {
   await page.getByRole('button', { name: 'Field' }).click()
   await expect(page.locator('.field-node')).toHaveCount(1)
 })
+
+test('exports and imports an encrypted backup', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Load demo field' }).click()
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  page.on('dialog', dialog => dialog.accept('correct horse battery'))
+
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export encrypted backup' }).click()
+  const download = await downloadPromise
+  const filePath = await download.path()
+  expect(filePath).not.toBeNull()
+  const backupText = await readFile(filePath!, 'utf8')
+  const backup = JSON.parse(backupText) as { format: string; ciphertext: string }
+  expect(backup.format).toBe('familiweave-encrypted-backup-v1')
+  expect(backup.ciphertext).not.toContain('Demo')
+  expect(backup.ciphertext).not.toContain('motif')
+
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(backupText),
+  })
+  await expect(page.getByText(/Imported 2/)).toBeVisible()
+})

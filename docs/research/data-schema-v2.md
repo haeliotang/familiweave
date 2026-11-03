@@ -48,6 +48,7 @@ Tauri 宿主在 app data 的 `familiweave.db` 中写入 `local_state`：
 ## 导出与删除
 
 - 设置页可导出完整 v2、导出时间轴、导入 v1/v2、删除全部。
+- 可生成加密备份（`familiweave-encrypted-backup-v1`）：PBKDF2 + AES-GCM，至少 8 位口令；口令不保存，无法找回。加密备份导入时会要求口令。
 - 删除是显式覆盖，不是隐藏；浏览器 localStorage 与 Tauri SQLite 都会清除。
 - 后续 schema 变更必须保留旧版本导入路径，并写迁移说明。
 

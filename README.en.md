@@ -105,7 +105,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | App lock | Local PIN + AES-GCM encrypted snapshot; not system lock |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
 | Bilingual | Chinese / English UI switch |
-| Data | Local SQLite or browser localStorage; export/import/delete |
+| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete |
 | Update check | Explicit GitHub Releases check; no auto-download |
 | Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
 
