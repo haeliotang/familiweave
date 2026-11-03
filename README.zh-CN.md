@@ -12,14 +12,14 @@
 
 ## 下载
 
-[v0.1.0 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.0) 提供：
+[v0.1.1 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) 提供：
 
-- macOS 12+ Apple Silicon：`Familiweave-v0.1.0-macos-arm64.zip`
-- Windows 10/11 x64：`Familiweave_0.1.0_x64-setup.exe`
-- Linux x86_64：`Familiweave_0.1.0_amd64.AppImage` / `.deb`
+- macOS 12+ Apple Silicon：`Familiweave-v0.1.1-macos-arm64.zip`
+- Windows 10/11 x64：`Familiweave_0.1.1_x64-setup.exe`
+- Linux x86_64：`Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` 校验所有产物
 
-> `v0.1.0` Release 早于当前 `main` 的 Field/加密/可访问性改动；下载复现用 tag，体验最新原型请构建 `main`。
+> v0.1.1 是当前原型 Release。
 
 macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
 

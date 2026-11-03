@@ -8,7 +8,7 @@
 - Windows：unsigned NSIS
 - Linux：unsigned AppImage/DEB
 
-Gatekeeper / SmartScreen 会警告。v0.1.0 Release 已在说明中标注，不应把产物描述为已签名或已公证。
+Gatekeeper / SmartScreen 会警告。v0.1.1 Release 已在说明中标注，不应把产物描述为已签名或已公证。
 
 ## macOS Developer ID
 

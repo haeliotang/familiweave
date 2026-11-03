@@ -6,7 +6,7 @@ on:
       tag:
         description: Release tag to attach assets to
         required: true
-        default: v0.1.0
+        default: v0.1.1
       ref:
         description: Optional branch or tag to build (defaults to the tag input)
         required: false
@@ -174,7 +174,12 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TAG" --notes "Desktop builds for $TAG."
+            NOTES_FILE="docs/release-notes/${TAG}.md"
+            if [ -f "$NOTES_FILE" ]; then
+              gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TAG" --notes-file "$NOTES_FILE"
+            else
+              gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --title "$TAG" --notes "Desktop builds for $TAG."
+            fi
           fi
           find release-assets -type f -print
           find release-assets -type f -exec gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber {} +

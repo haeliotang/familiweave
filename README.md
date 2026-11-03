@@ -12,16 +12,14 @@
 
 ## Download
 
-The [v0.1.0 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.0) provides:
+The [v0.1.1 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) provides:
 
-- macOS 12+ Apple Silicon: `Familiweave-v0.1.0-macos-arm64.zip`
-- Windows 10/11 x64: `Familiweave_0.1.0_x64-setup.exe`
-- Linux x86_64: `Familiweave_0.1.0_amd64.AppImage` / `.deb`
+- macOS 12+ Apple Silicon: `Familiweave-v0.1.1-macos-arm64.zip`
+- Windows 10/11 x64: `Familiweave_0.1.1_x64-setup.exe`
+- Linux x86_64: `Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` for every artifact
 
-> The tagged v0.1.0 release predates the latest Field/encryption/accessibility work on `main`. Use the tag for a reproducible download; build `main` for the newest prototype.
-
-macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
+> v0.1.1 is the current prototype release. macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 

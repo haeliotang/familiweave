@@ -4,7 +4,7 @@
 
 ## 1. 版本与内容
 
-1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.0`）。
+1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.1`）。
 2. 确认 README 的已知限制/签名状态与产物一致。
 3. 确认没有把证书、私钥、`.env`、`.local-assets` 或本机路径提交。
 
@@ -42,7 +42,7 @@ git push origin v0.1.1
 - 每个平台启动 smoke（xvfb / Windows process）
 - 自动生成 `SHA256SUMS.txt` 并附加到 Release
 
-Release 若不存在会创建；若已存在会更新资产。
+Release 若不存在会创建并使用 `docs/release-notes/<tag>.md` 作为说明；若已存在会更新资产。
 
 ## 4. 发布前人工验收
 

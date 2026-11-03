@@ -477,7 +477,7 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · ${t('沙箱')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
-                <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.0'} /></Suspense>
+                <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.1'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
               </>}
