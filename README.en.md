@@ -102,6 +102,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | BCI-2 | Local WebSocket device bridge contract + token auth |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
 | Theme | Light / dark theme |
+| App lock | Local PIN privacy curtain; not disk encryption |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; CI startup smoke |
 | Bilingual | Chinese / English UI switch |
 | Data | Local SQLite or browser localStorage; export/import/delete |

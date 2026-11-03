@@ -153,6 +153,7 @@ node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
 ## 10. 安全与 BCI-3
 
 - Tauri CSP 已从 `null` 收紧；只允许本机 IPC、应用自身资源与本机 WebSocket。
+- 应用锁：本机 PIN（PBKDF2-HMAC-SHA256）遮挡界面；明确不是磁盘加密，忘记 PIN 只能删除本机数据重置。
 - BCI-3 bridge：`pnpm bci:bridge`，只监听 `127.0.0.1`，要求 token 与来源检查；协议见 [BCI-3](vision/bci-3-local-bridge.md)。
 - 原始音频/原始神经数据不持久化；只保存摘要。
 

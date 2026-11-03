@@ -245,6 +245,31 @@ const en: Record<string, string> = {
   '由本机 bridge 启动时打印': 'Printed by the local bridge on startup',
   '本机桥接已连接': 'Local bridge connected',
 
+  '应用锁': 'App lock',
+  '本机隐私': 'Local privacy',
+  '应用已锁定': 'App locked',
+  '输入 PIN 继续。应用锁只遮挡界面，不是磁盘加密。': 'Enter the PIN to continue. App lock hides the UI; it is not disk encryption.',
+  'PIN': 'PIN',
+  '解锁中…': 'Unlocking…',
+  '解锁': 'Unlock',
+  '忘记 PIN：删除本机数据并重置锁': 'Forgot PIN: delete local data and reset lock',
+  'PIN 只在本机校验；没有找回服务。': 'The PIN is checked locally; there is no recovery service.',
+  'PIN 不正确': 'Incorrect PIN',
+  'PIN 至少 4 位': 'PIN must be at least 4 digits',
+  '两次 PIN 不一致': 'PINs do not match',
+  '无法开启应用锁': 'Could not enable app lock',
+  '已开启。锁屏只遮挡界面；本机 SQLite 数据本身未加密。': 'Enabled. The lock screen only covers the UI; local SQLite data is not encrypted at rest.',
+  '立即锁定': 'Lock now',
+  '输入 PIN 关闭应用锁': 'Enter PIN to disable app lock',
+  '关闭应用锁': 'Disable app lock',
+  '设置一个本机 PIN。它只遮挡界面，不是磁盘加密，也不能替代系统锁屏。': 'Set a local PIN. It only covers the UI; it is not disk encryption and does not replace system lock.',
+  'PIN（至少 4 位）': 'PIN (at least 4 digits)',
+  '再次输入 PIN': 'Repeat PIN',
+  '开启应用锁': 'Enable app lock',
+  '正在加载场域…': 'Loading field…',
+
+  '忘记 PIN 会删除本机数据并解除应用锁。继续？': 'Forgot PIN will delete local data and remove app lock. Continue?',
+
 }
 
 type LanguageContextValue = {

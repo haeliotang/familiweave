@@ -401,3 +401,16 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 [data-theme='dark'] .field-tool-sep { background: #3a3c41 }
 [data-theme='dark'] .field-zoom, [data-theme='dark'] .field-tool-hint { color: #929498 }
 [data-theme='dark'] .field-user-link { stroke: #b78a79 }
+.lock-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(20,21,23,.78); backdrop-filter: blur(14px); padding: 24px }
+.lock-card { width: min(400px, 100%); display: flex; flex-direction: column; gap: 12px; padding: 26px; border: 1px solid #3a3c41; border-radius: 14px; background: #1d1e21; color: #e6e6e3; box-shadow: 0 24px 80px rgba(0,0,0,.35) }
+.lock-card h1 { margin: 0; font: 600 24px/1.3 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif }
+.lock-card form { display: flex; flex-direction: column; gap: 8px }
+.lock-card input, .app-lock-form input { padding: 9px 11px; border: 1px solid #3a3c41; border-radius: 7px; background: #17181a; color: #e6e6e3; font-size: 13px }
+.lock-card label, .app-lock-form label { color: #a8aaad; font-size: 11px }
+.lock-card .quiet-button { color: #b8babc; border-color: #3a3c41 }
+.lock-card .context-privacy { margin: 0; color: #85878b; font-size: 10px; line-height: 1.5 }
+.app-lock-panel { display: flex; flex-direction: column; gap: 8px }
+.app-lock-panel p { margin: 0; color: #8b8c90; font-size: 11px; line-height: 1.6 }
+.app-lock-form { display: flex; flex-direction: column; gap: 6px; margin-top: 4px }
+.app-lock-form button { align-self: flex-start; margin-top: 4px }
+.lock-card .error-inline, .app-lock-panel .error-inline { margin: 0; color: #e0a79c; font-size: 11px }
