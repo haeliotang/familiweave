@@ -1,6 +1,6 @@
 # Release signing and notarization
 
-日期：2026-11-01。状态：未完成；仓库中没有证书或私钥。
+日期：2026-11-04。状态：未完成；仓库中没有证书或私钥。逐步操作见 [signing-setup.md](signing-setup.md)。
 
 ## 当前产物
 

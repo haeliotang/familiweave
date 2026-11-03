@@ -222,6 +222,7 @@ Checks:
 ```sh
 pnpm test
 pnpm build
+pnpm e2e                    # Playwright browser E2E
 pnpm bci:bridge              # local BCI-3 WebSocket bridge
 pnpm check:symbolic-path
 pnpm rust:test
@@ -258,7 +259,9 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- [Auto-update plan](docs/updater-plan.md)
 - [Release signing](docs/release-signing.md)
+- [Signing setup](docs/signing-setup.md): step-by-step Apple / Windows secrets
 - [Desktop platform QA](docs/platform-qa.md)
 - [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)
 

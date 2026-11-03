@@ -20,7 +20,8 @@
     "tauri": "cd apps/desktop && ../../node_modules/.bin/tauri",
     "tauri:dev": "cd apps/desktop && ../../node_modules/.bin/tauri dev",
     "tauri:build": "cd apps/desktop && ../../node_modules/.bin/tauri build",
-    "bci:bridge": "tsx scripts/bci3-bridge.ts"
+    "bci:bridge": "tsx scripts/bci3-bridge.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",
@@ -31,6 +32,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tauri-apps/cli": "^2.12.4",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",

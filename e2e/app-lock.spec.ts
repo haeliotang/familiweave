@@ -1,0 +1,28 @@
+import { expect, test } from '@playwright/test'
+
+test('app lock encrypts and restores local data', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Load demo field' }).click()
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByLabel('PIN (at least 4 digits)').fill('2468')
+  await page.getByLabel('Repeat PIN').fill('2468')
+  await page.getByRole('button', { name: 'Enable app lock' }).click()
+  await expect(page.locator('.lock-overlay')).toBeVisible()
+  const encrypted = await page.evaluate(() => ({ encrypted: Boolean(localStorage.getItem('familiweave.encrypted-state.v1')), plain: Boolean(localStorage.getItem('familiweave.motifs.v1')) }))
+  expect(encrypted).toEqual({ encrypted: true, plain: false })
+
+  await page.reload()
+  await expect(page.locator('.lock-overlay')).toBeVisible()
+  await page.locator('.lock-card input').fill('2468')
+  await page.locator('.lock-card form').getByRole('button', { name: 'Unlock' }).click()
+  await expect(page.locator('.lock-overlay')).toBeHidden()
+  await expect(page.locator('.field-node')).toHaveCount(2)
+  const stillEncrypted = await page.evaluate(() => ({ encrypted: Boolean(localStorage.getItem('familiweave.encrypted-state.v1')), plain: Boolean(localStorage.getItem('familiweave.motifs.v1')) }))
+  expect(stillEncrypted).toEqual({ encrypted: true, plain: false })
+
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByLabel('Enter PIN to disable app lock').fill('2468')
+  await page.getByRole('button', { name: 'Disable app lock' }).click()
+  await expect(page.locator('.lock-overlay')).toBeHidden()
+  await expect.poll(async () => page.evaluate(() => ({ encrypted: Boolean(localStorage.getItem('familiweave.encrypted-state.v1')), plain: Boolean(localStorage.getItem('familiweave.motifs.v1')) }))).toEqual({ encrypted: false, plain: true })
+})

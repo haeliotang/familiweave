@@ -219,6 +219,7 @@ pnpm tauri:dev    # Tauri 2 桌面外壳
 ```sh
 pnpm test
 pnpm build
+pnpm e2e                    # Playwright browser E2E
 pnpm bci:bridge              # 本机 BCI-3 WebSocket bridge
 pnpm check:symbolic-path
 pnpm rust:test
@@ -255,7 +256,9 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- [自动更新方案](docs/updater-plan.md)
 - [Release signing](docs/release-signing.md)
+- [签名配置](docs/signing-setup.md)：Apple / Windows secrets 的逐步配置
 - [Desktop platform QA](docs/platform-qa.md)
 - [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)
 

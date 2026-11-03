@@ -15,3 +15,11 @@ dist/
 .pnpm-store/
 rust/target/
 target/
+test-results/
+playwright-report/
+blob-report/
+*.p12
+*.pfx
+*.cer
+*.key
+*.mobileprovision
