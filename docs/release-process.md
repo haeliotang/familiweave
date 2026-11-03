@@ -37,6 +37,7 @@ git push origin v0.1.1
 
 - Linux AppImage/DEB
 - Windows NSIS
+- macOS `.app` zip
 - 每个平台启动 smoke（xvfb / Windows process）
 - 自动生成 `SHA256SUMS.txt` 并附加到 Release
 

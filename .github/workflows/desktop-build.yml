@@ -43,6 +43,12 @@ jobs:
             bundles: nsis
             files: |
               apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
+          - name: macOS
+            os: macos-latest
+            artifact: macos
+            bundles: app
+            files: |
+              dist-release/*.zip
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
@@ -95,6 +101,18 @@ jobs:
         run: |
           cd apps/desktop
           ../../node_modules/.bin/tauri build --bundles "${{ matrix.bundles }}"
+
+      - name: Package macOS app
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          APP="apps/desktop/src-tauri/target/release/bundle/macos/Familiweave.app"
+          mkdir -p dist-release
+          ARCH=$(uname -m)
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "dist-release/Familiweave-${TAG}-macos-${ARCH}.zip"
+          ls -lh dist-release
 
       - name: Smoke test Linux bundle
         if: runner.os == 'Linux'
