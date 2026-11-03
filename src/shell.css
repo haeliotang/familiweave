@@ -423,3 +423,20 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 [data-theme='dark'] .error-fallback { background: #17181a; color: #f0f0ec }
 [data-theme='dark'] .error-fallback p { color: #a7a9ab }
 [data-theme='dark'] .error-fallback code { background: #1d1e21; border-color: #33353a; color: #e1bba9 }
+/* Contrast pass: keep the quiet palette but meet WCAG AA for small text. */
+.section-label, .recent-meta, .sidebar-footer small, .workspace-path, .eyebrow, .workspace-meta, .field-tool-hint, .timeline-label, .timeline-date, .field-legend, .context-privacy, .context-panel .card-label, .context-panel .muted, .context-note p, .check-item small, .muted, .note, .card-label, .app-lock-panel p, .device-url, .signal-readout {
+  color: #5f6165;
+}
+.workspace-tabs button { color: #5f6165 }
+.lang-toggle, .ui-toggle { color: #5f6165 }
+.field-zoom { color: #5f6165 }
+.recent-item { color: #3f4145 }
+.sidebar-nav button { color: #4f5155 }
+[data-theme='dark'] .section-label, [data-theme='dark'] .recent-meta, [data-theme='dark'] .sidebar-footer small, [data-theme='dark'] .workspace-path, [data-theme='dark'] .eyebrow, [data-theme='dark'] .workspace-meta, [data-theme='dark'] .field-tool-hint, [data-theme='dark'] .timeline-label, [data-theme='dark'] .timeline-date, [data-theme='dark'] .field-legend, [data-theme='dark'] .context-privacy, [data-theme='dark'] .context-panel .card-label, [data-theme='dark'] .context-panel .muted, [data-theme='dark'] .context-note p, [data-theme='dark'] .check-item small, [data-theme='dark'] .muted, [data-theme='dark'] .note, [data-theme='dark'] .card-label, [data-theme='dark'] .app-lock-panel p, [data-theme='dark'] .device-url, [data-theme='dark'] .signal-readout {
+  color: #b8babc;
+}
+[data-theme='dark'] .workspace-tabs button, [data-theme='dark'] .lang-toggle, [data-theme='dark'] .ui-toggle, [data-theme='dark'] .field-zoom { color: #c4c6c8 }
+.field-heading .eyebrow, .workspace-header .eyebrow, .error-fallback .eyebrow { color: #5f6165 }
+[data-theme='dark'] .field-heading .eyebrow, [data-theme='dark'] .workspace-header .eyebrow, [data-theme='dark'] .error-fallback .eyebrow { color: #b8babc }
+[data-theme='dark'] .local-data-panel, [data-theme='dark'] .motif-journal, [data-theme='dark'] .relationship-journal, [data-theme='dark'] .signal-lab, [data-theme='dark'] .device-lab { background: #1b1c1f; color: #d6d7d4 }
+[data-theme='dark'] .context-panel .check-item.absent { color: #9b9da0 }

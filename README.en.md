@@ -107,6 +107,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | Bilingual | Chinese / English UI switch |
 | Data | Local SQLite or browser localStorage; export/import/delete |
 | Update check | Explicit GitHub Releases check; no auto-download |
+| Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
 
 Currently **not** implemented:
 

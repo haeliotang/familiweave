@@ -104,6 +104,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | 双语 | 中文 / English 界面切换 |
 | 数据 | 本机 SQLite 或浏览器 localStorage；可导出/导入/删除 |
 | 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
+| 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
 
 当前**没有**：
 
