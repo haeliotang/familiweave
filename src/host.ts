@@ -48,3 +48,18 @@ export async function importLocalStateFile(name: string): Promise<LocalSnapshot 
   if (!isTauriRuntime()) return null
   try { return await invoke<LocalSnapshot>('import_local_state', { name }) } catch { return null }
 }
+
+export async function loadEncryptedState(): Promise<string | null> {
+  if (!isTauriRuntime()) return null
+  try { return await invoke<string | null>('load_encrypted_state') } catch { return null }
+}
+
+export async function saveEncryptedState(payload: string): Promise<boolean> {
+  if (!isTauriRuntime()) return false
+  try { await invoke('save_encrypted_state', { payload }); return true } catch { return false }
+}
+
+export async function clearEncryptedState(): Promise<void> {
+  if (!isTauriRuntime()) return
+  try { await invoke('clear_encrypted_state') } catch { /* local web copy is still cleared by caller */ }
+}

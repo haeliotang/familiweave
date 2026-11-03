@@ -42,7 +42,7 @@ src/
 | `export_local_state` | 把当前快照写到 app data/local-files/familiweave-export-*.json |
 | `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
-- SQLite 位于 app data：`familiweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`。
+- SQLite 位于 app data：`familiweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`；启用应用锁后保存 `encrypted` 密文并删除明文 key。
 - bundle id 已修正为 `com.inceptless.familiweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `familiweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
 - 已建 `local_meta` 与 `local_state` 表；界面中的母题、关系触发点、场域节点位置/用户连线与信号 session 摘要通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
@@ -153,7 +153,7 @@ node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
 ## 10. 安全与 BCI-3
 
 - Tauri CSP 已从 `null` 收紧；只允许本机 IPC、应用自身资源与本机 WebSocket。
-- 应用锁：本机 PIN（PBKDF2-HMAC-SHA256）遮挡界面；明确不是磁盘加密，忘记 PIN 只能删除本机数据重置。
+- 应用锁：本机 PIN（PBKDF2-HMAC-SHA256 校验）+ AES-GCM 加密本地快照；不是系统锁屏，忘记 PIN 只能删除本机数据重置。
 - BCI-3 bridge：`pnpm bci:bridge`，只监听 `127.0.0.1`，要求 token 与来源检查；协议见 [BCI-3](vision/bci-3-local-bridge.md)。
 - 原始音频/原始神经数据不持久化；只保存摘要。
 

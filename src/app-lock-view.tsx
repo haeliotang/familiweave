@@ -19,7 +19,7 @@ export function LockScreen({ onUnlock, onForgot }: { onUnlock: (pin: string) => 
     <div className="lock-card">
       <p className="eyebrow">{t('本机隐私')}</p>
       <h1>{t('应用已锁定')}</h1>
-      <p className="muted">{t('输入 PIN 继续。应用锁只遮挡界面，不是磁盘加密。')}</p>
+      <p className="muted">{t('输入 PIN 继续。PIN 用于解密本机快照；应用锁不是系统锁屏。')}</p>
       <form onSubmit={submit}>
         <label htmlFor="app-lock-pin">{t('PIN')}</label>
         <input id="app-lock-pin" type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={event => setPin(event.target.value)} autoFocus />
@@ -57,7 +57,7 @@ export function AppLockSettings({ enabled, onEnable, onDisable, onLock }: { enab
   }
   if (enabled) return <section className="paper-card app-lock-panel">
     <p className="card-label">{t('应用锁')}</p>
-    <p>{t('已开启。锁屏只遮挡界面；本机 SQLite 数据本身未加密。')}</p>
+    <p>{t('已开启。本机快照以 AES-GCM 加密保存；PIN 只在本机校验。')}</p>
     <div className="actions"><button type="button" className="quiet" onClick={onLock}>{t('立即锁定')}</button></div>
     <form onSubmit={disable} className="app-lock-form">
       <label htmlFor="disable-lock-pin">{t('输入 PIN 关闭应用锁')}</label>
@@ -68,7 +68,7 @@ export function AppLockSettings({ enabled, onEnable, onDisable, onLock }: { enab
   </section>
   return <section className="paper-card app-lock-panel">
     <p className="card-label">{t('应用锁')}</p>
-    <p>{t('设置一个本机 PIN。它只遮挡界面，不是磁盘加密，也不能替代系统锁屏。')}</p>
+    <p>{t('设置一个本机 PIN。快照会加密保存；它不是系统锁屏，忘记 PIN 只能删除数据重置。')}</p>
     <form onSubmit={enable} className="app-lock-form">
       <label htmlFor="enable-lock-pin">{t('PIN（至少 4 位）')}</label>
       <input id="enable-lock-pin" type="password" inputMode="numeric" value={pin} onChange={event => setPin(event.target.value)} autoComplete="new-password" />

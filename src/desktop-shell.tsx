@@ -11,12 +11,12 @@ import { LocalDataPanel } from './local-data-panel'
 import { SceneView } from './scene-loader'
 import { createMotif, loadMotifs, type MotifEntry } from './motif-journal'
 import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipInput, type RelationshipTrigger } from './relationship'
-import { clearLocalSnapshot, loadLocalSnapshot, saveLocalSnapshot } from './local-store'
+import { clearActiveEncryption, clearLocalSnapshot, disableLocalEncryption, enableLocalEncryption, loadLocalSnapshot, saveLocalSnapshot, unlockLocalSnapshot } from './local-store'
 import type { LocalSnapshot } from './local-dataset'
 import { useLanguage, type Language } from './i18n'
 import { useTheme } from './theme'
 import { appLockStorageKey, createAppLockRecord, loadAppLockRecord, saveAppLockRecord, verifyAppLock, type AppLockRecord } from './app-lock'
-import { AppLockSettings, LockScreen } from './app-lock-view'
+
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
 import { addFieldLink, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFieldNode, type FieldLayout, type FieldLens, type FieldRange } from './field'
@@ -24,6 +24,8 @@ import { createSignalSession, loadSignalSessions, type SignalSession } from './s
 
 const FieldView = lazy(() => import('./field-view').then(module => ({ default: module.FieldView })))
 const TimelineRail = lazy(() => import('./field-view').then(module => ({ default: module.TimelineRail })))
+const LockScreen = lazy(() => import('./app-lock-view').then(module => ({ default: module.LockScreen })))
+const AppLockSettings = lazy(() => import('./app-lock-view').then(module => ({ default: module.AppLockSettings })))
 
 type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
@@ -194,6 +196,7 @@ export function DesktopShell() {
 
   useEffect(() => {
     let active = true
+    if (lockRecord) { setLocked(true); return () => { active = false } }
     void loadLocalSnapshot().then(snapshot => {
       if (!active) return
       setMotifs(snapshot.motifs)
@@ -261,11 +264,23 @@ export function DesktopShell() {
     setFieldLayout(emptyFieldLayout())
     setSignalSessions([])
     setSelectedId(null)
+    clearActiveEncryption()
     void clearLocalSnapshot()
   }
 
+  const applySnapshot = (snapshot: LocalSnapshot) => {
+    setMotifs(snapshot.motifs)
+    setRelationships(snapshot.relationships)
+    setFieldLayout(snapshot.field ?? emptyFieldLayout())
+    setSignalSessions(snapshot.signals ?? [])
+    setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
+  }
+
+  const currentSnapshot = (): LocalSnapshot => ({ motifs, relationships, field: fieldLayout, signals: signalSessions })
+
   const enableAppLock = async (pin: string) => {
     const record = await createAppLockRecord(pin)
+    await enableLocalEncryption(currentSnapshot(), pin, record)
     saveAppLockRecord(window.localStorage, record)
     setLockRecord(record)
     setLocked(true)
@@ -273,6 +288,8 @@ export function DesktopShell() {
 
   const disableAppLock = async (pin: string): Promise<boolean> => {
     if (!lockRecord || !await verifyAppLock(pin, lockRecord)) return false
+    const restored = await disableLocalEncryption(pin, lockRecord, currentSnapshot())
+    applySnapshot(restored)
     window.localStorage.removeItem(appLockStorageKey)
     setLockRecord(null)
     setLocked(false)
@@ -281,8 +298,23 @@ export function DesktopShell() {
 
   const unlockApp = async (pin: string): Promise<boolean> => {
     if (!lockRecord || !await verifyAppLock(pin, lockRecord)) return false
-    setLocked(false)
-    return true
+    try {
+      let snapshot = await unlockLocalSnapshot(pin, lockRecord)
+      if (!snapshot) {
+        snapshot = await loadLocalSnapshot()
+        await enableLocalEncryption(snapshot, pin, lockRecord)
+      }
+      applySnapshot(snapshot)
+      setLocked(false)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const lockNow = () => {
+    clearActiveEncryption()
+    setLocked(true)
   }
 
   const resetAppLock = () => {
@@ -374,7 +406,7 @@ export function DesktopShell() {
               : <span className="top-label">{view === 'space' ? (encounter?.innerPlan?.format === 'space' ? '空间' : '相遇') : t(navItems.find(item => item.id === navView)?.label ?? '')}</span>}
           </div>
           <div className="ui-controls">
-            {lockRecord && <button className="ui-toggle" onClick={() => setLocked(true)} aria-label={t('立即锁定')} title={t('立即锁定')}>🔒</button>}
+            {lockRecord && <button className="ui-toggle" onClick={lockNow} aria-label={t('立即锁定')} title={t('立即锁定')}>🔒</button>}
             <button className="ui-toggle" onClick={toggleTheme} aria-label={theme === 'dark' ? t('切换到浅色') : t('切换到深色')} title={theme === 'dark' ? t('切换到浅色') : t('切换到深色')}>{theme === 'dark' ? '☀' : '☾'}</button>
             <button className="lang-toggle" onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}>{lang === 'en' ? '中文' : 'EN'}</button>
           </div>
@@ -417,7 +449,7 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · 沙箱 ${host.sandbox}` : 'Web 预览 · 没有 Tauri 宿主'}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
-                <AppLockSettings enabled={Boolean(lockRecord)} onEnable={enableAppLock} onDisable={disableAppLock} onLock={() => setLocked(true)} />
+                <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} />
               </>}
             </>}
@@ -427,7 +459,7 @@ export function DesktopShell() {
 
       <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />
     </div>
-    {locked && lockRecord && <LockScreen onUnlock={unlockApp} onForgot={resetAppLock} />}
+    {locked && lockRecord && <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} /></Suspense>}
   </div>
 
 }

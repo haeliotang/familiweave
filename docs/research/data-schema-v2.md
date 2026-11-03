@@ -37,7 +37,10 @@ Tauri 宿主在 app data 的 `familiweave.db` 中写入 `local_state`：
 | `relationships` | 关系触发点数组 |
 | `field` | 场域布局（位置与用户连接） |
 | `signals` | 信号 session 摘要数组 |
+| `encrypted` | 启用应用锁后的 AES-GCM 密文；此时明文 key 被删除 |
 
+- 应用锁开启时，整个 snapshot 加密为一个 `encrypted-local-state-v1` 负载；PIN 经 PBKDF2 派生 AES-GCM key。没有 PIN 时应用只显示锁屏，不读取明文。
+- 关闭应用锁会解密并恢复 plaintext key；忘记 PIN 只能删除全部数据重置。
 - 读取时缺失 key 返回空数组/空布局。
 - 清除本机数据会清空 `local_state`，并清空 Web 回退 localStorage。
 - 旧的拼写标识 app data 目录仍会在启动时迁移，不覆盖新目录数据。

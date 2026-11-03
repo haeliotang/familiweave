@@ -74,6 +74,9 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         return Err("invalid_signals".into());
     }
     let statement = "INSERT INTO local_state (key, value) VALUES (?1, ?2) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP";
+    connection
+        .execute("DELETE FROM local_state WHERE key = 'encrypted'", [])
+        .map_err(|error| error.to_string())?;
     for (key, value) in [
         ("motifs", Value::Array(motifs.clone())),
         ("relationships", Value::Array(relationships.clone())),
@@ -220,6 +223,61 @@ fn import_local_state(
     Ok(snapshot)
 }
 
+fn read_encrypted_state(connection: &Connection) -> Result<Option<String>, String> {
+    let mut statement = connection
+        .prepare("SELECT value FROM local_state WHERE key = 'encrypted'")
+        .map_err(|error| error.to_string())?;
+    let mut rows = statement.query([]).map_err(|error| error.to_string())?;
+    let row = rows.next().map_err(|error| error.to_string())?;
+    row.map(|row| row.get::<_, String>(0))
+        .transpose()
+        .map_err(|error| error.to_string())
+}
+
+fn write_encrypted_state(connection: &Connection, payload: &str) -> Result<(), String> {
+    connection
+        .execute(
+            "INSERT INTO local_state (key, value) VALUES ('encrypted', ?1) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP",
+            [payload],
+        )
+        .map_err(|error| error.to_string())?;
+    connection
+        .execute(
+            "DELETE FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals')",
+            [],
+        )
+        .map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+fn remove_encrypted_state(connection: &Connection) -> Result<(), String> {
+    connection
+        .execute("DELETE FROM local_state WHERE key = 'encrypted'", [])
+        .map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn load_encrypted_state(state: State<'_, DbState>) -> Result<Option<String>, String> {
+    let connection = state.connection.lock().map_err(|error| error.to_string())?;
+    read_encrypted_state(&connection)
+}
+
+#[tauri::command]
+fn save_encrypted_state(state: State<'_, DbState>, payload: String) -> Result<(), String> {
+    if payload.len() > 20_000_000 {
+        return Err("encrypted_state_too_large".into());
+    }
+    let connection = state.connection.lock().map_err(|error| error.to_string())?;
+    write_encrypted_state(&connection, &payload)
+}
+
+#[tauri::command]
+fn clear_encrypted_state(state: State<'_, DbState>) -> Result<(), String> {
+    let connection = state.connection.lock().map_err(|error| error.to_string())?;
+    remove_encrypted_state(&connection)
+}
+
 #[tauri::command]
 fn db_status(state: State<'_, DbState>) -> Result<DbStatus, String> {
     let connection = state.connection.lock().map_err(|error| error.to_string())?;
@@ -328,6 +386,9 @@ pub fn run() {
             load_local_state,
             save_local_state,
             clear_local_state,
+            load_encrypted_state,
+            save_encrypted_state,
+            clear_encrypted_state,
             export_local_state,
             import_local_state
         ])
@@ -384,6 +445,26 @@ mod tests {
         }
         assert!(sandbox_file_name(&"a".repeat(121)).is_err());
     }
+    #[test]
+    fn encrypted_state_replaces_plaintext_keys_and_round_trips() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection.execute_batch(super::LOCAL_STATE_SCHEMA).unwrap();
+        super::write_snapshot(
+            &connection,
+            &json!({ "motifs": [{"name":"a"}], "relationships": [] }),
+        )
+        .unwrap();
+        super::write_encrypted_state(&connection, "ciphertext").unwrap();
+        assert_eq!(
+            super::read_encrypted_state(&connection).unwrap(),
+            Some("ciphertext".into())
+        );
+        let plaintext: i64 = connection.query_row("SELECT count(*) FROM local_state WHERE key IN ('motifs','relationships','field','signals')", [], |row| row.get(0)).unwrap();
+        assert_eq!(plaintext, 0);
+        super::remove_encrypted_state(&connection).unwrap();
+        assert_eq!(super::read_encrypted_state(&connection).unwrap(), None);
+    }
+
     #[test]
     fn migrates_legacy_app_data_into_the_corrected_bundle_id() {
         let root = std::env::temp_dir().join(format!(

@@ -1,18 +1,39 @@
 import { invoke } from '@tauri-apps/api/core'
 import { isTauriRuntime } from './host'
+import { clearEncryptedState, loadEncryptedState, saveEncryptedState } from './host'
 import { isMotifEntry, loadMotifs, motifStorageKey, saveMotifs } from './motif-journal'
 import { isRelationshipTrigger, loadRelationshipTriggers, relationshipStorageKey, saveRelationshipTriggers } from './relationship'
 import type { LocalSnapshot } from './local-dataset'
-import { clearFieldLayout, emptyFieldLayout, isFieldLayout, loadFieldLayout, saveFieldLayout } from './field'
-import { clearSignalSessions, isSignalSession, loadSignalSessions, saveSignalSessions } from './signal-session'
+import { clearFieldLayout, emptyFieldLayout, fieldStorageKey, isFieldLayout, loadFieldLayout, saveFieldLayout } from './field'
+import { clearSignalSessions, isSignalSession, loadSignalSessions, saveSignalSessions, signalSessionStorageKey } from './signal-session'
+import type { AppLockRecord } from './app-lock'
+import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState, type EncryptedLocalState } from './encrypted-store'
+
+const encryptedStorageKey = 'familiweave.encrypted-state.v1'
+let activeEncryption: { record: AppLockRecord; key: CryptoKey } | null = null
+
+export function hasActiveEncryption() {
+  return activeEncryption !== null
+}
+
+export function clearActiveEncryption() {
+  activeEncryption = null
+}
 
 function webStorage() {
   return typeof window === 'undefined' ? null : window.localStorage
 }
 
+function clearWebPlaintext(storage: Storage) {
+  storage.removeItem(motifStorageKey)
+  storage.removeItem(relationshipStorageKey)
+  storage.removeItem(fieldStorageKey)
+  storage.removeItem(signalSessionStorageKey)
+}
+
 export function readWebSnapshot(): LocalSnapshot {
   const storage = webStorage()
-  if (!storage) return { motifs: [], relationships: [] }
+  if (!storage) return { motifs: [], relationships: [], field: emptyFieldLayout(), signals: [] }
   return {
     motifs: loadMotifs(storage),
     relationships: loadRelationshipTriggers(storage),
@@ -21,7 +42,7 @@ export function readWebSnapshot(): LocalSnapshot {
   }
 }
 
-function validateSnapshot(value: unknown): LocalSnapshot {
+export function normalizeSnapshot(value: unknown): LocalSnapshot {
   if (!value || typeof value !== 'object') throw new Error('invalid_local_state')
   const snapshot = value as { motifs?: unknown; relationships?: unknown; field?: unknown; signals?: unknown }
   if (!Array.isArray(snapshot.motifs) || !Array.isArray(snapshot.relationships)) throw new Error('invalid_local_state')
@@ -31,16 +52,47 @@ function validateSnapshot(value: unknown): LocalSnapshot {
   return {
     motifs: snapshot.motifs as LocalSnapshot['motifs'],
     relationships: snapshot.relationships as LocalSnapshot['relationships'],
-    field: snapshot.field ?? emptyFieldLayout(),
+    field: (snapshot.field as LocalSnapshot['field']) ?? emptyFieldLayout(),
     signals: (snapshot.signals as LocalSnapshot['signals']) ?? [],
   }
+}
+
+async function readEncryptedPayload(): Promise<EncryptedLocalState | null> {
+  const storage = webStorage()
+  const raw = storage?.getItem(encryptedStorageKey) ?? (isTauriRuntime() ? await loadEncryptedState() : null)
+  if (!raw) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return isEncryptedLocalState(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+async function writeEncryptedPayload(payload: EncryptedLocalState) {
+  const storage = webStorage()
+  if (storage) {
+    clearWebPlaintext(storage)
+    storage.setItem(encryptedStorageKey, JSON.stringify(payload))
+  }
+  if (isTauriRuntime()) await saveEncryptedState(JSON.stringify(payload))
+}
+
+async function removeEncryptedPayload() {
+  const storage = webStorage()
+  storage?.removeItem(encryptedStorageKey)
+  if (isTauriRuntime()) await clearEncryptedState()
+}
+
+export async function hasEncryptedLocalState(): Promise<boolean> {
+  return Boolean(await readEncryptedPayload())
 }
 
 export async function loadLocalSnapshot(): Promise<LocalSnapshot> {
   const fallback = readWebSnapshot()
   if (!isTauriRuntime()) return fallback
   try {
-    const host = validateSnapshot(await invoke('load_local_state'))
+    const host = normalizeSnapshot(await invoke('load_local_state'))
     const hostHasField = Boolean(host.field && (Object.keys(host.field.positions).length || host.field.links.length))
     const fallbackHasField = Boolean(fallback.field && (Object.keys(fallback.field.positions).length || fallback.field.links.length))
     const hostHasSignals = Boolean(host.signals?.length)
@@ -56,7 +108,13 @@ export async function loadLocalSnapshot(): Promise<LocalSnapshot> {
 }
 
 export async function saveLocalSnapshot(snapshot: LocalSnapshot): Promise<void> {
+  if (activeEncryption) {
+    const payload = await encryptLocalSnapshot(snapshot, activeEncryption.record, activeEncryption.key)
+    await writeEncryptedPayload(payload)
+    return
+  }
   const storage = webStorage()
+  storage?.removeItem(encryptedStorageKey)
   if (storage) {
     saveMotifs(storage, snapshot.motifs)
     saveRelationshipTriggers(storage, snapshot.relationships)
@@ -67,11 +125,42 @@ export async function saveLocalSnapshot(snapshot: LocalSnapshot): Promise<void> 
   try { await invoke('save_local_state', { snapshot }) } catch { /* keep the local web copy */ }
 }
 
+export async function unlockLocalSnapshot(pin: string, record: AppLockRecord): Promise<LocalSnapshot | null> {
+  const payload = await readEncryptedPayload()
+  if (!payload) return null
+  const { snapshot, key } = await decryptLocalSnapshot(payload, pin)
+  const valid = normalizeSnapshot(snapshot)
+  activeEncryption = { record, key }
+  return valid
+}
+
+export async function enableLocalEncryption(snapshot: LocalSnapshot, pin: string, record: AppLockRecord): Promise<void> {
+  const key = await deriveDataKey(pin, record.salt, record.iterations)
+  const payload = await encryptLocalSnapshot(snapshot, record, key)
+  activeEncryption = { record, key }
+  await writeEncryptedPayload(payload)
+}
+
+export async function disableLocalEncryption(pin: string, record: AppLockRecord, fallback: LocalSnapshot): Promise<LocalSnapshot> {
+  const payload = await readEncryptedPayload()
+  let snapshot = fallback
+  if (payload) {
+    const { snapshot: decrypted } = await decryptLocalSnapshot(payload, pin)
+    snapshot = normalizeSnapshot(decrypted)
+  }
+  activeEncryption = null
+  await removeEncryptedPayload()
+  await saveLocalSnapshot(snapshot)
+  return snapshot
+}
+
 export async function clearLocalSnapshot(): Promise<void> {
   const storage = webStorage()
-  storage?.removeItem(motifStorageKey)
-  storage?.removeItem(relationshipStorageKey)
-  if (storage) { clearFieldLayout(storage); clearSignalSessions(storage) }
+  if (storage) {
+    clearWebPlaintext(storage)
+    storage.removeItem(encryptedStorageKey)
+  }
+  activeEncryption = null
   if (!isTauriRuntime()) return
   try { await invoke('clear_local_state') } catch { /* local web copy already cleared */ }
 }
