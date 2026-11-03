@@ -32,3 +32,27 @@ test('exports a v2 dataset and imports it back', async ({ page }) => {
   })
   await expect(page.getByText(/Import failed/)).toBeVisible()
 })
+
+
+test('imports a legacy v1 dataset', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'legacy-v1.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({
+      version: 'local-dataset-v1',
+      motifs: [{
+        version: 'motif-v1',
+        id: 'legacy-motif',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        name: 'Legacy motif',
+        capture: { region: 'chest', sensation: 'pressure', intensity: 3, breath: 'held', fragments: ['wet-corridor'] },
+      }],
+      relationships: [],
+    })),
+  })
+  await expect(page.getByText(/Imported 1/)).toBeVisible()
+  await page.getByRole('button', { name: 'Field' }).click()
+  await expect(page.locator('.field-node')).toHaveCount(1)
+})

@@ -23,6 +23,14 @@ test('demo field supports drag, links and persistence', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Reset layout' }).click()
   await expect(page.locator('.field-node')).toHaveCount(2)
+
+  await page.getByRole('button', { name: 'Zoom in' }).click()
+  await expect(page.locator('.field-zoom')).toHaveText('110%')
+  await page.getByRole('button', { name: 'Zoom out' }).click()
+  await expect(page.locator('.field-zoom')).toHaveText('100%')
+
+  await page.locator('.field-user-link').first().dispatchEvent('click')
+  await expect(page.locator('.field-user-link')).toHaveCount(1)
 })
 
 test('theme and language controls persist', async ({ page }) => {
@@ -32,6 +40,9 @@ test('theme and language controls persist', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await page.getByRole('button', { name: '中文' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
+  await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
 })
