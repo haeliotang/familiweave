@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 test('app lock locks again after the inactivity timeout', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('familiweave.autolock-ms', '1200'))
   await page.goto('/')
-  await page.evaluate(() => localStorage.setItem('familiweave.autolock-ms', '1200'))
   await page.getByRole('button', { name: 'Load demo field' }).click()
   await page.getByRole('button', { name: 'Local & settings' }).click()
   await page.getByLabel('PIN (at least 4 digits)').fill('2468')

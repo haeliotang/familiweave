@@ -176,6 +176,7 @@ export function DesktopShell() {
   const [signalSessions, setSignalSessions] = useState<SignalSession[]>(() => typeof window === 'undefined' ? [] : loadSignalSessions(window.localStorage))
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
+  const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000))
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
   const [relationships, setRelationships] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
@@ -313,6 +314,11 @@ export function DesktopShell() {
     }
   }
 
+  const updateAutoLock = (value: number) => {
+    window.localStorage.setItem('familiweave.autolock-ms', String(value))
+    setAutoLockMs(value)
+  }
+
   const lockNow = () => {
     clearActiveEncryption()
     setLocked(true)
@@ -320,13 +326,12 @@ export function DesktopShell() {
 
   useEffect(() => {
     if (!lockRecord || locked || typeof window === 'undefined') return
-    const configured = Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000)
-    const timeoutMs = Number.isFinite(configured) && configured >= 1_000 ? configured : 300_000
+    const timeoutMs = Number.isFinite(autoLockMs) && autoLockMs >= 1_000 ? autoLockMs : 300_000
     let timer = window.setTimeout(() => { clearActiveEncryption(); setLocked(true) }, timeoutMs)
     const reset = () => { window.clearTimeout(timer); timer = window.setTimeout(() => { clearActiveEncryption(); setLocked(true) }, timeoutMs) }
     for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const) window.addEventListener(event, reset, { passive: true })
     return () => { window.clearTimeout(timer); for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const) window.removeEventListener(event, reset) }
-  }, [lockRecord, locked])
+  }, [autoLockMs, lockRecord, locked])
 
   const resetAppLock = () => {
     if (!confirm(t('忘记 PIN 会删除本机数据并解除应用锁。继续？'))) return
@@ -461,7 +466,7 @@ export function DesktopShell() {
                   <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.0'} /></Suspense>
-                <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
+                <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
               </>}
             </>}

@@ -32,7 +32,7 @@ export function LockScreen({ onUnlock, onForgot }: { onUnlock: (pin: string) => 
   </div>
 }
 
-export function AppLockSettings({ enabled, onEnable, onDisable, onLock }: { enabled: boolean; onEnable: (pin: string) => Promise<void>; onDisable: (pin: string) => Promise<boolean>; onLock: () => void }) {
+export function AppLockSettings({ enabled, autoLockMs, onAutoLockChange, onEnable, onDisable, onLock }: { enabled: boolean; autoLockMs: number; onAutoLockChange: (value: number) => void; onEnable: (pin: string) => Promise<void>; onDisable: (pin: string) => Promise<boolean>; onLock: () => void }) {
   const { t } = useLanguage()
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
@@ -57,7 +57,15 @@ export function AppLockSettings({ enabled, onEnable, onDisable, onLock }: { enab
   }
   if (enabled) return <section className="paper-card app-lock-panel">
     <p className="card-label">{t('应用锁')}</p>
-    <p>{t('已开启。本机快照以 AES-GCM 加密保存；PIN 只在本机校验。5 分钟无操作会自动锁定。')}</p>
+    <p>{t('已开启。本机快照以 AES-GCM 加密保存；PIN 只在本机校验。')}</p>
+    <label className="app-lock-auto">{t('无操作自动锁定')}
+      <select value={autoLockMs} onChange={event => onAutoLockChange(Number(event.target.value))}>
+        <option value={60_000}>{t('1 分钟')}</option>
+        <option value={300_000}>{t('5 分钟')}</option>
+        <option value={900_000}>{t('15 分钟')}</option>
+        <option value={0}>{t('不自动锁定')}</option>
+      </select>
+    </label>
     <div className="actions"><button type="button" className="quiet" onClick={onLock}>{t('立即锁定')}</button></div>
     <form onSubmit={disable} className="app-lock-form">
       <label htmlFor="disable-lock-pin">{t('输入 PIN 关闭应用锁')}</label>

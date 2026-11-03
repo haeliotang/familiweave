@@ -299,6 +299,12 @@ const en: Record<string, string> = {
   'Web 预览 · 没有 Tauri 宿主': 'Web preview · no Tauri host',
   '沙箱': 'sandbox',
 
+  '无操作自动锁定': 'Auto-lock when idle',
+  '1 分钟': '1 minute',
+  '5 分钟': '5 minutes',
+  '15 分钟': '15 minutes',
+  '不自动锁定': 'Never auto-lock',
+
 }
 
 type LanguageContextValue = {

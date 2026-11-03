@@ -442,3 +442,7 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 [data-theme='dark'] .context-panel .check-item.absent { color: #9b9da0 }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #8b5e54; outline-offset: 2px }
 .field-node:focus-visible circle { stroke-width: 3; stroke: #8b5e54 }
+.app-lock-auto { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #5f6165; font-size: 11px; margin-top: 6px }
+.app-lock-auto select { padding: 6px 8px; border: 1px solid #dedee1; border-radius: 6px; background: #f7f7f7; color: #4f5155; font-size: 11px }
+[data-theme='dark'] .app-lock-auto { color: #b8babc }
+[data-theme='dark'] .app-lock-auto select { background: #202124; border-color: #3a3c41; color: #d6d7d4 }
