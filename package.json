@@ -19,7 +19,7 @@
     "rust:test": "cargo test --manifest-path rust/Cargo.toml",
     "tauri": "cd apps/desktop && ../../node_modules/.bin/tauri",
     "tauri:dev": "cd apps/desktop && ../../node_modules/.bin/tauri dev",
-    "tauri:build": "cd apps/desktop && ../../node_modules/.bin/tauri build",
+    "tauri:build": "cd apps/desktop && CARGO_PROFILE_RELEASE_STRIP=none ../../node_modules/.bin/tauri build",
     "bci:bridge": "tsx scripts/bci3-bridge.ts",
     "e2e": "playwright test",
     "e2e:install": "playwright install chromium",
