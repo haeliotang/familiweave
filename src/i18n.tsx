@@ -305,6 +305,8 @@ const en: Record<string, string> = {
   '15 分钟': '15 minutes',
   '不自动锁定': 'Never auto-lock',
 
+  '尝试次数过多，请稍后再试': 'Too many attempts. Try again shortly.',
+
 }
 
 type LanguageContextValue = {

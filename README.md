@@ -111,7 +111,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | BCI-2 | Local WebSocket device bridge contract + token auth |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
 | Theme | Light / dark theme |
-| App lock | Local PIN + AES-GCM encrypted snapshot; configurable idle auto-lock (5 min default); not system lock |
+| App lock | Local PIN + AES-GCM encrypted snapshot; configurable idle auto-lock (5 min default), 5-attempt/30s PIN lockout; not system lock |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
 | Bilingual | Chinese / English UI switch |
 | Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete |

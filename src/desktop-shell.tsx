@@ -8,7 +8,7 @@ import { clearActiveEncryption, clearLocalSnapshot, disableLocalEncryption, enab
 import type { LocalSnapshot } from './local-dataset'
 import { useLanguage, type Language } from './i18n'
 import { useTheme } from './theme'
-import { appLockStorageKey, createAppLockRecord, loadAppLockRecord, saveAppLockRecord, verifyAppLock, type AppLockRecord } from './app-lock'
+import { appLockStorageKey, createAppLockRecord, loadAppLockRecord, loadLockout, lockoutRemainingMs, registerFailedAttempt, saveAppLockRecord, saveLockout, verifyAppLock, type AppLockRecord, type LockoutState } from './app-lock'
 
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
@@ -177,6 +177,7 @@ export function DesktopShell() {
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
   const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000))
+  const [lockout, setLockout] = useState<LockoutState>(() => typeof window === 'undefined' ? { failed: 0, blockedUntil: 0 } : loadLockout(window.localStorage))
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
   const [relationships, setRelationships] = useState<RelationshipTrigger[]>(() => typeof window === 'undefined' ? [] : loadRelationshipTriggers(window.localStorage))
@@ -293,19 +294,30 @@ export function DesktopShell() {
     const restored = await disableLocalEncryption(pin, lockRecord, currentSnapshot())
     applySnapshot(restored)
     window.localStorage.removeItem(appLockStorageKey)
+    window.localStorage.removeItem('familiweave.app-lock-lockout.v1')
+    setLockout({ failed: 0, blockedUntil: 0 })
     setLockRecord(null)
     setLocked(false)
     return true
   }
 
   const unlockApp = async (pin: string): Promise<boolean> => {
-    if (!lockRecord || !await verifyAppLock(pin, lockRecord)) return false
+    if (lockoutRemainingMs(lockout) > 0) return false
+    if (!lockRecord || !await verifyAppLock(pin, lockRecord)) {
+      const next = registerFailedAttempt(lockout)
+      saveLockout(window.localStorage, next)
+      setLockout(next)
+      return false
+    }
     try {
       let snapshot = await unlockLocalSnapshot(pin, lockRecord)
       if (!snapshot) {
         snapshot = await loadLocalSnapshot()
         await enableLocalEncryption(snapshot, pin, lockRecord)
       }
+      const reset = { failed: 0, blockedUntil: 0 }
+      saveLockout(window.localStorage, reset)
+      setLockout(reset)
       applySnapshot(snapshot)
       setLocked(false)
       return true
@@ -476,7 +488,7 @@ export function DesktopShell() {
 
       <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />
     </div>
-    {locked && lockRecord && <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} /></Suspense>}
+    {locked && lockRecord && <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} blockedUntil={lockout.blockedUntil} /></Suspense>}
   </div>
 
 }

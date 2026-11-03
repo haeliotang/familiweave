@@ -1,14 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLanguage } from './i18n'
 
-export function LockScreen({ onUnlock, onForgot }: { onUnlock: (pin: string) => Promise<boolean>; onForgot: () => void }) {
+export function LockScreen({ onUnlock, onForgot, blockedUntil }: { onUnlock: (pin: string) => Promise<boolean>; onForgot: () => void; blockedUntil: number }) {
   const { t } = useLanguage()
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [remaining, setRemaining] = useState(() => Math.max(0, blockedUntil - Date.now()))
+
+  useEffect(() => {
+    if (blockedUntil <= Date.now()) { setRemaining(0); return }
+    setRemaining(blockedUntil - Date.now())
+    const timer = window.setInterval(() => setRemaining(Math.max(0, blockedUntil - Date.now())), 1000)
+    return () => window.clearInterval(timer)
+  }, [blockedUntil])
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (!pin || busy) return
+    if (!pin || busy || remaining > 0) return
     setBusy(true)
     setError('')
     const ok = await onUnlock(pin)
@@ -23,8 +32,9 @@ export function LockScreen({ onUnlock, onForgot }: { onUnlock: (pin: string) => 
       <form onSubmit={submit}>
         <label htmlFor="app-lock-pin">{t('PIN')}</label>
         <input id="app-lock-pin" type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={event => setPin(event.target.value)} autoFocus />
+        {remaining > 0 && <p className="error-inline" role="alert">{t('尝试次数过多，请稍后再试')} · {Math.ceil(remaining / 1000)}s</p>}
         {error && <p className="error-inline" role="alert">{error}</p>}
-        <button className="primary-button wide" disabled={busy || !pin} type="submit">{busy ? t('解锁中…') : t('解锁')}</button>
+        <button className="primary-button wide" disabled={busy || !pin || remaining > 0} type="submit">{busy ? t('解锁中…') : t('解锁')}</button>
       </form>
       <button className="quiet-button wide" type="button" onClick={onForgot}>{t('忘记 PIN：删除本机数据并重置锁')}</button>
       <p className="context-privacy">{t('PIN 只在本机校验；没有找回服务。')}</p>

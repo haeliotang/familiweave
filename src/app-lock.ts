@@ -67,3 +67,44 @@ export function loadAppLockRecord(storage: Pick<Storage, 'getItem'>): AppLockRec
 export function saveAppLockRecord(storage: Pick<Storage, 'setItem'>, record: AppLockRecord) {
   storage.setItem(appLockStorageKey, JSON.stringify(record))
 }
+
+export interface LockoutState {
+  failed: number
+  blockedUntil: number
+}
+
+export const lockoutStorageKey = 'familiweave.app-lock-lockout.v1'
+export const maxLockoutAttempts = 5
+export const lockoutDurationMs = 30_000
+
+export function isLockoutState(value: unknown): value is LockoutState {
+  if (!value || typeof value !== 'object') return false
+  const state = value as Partial<LockoutState>
+  return typeof state.failed === 'number' && Number.isInteger(state.failed) && state.failed >= 0
+    && typeof state.blockedUntil === 'number' && Number.isFinite(state.blockedUntil) && state.blockedUntil >= 0
+}
+
+export function lockoutRemainingMs(state: LockoutState, now = Date.now()) {
+  return Math.max(0, state.blockedUntil - now)
+}
+
+export function registerFailedAttempt(state: LockoutState, now = Date.now()): LockoutState {
+  const failed = state.failed + 1
+  if (failed >= maxLockoutAttempts) return { failed: 0, blockedUntil: now + lockoutDurationMs }
+  return { failed, blockedUntil: 0 }
+}
+
+export function loadLockout(storage: Pick<Storage, 'getItem'>): LockoutState {
+  try {
+    const raw = storage.getItem(lockoutStorageKey)
+    if (!raw) return { failed: 0, blockedUntil: 0 }
+    const parsed: unknown = JSON.parse(raw)
+    return isLockoutState(parsed) ? parsed : { failed: 0, blockedUntil: 0 }
+  } catch {
+    return { failed: 0, blockedUntil: 0 }
+  }
+}
+
+export function saveLockout(storage: Pick<Storage, 'setItem'>, state: LockoutState) {
+  storage.setItem(lockoutStorageKey, JSON.stringify(state))
+}
