@@ -1,316 +1,344 @@
 # Familiweave
 
-**中文** | [English](README.en.md)
+[中文](README.zh-CN.md) | **English**
 
-> 为前语言的内在经验，构建一个可进入、可退出、可自己解释的象征空间。
->
 > A local-first symbolic interface for the pre-verbal layer.
+>
+> An enterable, exit-able, self-interpreted space for pre-verbal experience.
 
-![Familiweave 内在场域（浅色，英文界面）](docs/assets/desktop-shell-en.png)
+![Familiweave inner field — light](docs/assets/desktop-shell-en.png)
 
-![Familiweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
+![Familiweave inner field — dark](docs/assets/desktop-shell-dark-en.png)
 
-## 下载
+## Download
 
-[v0.1.0 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.0) 提供：
+The [v0.1.0 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.0) provides:
 
-- macOS 12+ Apple Silicon：`Familiweave-v0.1.0-macos-arm64.zip`
-- Windows 10/11 x64：`Familiweave_0.1.0_x64-setup.exe`
-- Linux x86_64：`Familiweave_0.1.0_amd64.AppImage` / `.deb`
-- `SHA256SUMS.txt` 校验所有产物
+- macOS 12+ Apple Silicon: `Familiweave-v0.1.0-macos-arm64.zip`
+- Windows 10/11 x64: `Familiweave_0.1.0_x64-setup.exe`
+- Linux x86_64: `Familiweave_0.1.0_amd64.AppImage` / `.deb`
+- `SHA256SUMS.txt` for every artifact
 
-macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
+> The tagged v0.1.0 release predates the latest Field/encryption/accessibility work on `main`. Use the tag for a reproducible download; build `main` for the newest prototype.
 
-Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层潜意识**的公开研究项目。
+macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
 
-它不试图造一个“更懂心理学的聊天机器人”，也不声称能读取深层潜意识。它从一个更窄、更可验证的问题开始：
+Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 
-> 当语言还没形成时，身体、意象与关系模式能不能先被接住，并变成一段可以由本人完成的象征经验？
+It is not trying to build a “therapist chatbot”. It does not claim to read the deep subconscious. It starts from a narrower, testable question:
 
-## 1. 为什么是脑机接口，而不是又一个聊天框
+> Before language is formed, can the body, imagery and relational patterns be held first — and turned into a symbolic experience that only the person can complete?
 
-当 AI 接管了显性知识、逻辑推演、语言表达与外部执行，**“理性与语言”会通货膨胀**。人仍然会感到空虚、躯体紧绷，并在同一种关系泥潭里反复踏空；但这些经验往往先于语言：
+## 1. Why BCI, not another chat box
 
-- 胸口说不清的坠胀
-- 反复出现的潮湿走廊
-- 某个关系瞬间的身体冻结
-- 事后才被命名的情绪
+As AI takes over explicit knowledge, logical reasoning, language and external execution, **reason and language inflate**. People still feel empty, tense in the body, and stuck in the same relational loop. But these experiences are often pre-verbal:
 
-大语言模型建立在 Token 上；而内隐记忆、依恋反应与躯体感觉，更多是**前语言、联想性、情绪性**的。要求用户先“把感觉说清楚”，常常会把它压缩成“我很焦虑”这样的标签。
+- an unclear heaviness in the chest
+- a recurring wet corridor
+- a freeze in the body at a relational moment
+- a feeling named only afterwards
 
-Familiweave 的方向不是替代语言，而是补上语言之前的入口：**身体定位、意象选择、关系触发、生理/声音信号，再到象征空间。**
+LLMs are built on tokens. Implicit memory, attachment reactions and somatic states are more **pre-verbal, associative and affective**. Asking someone to “put it into words” often compresses it into a label like “I am anxious”.
 
-### 1.1 术语约定
+Familiweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
 
-- **前语言层**：语言形成之前的身体、情绪、意象与关系反应。
-- **内隐记忆**：自动化的躯体与关系模式；这里不是临床诊断。
-- **躯体捕获**：身体地图、感觉、强度、呼吸与意象选择。
-- **象征空间**：可以被进入、停留、离开的 75 秒相遇 / 180 秒空间。
-- **母题**：用户自己命名、反复出现的身体—意象—关系单元。
-- **关系拓扑**：用户自述的关系触发点地图；不是系统对他人或依恋类型的推断。
-- **BCI**：脑机接口。当前指本机信号层与设备桥接，不是植入体。
-- **LSM（Large Somatic & Symbolic Model）**：躯体—意象—关系的跨模态研究模型；当前不是已训练模型。
+### 1.1 Terminology
 
-## 2. 我们做什么
+We use these terms consistently:
 
-### 2.1 前语言捕获
+- **pre-verbal layer** — body, affect, imagery and relational reactions before language.
+- **deep subconscious** — the project’s name for this pre-verbal layer; not a clinical object or something the system can read.
+- **implicit memory** — automatic somatic and relational patterns; not a diagnosis.
+- **somatic capture** — body map, sensation, intensity, breath and image choice.
+- **symbolic space** — an enterable, exit-able 75s encounter or 180s space.
+- **motif** — a recurring body–imagery–relationship unit named by the user.
+- **relationship topology** — the user-authored map of relationship triggers; not inference about others or attachment typing.
+- **BCI** — brain-computer interface. Today it means the local signal layer and device bridge, not an implant.
+- **LSM (Large Somatic & Symbolic Model)** — a cross-modal research model of somatic state, imagery and relationship context; not a trained model yet.
 
-- 身体地图：头、下颌、喉咙、肩、胸口、胃/腹、后背、手、腿
-- 感觉、强度、呼吸
-- 8 块抽象意象碎片，选择 1–3 块
-- 可选 8 秒本机声音摘要（音量/停顿；不保存原始音频）
-- 不做自由文本解释，不要求用户先命名
+## 2. What we build
 
-### 2.2 象征空间
+### 2.1 Somatic capture
 
-把捕获变成 `InnerPlan`，再渲染成 75 秒相遇或 180 秒空间：
+- Body map: head, jaw, throat, shoulders, chest, stomach/belly, back, hands, legs
+- Sensation, intensity, breath
+- Eight abstract image fragments; choose 1–3
+- Optional 8-second local voice summary (volume/pause; no raw audio)
+- No free-text interpretation; no need to name it first
 
-- 有门、走廊、水、房子、森林、车站、镜子或田野
-- 有一个影子般的存在，或没有
-- 可以靠近、停留、离开
-- 不解释、不评分、不诊断
+### 2.2 Symbolic space
 
-### 2.3 深层母题与关系
+The capture becomes an `InnerPlan`, then a 75-second encounter or 180-second space:
 
-- **母题日记**：用户自己命名、自己保存、自己删除
-- **关系触发点**：用户自己写下场景、瞬间、身体反应与自动反应
-- 只做描述性计数，不推断对方、不做匹配、不做依恋分类
-- 所有记录默认只在本机
+- doors, corridors, water, houses, forest, stations, mirrors or fields
+- an optional shadow-like presence, or none
+- approach, stay, leave
+- no interpretation, no score, no diagnosis
 
-### 2.4 BCI 信号层
+### 2.3 Motifs and relationship topology
 
-- **BCI-1**：设备无关的 `SignalSource` 接口、LSL 风格模拟器、事件时间轴
-- **BCI-2**：仅允许本机 WebSocket 桥接，接收 `hello/sample/samples` JSON
-- 没有真实植入体、没有神经解码、没有临床声明
-- 参考的是开放生态：OpenBCI、BrainFlow、LSL、MNE 等；Neuralink 目前公开的相关仓库主要是数据平台 `datarepo`，不是 N1 SDK
+- **Motif journal**: the user names it, saves it, deletes it
+- **Relationship triggers**: user-written situations, moments, body reactions and automatic responses
+- Descriptive counts only; no partner inference, matching or attachment typing
+- Everything stays local by default
 
-详见 [BCI 开源生态调研](docs/vision/bci-open-source-landscape.md)、[BCI-1](docs/vision/bci-1-signal-layer.md)、[BCI-2](docs/vision/bci-2-device-bridge.md)。
+### 2.4 BCI signal layer
 
-## 3. 当前原型
+- **BCI-1**: device-agnostic `SignalSource`, LSL-style simulator, event timeline
+- **BCI-2**: localhost-only WebSocket bridge for `hello/sample/samples` JSON
+- No implant, no neural decoding, no clinical claims
+- References open ecosystems: OpenBCI, BrainFlow, LSL, MNE. Neuralink’s public repo is mainly the data platform `datarepo`, not an N1 SDK
 
-| 层 | 已实现 |
+See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-1](docs/vision/bci-1-signal-layer.md) and [BCI-2](docs/vision/bci-2-device-bridge.md).
+
+### 2.5 Local encryption, app lock and portable backups
+
+- Optional app lock: PBKDF2 PIN verifier + AES-GCM encrypted local snapshot.
+- When locked, plaintext motif/relationship/field/signal keys are removed from local storage; the lock screen decrypts only after a successful PIN.
+- Encrypted portable backups use a separate passphrase and AES-GCM; passphrases are never stored and cannot be recovered.
+- These protect local/exported data, not a compromised OS account or a forgotten PIN. Forgotten PIN means deleting local data.
+
+## 3. Current prototype
+
+| Layer | Implemented |
 | --- | --- |
-| v0 躯体捕获 | 身体地图 + 感觉/强度/呼吸 + 意象碎片 |
-| v1 母题日记 | 本机命名、保存、删除、导出 |
-| v2 关系触发点 | 自述场景/反应、地图、描述性计数 |
-| v3 声音摘要 | 8 秒音量/停顿；显式同意；不保存原始音频；session 摘要写入 SQLite |
-| 场域 | 母题星座、关系节点、镜头切换、时间轴、拖拽/缩放、用户连线、时间过滤、示例场域 |
-| BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
-| BCI-2 | 本机 WebSocket 设备桥接契约 + token 鉴权 |
-| 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |
-| 主题 | 明 / 暗主题切换 |
-| 应用锁 | 本机 PIN + AES-GCM 加密快照；不是系统锁屏 |
-| 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
-| 双语 | 中文 / English 界面切换 |
-| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除 |
-| 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
-| 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
+| v0 somatic capture | Body map + sensation/intensity/breath + image fragments |
+| v1 motif journal | Local naming, save, delete, export |
+| v2 relationship triggers | Self-authored moments/reactions, map, descriptive counts |
+| v3 voice summary | 8s volume/pause; explicit consent; no raw audio; session summary in SQLite |
+| Field | Motif constellation, relationship nodes, lens switch, timeline, drag/zoom, user links, time filter, demo field |
+| BCI-1 | Signal source contract, simulator, local event timeline |
+| BCI-2 | Local WebSocket device bridge contract + token auth |
+| Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
+| Theme | Light / dark theme |
+| App lock | Local PIN + AES-GCM encrypted snapshot; not system lock |
+| Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
+| Bilingual | Chinese / English UI switch |
+| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete |
+| Update check | Explicit GitHub Releases check; no auto-download |
+| Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
 
-当前**没有**：
+Currently **not** implemented:
 
-- 真实 BCI 硬件验收
-- LSM 模型
-- 自动关系推断
-- 任何诊断、治疗或记忆恢复能力
-- 临床或真人有效性证据
+- real BCI hardware validation
+- an LSM model
+- automatic relationship inference
+- diagnosis, therapy or memory recovery
+- clinical or human-efficacy evidence
 
-## 4. 架构
+### 3.1 Engineering status
+
+As of the latest `main`:
+
+- 72 Vitest unit/integration tests
+- 13 Playwright browser E2E scenarios
+- 6 Rust host tests
+- WCAG A/AA structural and contrast checks in light/dark themes
+- main JS bundle about 293 KB, with heavy views lazy-loaded
+- macOS app bundle about 10.45 MiB, ad-hoc signed
+- Linux/Windows release builds plus startup smoke in CI
+- GitHub Actions checks: Symbolic space, Rust operational and Browser E2E
+
+The project remains a research prototype; no clinical or real-BCI-hardware claim is made.
+
+## 4. Architecture
 
 ```text
-身体 / 意象 / 关系 / 可选信号
+body / imagery / relationship / optional signals
         │
         ▼
 SomaticCapture + SignalTrace
         │
         ▼
 InnerPlan
-母题 · 节拍 · 影子 · 空间/声音/光/镜头提示词 · 安全边界
+motifs · pacing · figure · space/sound/light prompts · safety
         │
         ▼
 EpisodePlan (kind: inner)
         │
         ▼
-WorldRenderer（当前 symbolic；未来 Genie 4 等）
+WorldRenderer (symbolic today; Genie 4 later)
         │
         ▼
-75s 相遇 / 180s 空间 + 本地记录
+75s encounter / 180s space + local record
 ```
 
-- `InnerPlan`：象征导演层。
-- `EpisodePlan`：可追溯的计划信封。
-- `WorldRenderer`：渲染器接缝；当前是本地 symbolic。
-- `SomaticSignalSource` / `SignalTrace`：设备无关信号接缝。
-- `CaptureProvenance`：非确定性成片的出处与指纹。
-- Tauri Rust 宿主：文件沙箱、SQLite、打包；前端通过 `invoke` 访问。
+- `InnerPlan`: symbolic director layer.
+- `EpisodePlan`: persisted plan envelope.
+- `WorldRenderer`: renderer seam; local symbolic today.
+- `SomaticSignalSource` / `SignalTrace`: device-agnostic signal seam.
+- `CaptureProvenance`: provenance for non-deterministic captures.
+- Tauri Rust host: file sandbox, SQLite, packaging; the frontend uses `invoke`.
 
-## 5. BCI 与 LSM：激进路线
+## 5. BCI and LSM: the aggressive path
 
-Familiweave 不是“给聊天机器人加几个生理传感器”。我们的长期主张更激进：
+Familiweave is not “a chatbot with a few physiological sensors”. Our long-term claim is more aggressive:
 
-> **未来的精神基础设施不会是更会说话的 LLM，而是 BCI 原生的前语言接口。**
+> **The next mental-health infrastructure will not be a better-speaking LLM. It will be a BCI-native interface to the pre-verbal layer.**
 
-因此，BCI 不是可选配件，而是长期核心研究主线。当前没有植入体、没有神经解码，也不把任何实验性信号包装成“读懂潜意识”；但路线图会主动向那个方向推进，而不是停在自我报告。
+BCI is therefore not an optional accessory. It is the long-term core research spine. We have no implant, no neural decoding, and we do not dress experimental signals up as “reading the deep subconscious”. But the roadmap actively moves toward that direction instead of stopping at self-report.
 
-### 5.1 北向目标
+### 5.1 North Star
 
-**从 BCI 到 LSM**：
+**From BCI to LSM:**
 
-1. 先建立设备无关的躯体/信号捕获；
-2. 在明确同意的纵向数据上，学习“信号—意象—关系”的跨模态映射；
-3. 用映射驱动象征空间的参数，而不是用语言解释用户；
-4. 让关系拓扑成为一等产品，而不是侧栏功能；
-5. 最终形成一个**可退出、可删除、可自己解释**的 BCI 原生象征接口。
+1. build device-agnostic somatic/signal capture;
+2. on consented longitudinal data, learn a cross-modal mapping between signal, imagery and relationship;
+3. drive symbolic-space parameters from that mapping, not from language interpretation;
+4. make relationship topology a first-class product, not a side panel;
+5. end with a **exit-able, deletable, self-interpreted** BCI-native symbolic interface.
 
-### 5.2 阶段
+### 5.2 Stages
 
-| 阶段 | 目标 | 状态 |
+| Stage | Goal | Status |
 | --- | --- | --- |
-| BCI-0 | 本机声音摘要 + 自报 + 意象 | 已实现 |
-| BCI-1 | 设备无关 `SignalSource` + LSL 模拟器 + 时间轴 | 已实现 |
-| BCI-2 | 本机 WebSocket 设备桥接 | 契约/UI 已实现；真实硬件未验收 |
-| BCI-3 | 本机 bridge 协议与 token 鉴权已实现；真实 OpenBCI/BrainFlow/LSL 采集未验收 | 协议完成，硬件未验收 |
-| LSM-0 | 跨模态对齐：从躯体/信号预测象征参数，不做情绪诊断 | 未开始；下一研究目标 |
-| LSM-1 | 纵向母题 + 关系拓扑的个人模型 | 未开始 |
-| LSM-2 | 闭环自适应象征空间，用户始终可退出/覆盖 | 未开始 |
+| BCI-0 | Local voice summary + self-report + imagery | Implemented |
+| BCI-1 | Device-agnostic `SignalSource` + LSL simulator + timeline | Implemented |
+| BCI-2 | Local WebSocket device bridge | Contract/UI; no hardware validation |
+| BCI-3 | Local bridge protocol + token auth implemented; real OpenBCI/BrainFlow/LSL capture not validated |
+| LSM-0 | Cross-modal alignment: predict symbolic parameters from somatic/signal data, without emotion diagnosis | Not started; next research target |
+| LSM-1 | Longitudinal motif + relationship-topology personal model | Not started |
+| LSM-2 | Closed-loop adaptive symbolic space, always overridable and exit-able | Not started |
 
-### 5.3 我们不接受“永远停在原型”
+### 5.3 We refuse to stop at prototype
 
-- 不等待 Neuralink 开放 N1 SDK；直接使用 OpenBCI、BrainFlow、LSL 等开放生态。
-- 不把“用户自己说”当成终点；要在同意数据上验证信号与自报是否稳定对应。
-- 不把关系拓扑做成静态列表；要让它成为可回看、可对照、可删除的纵向结构。
-- 不用 LLM 假装 LSM；LSM 的核心是躯体—意象—关系的映射，而不是词语概率。
-- 如果未来无法证明信号与自报存在可复现对应，就必须公开承认这条路线不成立，而不是继续营销“深层潜意识读取”。
+- We will not wait for a Neuralink N1 SDK; we build on OpenBCI, BrainFlow, LSL and the open ecosystem.
+- We will not treat self-report as the endpoint; consented data must test whether signal and self-report correspond stably.
+- We will not leave relationship topology as a static list; it must become a longitudinal structure that can be reviewed, compared and deleted.
+- We will not fake LSM with an LLM; LSM is a somatic–imagery–relationship mapping, not next-token probability.
+- If we cannot show a reproducible signal–self-report correspondence, we must say the path failed instead of marketing “deep-subconscious reading”.
 
-**LSM 仍然是研究议程，不是已训练模型；但它是本项目的主动目标，不是装饰性的未来愿景。**
+**LSM is still a research agenda, not a trained model — but it is the active target of this project, not decorative futurism.**
 
-## 6. 深层潜意识怎么处理
+## 6. How we handle the deep subconscious
 
-我们不把“深层潜意识”当作可以被系统占有的对象，而当作**用户自己的、前语言的意义层**。
+We do not treat the “deep subconscious” as an object the system can own. It is the user’s own **pre-verbal layer of meaning**.
 
-因此：
+Therefore:
 
-- 不解释：不提供梦的字典，不说“你其实是……”
-- 不诊断：不是心理测试、治疗或医疗设备
-- 不恢复记忆：不暗示压抑记忆，不制造虚假记忆
-- 不评分：没有深层潜意识健康分、关系匹配分
-- 不推断他人：关系触发点只画用户自己写下的部分
-- 不制造依赖：没有 streak、没有“对方在等你”
-- 意义归用户：系统只提供形式与开放问题
+- no interpretation: no dream dictionary, no “you actually mean…”
+- no diagnosis: not a test, therapy or medical device
+- no memory recovery: no repressed-memory suggestions, no false memories
+- no scoring: no deep-subconscious health score, no relationship match score
+- no inference about others: relationship triggers only map what the user wrote
+- no dependency loops: no streaks, no “someone is waiting for you”
+- meaning stays with the user: the system offers form and open questions only
 
-## 7. 隐私与边界
+## 7. Privacy and boundaries
 
-- 默认本地：没有服务端、没有账号、没有同步
-- Tauri 下母题/关系触发点写入 SQLite；Web 预览回退 localStorage
-- 声音只保存摘要，不保存可还原音频
-- 数据可整体导出、导入、删除
-- 强烈痛苦、自伤/他伤风险时，应停止体验并寻求现实支持
-- 真实设备信号接入前必须完成同意、删除、断开与安全审查
+- Local by default: no server, no account, no sync
+- Tauri stores motifs/relationship triggers in SQLite; web preview falls back to localStorage
+- App lock encrypts the local snapshot; encrypted portable backups use a separate passphrase
+- Voice stores summaries only, not recoverable audio
+- All data can be exported, imported and deleted
+- In acute distress, self-harm or harm-to-others risk, stop and seek real support
+- Real device signals require consent, deletion, disconnect and safety review first
 
-## 8. 本地运行
+## 8. Run locally
 
-环境：Node.js 22+、pnpm 10、Rust 工具链；macOS 上 Tauri 需要 Xcode Command Line Tools。
+Requirements: Node.js 22+, pnpm 10, Rust toolchain; on macOS, Tauri needs Xcode Command Line Tools.
 
 ```sh
 pnpm install
-pnpm dev          # Web 预览
-pnpm tauri:dev    # Tauri 2 桌面外壳
+pnpm dev          # web preview
+pnpm tauri:dev    # Tauri 2 desktop shell
 ```
 
-检查：
+Checks:
 
 ```sh
 pnpm test
 pnpm build
-pnpm e2e:install            # 首次安装 Chromium
+pnpm e2e:install            # first-time Chromium install
 pnpm e2e                    # Playwright browser E2E
-pnpm bci:bridge              # 本机 BCI-3 WebSocket bridge
+pnpm bci:bridge              # local BCI-3 WebSocket bridge
 pnpm check:symbolic-path
 pnpm rust:test
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
 ```
 
-可选工具：
+Optional tools:
 
 ```sh
-pnpm inner:storyboard --fragment "一条走廊尽头有一扇门" --format encounter
+pnpm inner:storyboard --fragment "a corridor ending in a door" --format encounter
 pnpm measure:browser
 pnpm measure:browser:full
 ```
 
-桌面构建：
+Desktop build:
 
 ```sh
 pnpm tauri:build --bundles app
 ```
 
-跨平台构建（需要对应系统原生环境）：
+Cross-platform builds (run natively on the target OS):
 
 ```sh
 pnpm tauri:build --bundles appimage,deb   # Linux
 pnpm tauri:build --bundles nsis           # Windows
 ```
 
-GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux AppImage/DEB，并把产物附加到对应 tag 的 Release。macOS 包需要 Developer ID 才能正式分发；Windows/Linux 当前也是未签名构建。
+The GitHub Actions `Desktop builds` workflow produces Windows NSIS and Linux AppImage/DEB assets and attaches them to the matching tag release. macOS distribution still needs Developer ID signing; Windows/Linux artifacts are unsigned.
 
-当前产物是 ad-hoc 签名的本机验证包；正式签名与公证需要 Apple 证书。
+The current artifact is ad-hoc signed for local validation; Developer ID signing and notarization need an Apple certificate.
 
-## 数据与研究文档
+## Data and research documentation
 
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
-- [自动更新方案](docs/updater-plan.md)
+- [Auto-update plan](docs/updater-plan.md)
 - [Release signing](docs/release-signing.md)
-- [发布流程](docs/release-process.md)
-- [签名配置](docs/signing-setup.md)：Apple / Windows secrets 的逐步配置
+- [Release process](docs/release-process.md)
+- [Signing setup](docs/signing-setup.md): step-by-step Apple / Windows secrets
 - [Desktop platform QA](docs/platform-qa.md)
 - [BCI-3 local bridge](docs/vision/bci-3-local-bridge.md)
 
-## 9. 项目地图
+## 9. Project map
 
-- [`src/somatic.ts`](src/somatic.ts)：身体部位、感觉、呼吸、意象碎片。
-- [`src/somatic-entry.tsx`](src/somatic-entry.tsx)：v0 身体地图入口。
-- [`src/inner.ts`](src/inner.ts)：`InnerPlan`、相遇/空间/捕获计划。
-- [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：75 秒相遇 / 180 秒空间。
-- [`src/motif-journal.ts`](src/motif-journal.ts)：本机母题存储。
-- [`src/relationship.ts`](src/relationship.ts)：用户自述关系触发点。
-- [`src/field.ts`](src/field.ts)：场域位置、用户连线与校验。
-- [`src/signal-session.ts`](src/signal-session.ts)：只含摘要的信号 session。
-- [`src/signal-source.ts`](src/signal-source.ts)：BCI 信号层与 LSL 模拟器。
-- [`src/device-signal-source.ts`](src/device-signal-source.ts)：本机设备桥接。
-- [`src/local-store.ts`](src/local-store.ts)：SQLite / localStorage 快照。
-- [`src/desktop-shell.tsx`](src/desktop-shell.tsx)：三栏工作台。
-- [`src/i18n.tsx`](src/i18n.tsx)：中文/English。
-- [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/)：Tauri 2 Rust 宿主。
-- [`docs/inner/`](docs/inner/)：形式、v0–v3、v0 捕获边界。
-- [`docs/vision/`](docs/vision/)：BCI 生态、BCI-1/2/3、LSM/关系拓扑路线。
-- [`scripts/bci3-bridge.ts`](scripts/bci3-bridge.ts)：本机 token 鉴权 WebSocket bridge。
-- [`docs/desktop-shell.md`](docs/desktop-shell.md)：桌面外壳、SQLite、签名边界。
+- [`src/somatic.ts`](src/somatic.ts) — body regions, sensations, breath, image fragments.
+- [`src/somatic-entry.tsx`](src/somatic-entry.tsx) — v0 body-map entry.
+- [`src/inner.ts`](src/inner.ts) — `InnerPlan`, encounter/space/capture plans.
+- [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx) — 75s encounter / 180s space.
+- [`src/motif-journal.ts`](src/motif-journal.ts) — local motif storage.
+- [`src/relationship.ts`](src/relationship.ts) — user-authored relationship triggers.
+- [`src/field.ts`](src/field.ts) — field positions, user links and validation.
+- [`src/signal-session.ts`](src/signal-session.ts) — signal sessions with summaries only.
+- [`src/signal-source.ts`](src/signal-source.ts) — BCI signal layer and LSL simulator.
+- [`src/device-signal-source.ts`](src/device-signal-source.ts) — local device bridge.
+- [`src/local-store.ts`](src/local-store.ts) — SQLite/localStorage snapshot.
+- [`src/desktop-shell.tsx`](src/desktop-shell.tsx) — three-pane workspace.
+- [`src/i18n.tsx`](src/i18n.tsx) — Chinese/English UI.
+- [`apps/desktop/src-tauri/`](apps/desktop/src-tauri/) — Tauri 2 Rust host.
+- [`docs/inner/`](docs/inner/) — formats, v0–v3 and capture boundaries.
+- [`docs/vision/`](docs/vision/) — BCI landscape, BCI-1/2/3, LSM/relationship path.
+- [`scripts/bci3-bridge.ts`](scripts/bci3-bridge.ts) — local token-authenticated WebSocket bridge.
+- [`docs/desktop-shell.md`](docs/desktop-shell.md) — desktop shell, SQLite and signing.
 
-## 10. 路线图：从 BCI 接缝到 LSM
+## 10. Roadmap: from BCI seam to LSM
 
-- **现在**：v0–v3 本机原型、BCI-1/2 接缝、Tauri 外壳、SQLite、双语与明暗主题。
-- **下一步（主攻）**：真实 OpenBCI/BrainFlow/LSL 采集；真实设备声音验收；把信号摘要并入 SQLite；Tauri 窗口目视验收。
-- **研究阶段**：在明确同意、可删除的小样本上训练 LSM-0 跨模态对齐；先证明“信号—意象—关系”存在可复现结构，再谈产品化。
-- **产品阶段**：关系拓扑成为一等入口；闭环象征空间根据信号调整，但用户始终拥有解释权与退出权。
-- **长期**：BCI 原生的前语言接口；临床工作只在伦理与临床机构合作下进行。
+- **Now**: v0–v3 local prototype, BCI-1/2 seams, Tauri shell, SQLite, bilingual UI.
+- **Next main push**: real OpenBCI/BrainFlow/LSL capture; real-device voice validation; move signal summaries into SQLite; visual QA of the Tauri window.
+- **Research stage**: train LSM-0 cross-modal alignment on small, consented, deletable samples; first prove a reproducible signal–imagery–relationship structure, then discuss productisation.
+- **Product stage**: relationship topology becomes a first-class entrance; closed-loop symbolic space adapts from signals, but the user always keeps interpretation and exit.
+- **Long term**: a BCI-native interface to the pre-verbal layer; clinical work only with ethics and clinical partners.
 
-**激进不等于吹牛。** 这条路线只有在真实、同意、可删除的数据上成立；没有证据，就不把 LSM 写成既成能力。
+**Aggressive is not the same as overclaiming.** This path only holds on real, consented, deletable data; without evidence, LSM is not written up as an existing capability.
 
-## 11. 研究问题
+## 11. Research questions
 
-1. 象征空间能否让前语言经验获得形式，而不被解释？
-2. 当用户不用文字、只用身体与意象选择时，是否更接近“说不清”的东西？
-3. 75 秒 / 180 秒的边界，会让人更安全，还是更疏离？
-4. 多模态信号与自报之间，是否存在稳定、可复现的对应？
-5. 谁适合、谁不适合？急性哀伤、创伤、焦虑或只是想玩的人，反应可能完全不同。
+1. Can a symbolic space give form to pre-verbal experience without interpreting it?
+2. When people use the body and image choice instead of words, do they get closer to “what cannot be said”?
+3. Does a 75s / 180s boundary make people safer, or more distant?
+4. Is there a stable, reproducible correspondence between multimodal signals and self-report?
+5. Who is this for — and who should not use it?
 
-## 12. 许可证
+## 12. License
 
-Apache License 2.0。Copyright 2026 Inceptless。见 [LICENSE](LICENSE)。
+Apache License 2.0. Copyright 2026 Inceptless. See [LICENSE](LICENSE).
 
-历史大文件与音频审计见 [docs/privacy/history-audit-2026-11-01.md](docs/privacy/history-audit-2026-11-01.md)。
+Historical large-file and audio audit: [docs/privacy/history-audit-2026-11-01.md](docs/privacy/history-audit-2026-11-01.md).
 
-## 13. 发起方
+## 13. Initiator
 
-Familiweave 由 **Inceptless 公司**发起。
+Familiweave is initiated by **Inceptless**.
