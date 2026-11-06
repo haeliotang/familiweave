@@ -1,14 +1,14 @@
 # Release signing and notarization
 
-日期：2026-11-06。状态：v0.1.2 签名流程已准备；本机可用 Developer ID 签名，但尚未公证；Windows 证书尚未配置；没有发布 v0.1.2。逐步操作见 [signing-setup.md](signing-setup.md) 和 [macOS signed workflow](../.github/workflows/macos-signed.yml)。
+日期：2026-11-06，更新 2026-11-07。状态：本机可用 Developer ID 签名，但公证凭据尚未配置；Windows 证书尚未配置；v0.1.2 已以未签名 Linux/Windows 资产发布（资产名仍为 Familiweave）；v0.1.3（Tacitweave 改名版）暂不发布，等 macOS 公证与 Windows 签名就绪后再发签名版。逐步操作见 [signing-setup.md](signing-setup.md) 和 [macOS signed workflow](../.github/workflows/macos-signed.yml)。
 
 ## 当前产物
 
-- macOS：ad-hoc 签名，**未公证**
-- Windows：unsigned NSIS
-- Linux：unsigned AppImage/DEB
+- v0.1.2 Release：Linux AppImage/DEB + Windows NSIS，均未签名；没有 macOS 资产
+- v0.1.3：已通过完整本地验证，但按 2026-11-07 的决定暂不打 tag / 发布
+- 本机 macOS 构建仍为 ad-hoc 签名，**未公证**
 
-Gatekeeper / SmartScreen 会警告。v0.1.1 Release 是未签名归档；v0.1.2 不应急于发布，直到 macOS 公证和 Windows 签名都通过。
+Gatekeeper / SmartScreen 会警告。v0.1.1 Release 是未签名归档；v0.1.3 应在 macOS 公证和 Windows 签名都通过后再发布。
 
 ## macOS Developer ID
 

@@ -63,10 +63,18 @@ pnpm test
 先验证 git 状态与测试，再决定 v0.1.3 是否发版/签名。
 ```
 
+## 2026-11-07 续做记录
+
+- 本地目录改名已生效：`/Users/hao/Documents/tacitweave`；origin 指向 `haeliotang/tacitweave`；工作区 clean。
+- 重新验证通过：Vitest 152、Playwright 23（首次需 `pnpm e2e:install`）、Rust ops 10、Rust desktop 6；生产构建与 bundle guard 通过（主包 305,487 B / 预算 320,000 B）；HEAD `f207bbe` 的 CI 为 success。
+- 发版决策：**v0.1.3 暂不打 tag / 不发布**，等 Apple 公证凭据与 Windows 代码签名证书配置好后再发签名版。
+- 旧工作区会话已迁移：`session-88643959-e66c-4488-b7cb-34fe66b28308` 从 familiweave 工作区移到 tacitweave 工作区（会话头 cwd、projection cache、workspace.json 同步更新）；DSH App 重启后生效。
+- 旧 familiweave 工作区记录仍保留 `session-5d5e2993-72e3-456f-a2c0-3b9bc1590bd5`，其路径已不存在；如不需要可在 UI 中删除该工作区。
+
 ## 尚未完成
 
-- 本地目录改名（用户执行）
-- v0.1.3 tag / Release
-- Windows/Linux 改名后的安装包构建
-- macOS Developer ID 公证 / Windows Authenticode
+- v0.1.3 tag / Release（等待签名凭据）
+- Apple 公证凭据（Apple ID app-specific password 或 App Store Connect API key）→ `notarytool`
+- Windows Authenticode 证书与 CI secrets（`APPLE_*` / `WINDOWS_*`）
+- macOS 公证后重新构建并上传资产、重新生成 `SHA256SUMS.txt`
 - 商标与社交 handle 正式检索
