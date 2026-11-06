@@ -310,6 +310,36 @@ const en: Record<string, string> = {
   '捕获出处': 'Capture provenance',
   '信号会话': 'Signal sessions',
 
+  '重连中…': 'Reconnecting…',
+  '撤回本次信号摘要': 'Retract this signal summary',
+  '已撤回本次信号摘要': 'Signal summary retracted',
+  '重连': 'Reconnects',
+  '拒绝': 'Rejected',
+  '最大间隔': 'Max gap',
+  '抖动': 'Jitter',
+
+  '纵向比较': 'Longitudinal comparison',
+  '两段相同': 'Same in both',
+  '分组方式': 'Group by',
+  '前一段': 'Earlier period',
+  '前一段更多': 'More earlier',
+  '只在前一段': 'Only earlier',
+  '只在后一段': 'Only later',
+  '后一段': 'Later period',
+  '后一段更多': 'More later',
+  '天': 'days',
+  '按场景': 'By situation',
+  '按角色': 'By role',
+  '时间范围无效，未生成比较。': 'Invalid time range; no comparison was built.',
+  '有': 'There are',
+  '条记录': 'records',
+  '条记录缺少可用的日期，未计入比较。': 'records with unusable dates were excluded from the comparison.',
+  '查看每一段的字段计数': 'Show field counts for each period',
+  '这一段没有记录': 'No records in this period',
+  '这两段时间里没有已写日期的记录。': 'No dated records in these two periods.',
+  '信号摘要': 'Signal summaries',
+  '撤回': 'Retract',
+
 }
 
 type LanguageContextValue = {

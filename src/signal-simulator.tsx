@@ -4,12 +4,13 @@ import { SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalS
 import { useLanguage } from './i18n'
 import { createSignalSession, type SignalSession } from './signal-session'
 
-export function SignalSimulator({ onSession }: { onSession?: (session: SignalSession) => void }) {
+export function SignalSimulator({ onSession, onRetract }: { onSession?: (session: SignalSession) => void; onRetract?: (sessionId: string) => void }) {
   const { t } = useLanguage()
   const [consent, setConsent] = useState(false)
   const [running, setRunning] = useState(false)
   const [samples, setSamples] = useState<SignalSample[]>([])
   const [timeline, setTimeline] = useState<SignalTimeline | null>(null)
+  const [lastSession, setLastSession] = useState<SignalSession | null>(null)
   const source = useRef<SimulatedSignalSource | null>(null)
   const timeout = useRef<number | null>(null)
   const unsubscribe = useRef<(() => void) | null>(null)
@@ -23,7 +24,9 @@ export function SignalSimulator({ onSession }: { onSession?: (session: SignalSes
       const trace = source.current.stop()
       const nextTimeline = traceToTimeline(trace)
       setTimeline(nextTimeline)
-      onSession?.(createSignalSession(nextTimeline))
+      const session = createSignalSession(nextTimeline)
+      setLastSession(session)
+      onSession?.(session)
     } catch { /* already stopped */ }
     source.current = null
     setRunning(false)
@@ -37,6 +40,7 @@ export function SignalSimulator({ onSession }: { onSession?: (session: SignalSes
     source.current = next
     setSamples([])
     setTimeline(null)
+    setLastSession(null)
     unsubscribe.current = next.subscribe(sample => setSamples(current => [...current, sample]))
     next.start(grantLocalSignalConsent())
     setRunning(true)
@@ -47,6 +51,13 @@ export function SignalSimulator({ onSession }: { onSession?: (session: SignalSes
   const heart = latest('heart_rate')
   const eda = latest('eda')
   const summary = timeline ? summarizeTimeline(timeline) : null
+  const retract = () => {
+    if (!lastSession) return
+    onRetract?.(lastSession.id)
+    setLastSession(null)
+    setTimeline(null)
+    setSamples([])
+  }
 
   const exportTimeline = () => {
     if (!timeline) return
@@ -67,6 +78,7 @@ export function SignalSimulator({ onSession }: { onSession?: (session: SignalSes
       <button type="button" disabled={!consent || running} onClick={start}>{t('运行 15 秒模拟')}</button>
       <button type="button" className="quiet" disabled={!running} onClick={stop}>{t('停止')}</button>
       {timeline && <button type="button" className="quiet" onClick={exportTimeline}>{t('导出时间轴 JSON')}</button>}
+      {lastSession && <button type="button" className="quiet" onClick={retract}>{t('撤回本次信号摘要')}</button>}
     </div>
     <div className="signal-readout">
       <span>{t('心率模拟')} {heart?.value ?? '—'} bpm</span>

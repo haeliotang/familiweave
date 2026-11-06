@@ -5,7 +5,7 @@ import { summarizeTimeline, traceToTimeline, type SignalSample, type SignalTimel
 import { useLanguage } from './i18n'
 import { createSignalSession, type SignalSession } from './signal-session'
 
-export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalSession) => void }) {
+export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (session: SignalSession) => void; onRetract?: (sessionId: string) => void }) {
   const { t } = useLanguage()
   const [url, setUrl] = useState('ws://127.0.0.1:8765')
   const [token, setToken] = useState('')
@@ -14,6 +14,8 @@ export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalS
   const [message, setMessage] = useState('')
   const [samples, setSamples] = useState<SignalSample[]>([])
   const [timeline, setTimeline] = useState<SignalTimeline | null>(null)
+  const [lastSession, setLastSession] = useState<SignalSession | null>(null)
+  const [health, setHealth] = useState<ReturnType<WebSocketSignalSource['health']> | null>(null)
   const source = useRef<WebSocketSignalSource | null>(null)
   const unsubscribe = useRef<(() => void) | null>(null)
 
@@ -25,7 +27,10 @@ export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalS
       const trace = source.current.stop()
       const nextTimeline = traceToTimeline(trace)
       setTimeline(nextTimeline)
-      onSession?.(createSignalSession(nextTimeline))
+      const session = createSignalSession(nextTimeline)
+      setLastSession(session)
+      setHealth(source.current?.health() ?? null)
+      onSession?.(session)
     } catch { /* no trace */ }
     source.current = null
     setState('stopped')
@@ -38,6 +43,8 @@ export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalS
     stop()
     setSamples([])
     setTimeline(null)
+    setLastSession(null)
+    setHealth(null)
     setMessage('')
     try {
       const next = new WebSocketSignalSource(url, token, (nextState, nextMessage) => {
@@ -64,6 +71,15 @@ export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalS
   }
 
   const summary = timeline ? summarizeTimeline(timeline) : null
+  const retract = () => {
+    if (!lastSession) return
+    onRetract?.(lastSession.id)
+    setLastSession(null)
+    setTimeline(null)
+    setSamples([])
+    setMessage(t('已撤回本次信号摘要'))
+  }
+  const stateLabel = state === 'reconnecting' ? t('重连中…') : state
   return <section className="device-lab" aria-labelledby="device-lab-title">
     <h2 id="device-lab-title">{t('BCI-2 设备桥接（实验）')}</h2>
     <p className="note">{t('连接')}<strong>{t('本机')}</strong>{t(' WebSocket 桥接，接收 JSON 样本。浏览器不直接读 LSL，也不上传数据；原始信号默认不保存。')}</p>
@@ -78,12 +94,14 @@ export function DeviceSignalPanel({ onSession }: { onSession?: (session: SignalS
       <button type="button" disabled={!consent || state === 'connecting' || state === 'connected'} onClick={start}>{state === 'connecting' ? t('连接中…') : t('连接桥接')}</button>
       <button type="button" className="quiet" disabled={!source.current} onClick={stop}>{t('断开')}</button>
       {timeline && <button type="button" className="quiet" onClick={exportTimeline}>{t('导出设备时间轴')}</button>}
+      {lastSession && <button type="button" className="quiet" onClick={retract}>{t('撤回本次信号摘要')}</button>}
     </div>
     <div className="signal-readout">
-      <span>{t('状态')}：{state}</span>
+      <span>{t('状态')}：{stateLabel}</span>
       <span>{t('样本')}：{timeline ? summary?.sampleCount ?? 0 : samples.length}</span>
       {message && <span role="status">{t('错误')}：{message}</span>}
     </div>
-    {source.current && <p className="note">{t('等待本机桥接发送 hello / sample / samples JSON 包；不会保存原始信号。')}</p>}
+    {health && <p className="note">{t('重连')} {health.reconnects} · {t('拒绝')} {health.rejected} · {t('最大间隔')} {health.maxGapMs ?? '—'} ms · {t('抖动')} {health.jitterPercent ?? '—'}%</p>}
+    {source.current && <p className="note">{t('等待本机桥接发送 hello / sample / samples JSON 包；断线会自动重连，不会保存原始信号。')}</p>}
   </section>
 }

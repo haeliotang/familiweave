@@ -63,5 +63,8 @@ describe('BCI-3 local bridge', () => {
     bridge.stdin.write(JSON.stringify({ type: 'sample', kind: 'heart_rate', value: 66, tMs: 100 }) + '\n')
     expect(await sampleReply).toMatchObject({ type: 'sample', kind: 'heart_rate', value: 66, sourceId: 'bci-3-bridge' })
     socket.close()
+    const health = await fetch(`http://127.0.0.1:${port}/health`).then(response => response.json())
+    expect(health).toMatchObject({ ok: true, forwarded: 1 })
+    expect(health.received).toBeGreaterThanOrEqual(1)
   }, 10_000)
 })

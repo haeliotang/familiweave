@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { grantLocalSignalConsent } from './somatic-signal'
-import { isLocalBridgeUrl, parseBridgePacket, WebSocketSignalSource } from './device-signal-source'
+import { isLocalBridgeUrl, parseBridgePacket, reconnectDelay, WebSocketSignalSource } from './device-signal-source'
 
 const consent = grantLocalSignalConsent('2026-11-01T00:00:00Z')
 
@@ -19,6 +19,14 @@ describe('BCI-2 device bridge contract', () => {
     const batch = parseBridgePacket({ type: 'samples', samples: [{ kind: 'eda', value: 2.1 }, { kind: 'unknown' as never, value: 1 }] }, 5000, 'bridge')
     expect(batch).toEqual([{ tMs: 5000, kind: 'eda', value: 2.1, sourceId: 'bridge' }])
     expect(parseBridgePacket({ type: 'hello' }, 0, 'bridge')).toEqual([])
+    expect(parseBridgePacket({ type: 'samples', samples: [{ kind: 'eda', value: Number.NaN }, { kind: 'eda', tMs: -1 }] }, 7000, 'bridge')).toEqual([
+      { tMs: 7000, kind: 'eda', sourceId: 'bridge' },
+      { tMs: 7000, kind: 'eda', sourceId: 'bridge' },
+    ])
+  })
+
+  it('uses bounded exponential reconnect delays', () => {
+    expect([1, 2, 3, 5, 8, 20].map(reconnectDelay)).toEqual([250, 500, 1000, 4000, 5000, 5000])
   })
 
   it('requires local consent before starting', () => {

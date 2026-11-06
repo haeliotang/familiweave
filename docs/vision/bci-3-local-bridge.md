@@ -17,7 +17,7 @@
 ```sh
 pnpm bci:bridge --port 8765
 # 或固定 token：
-pnpm bci:bridge --port 8765 --token local-dev-token
+pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
 ```
 
 然后在应用「信号实验台 → BCI-2 设备桥接」中填写地址与 token。
@@ -43,7 +43,9 @@ pnpm bci:bridge --port 8765 --token local-dev-token
 {"type":"samples","samples":[{"kind":"eda","value":2.1},{"kind":"breath_phase","value":0.4}]}
 ```
 
-`tMs` 缺省时由客户端按接收时间填充；所有输入必须来自本机。
+`tMs` 缺省时由客户端按接收时间填充；`sourceId` 缺省为 `bci-3-bridge`；所有输入必须来自本机。桥接会拒绝未知 `kind`、非有限数值和负 `tMs`，并在 `--rate` 声明采样率用于客户端抖动计算。
+
+`/health` 返回 `clients`、`received`、`forwarded`、`rejected`、`lastSampleAt`，可用于真实 daemon 的断线与丢包排查。
 
 ## 安全边界
 
@@ -54,4 +56,4 @@ pnpm bci:bridge --port 8765 --token local-dev-token
 - 不保存原始神经数据；应用只把摘要写入本地 SQLite
 - 没有真实 OpenBCI/BrainFlow/LSL 硬件验收；此 bridge 是设备 daemon 的协议接缝
 
-下一步是把本脚本替换/扩展为读取 LSL/OpenBCI/BrainFlow 的真实 daemon；在此之前，不要声称 BCI-3 已完成。
+客户端 `WebSocketSignalSource` 会在断线后按指数退避重连，保留同一时间轴起点；停止后可显式撤回本次信号摘要。真实 LSL/OpenBCI/BrainFlow 适配仍由本机 daemon 负责，仓库中的 `scripts/lsl_bridge.example.py` 是参考，不等于硬件验收。下一步是把 daemon 适配器与真实设备记录补齐；在此之前，不要声称 BCI-3 已完成。

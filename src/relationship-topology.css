@@ -1,0 +1,441 @@
+/* Longitudinal comparison view for user-authored relationship triggers.
+   Self-contained paper/ink styles that sit next to src/shell.css without
+   editing it. The Lead can mount the section inside the shell as-is. */
+
+.relationship-topology {
+  margin: 18px 40px 36px;
+  padding-top: 16px;
+  border-top: 1px solid #e3e3e3;
+  color: #2b2d29;
+  font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif;
+}
+
+.relationship-topology-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.relationship-topology-eyebrow {
+  margin: 0 0 4px;
+  color: #5f6165;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.relationship-topology h2 {
+  margin: 0;
+  color: #343833;
+  font: 600 16px/1.4 Georgia, "Songti SC", serif;
+}
+
+.relationship-topology-pill {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border: 1px solid #ddd7ca;
+  border-radius: 999px;
+  color: #5f6165;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.relationship-topology-note {
+  max-width: 640px;
+  margin: 8px 0 0;
+  color: #5f6165;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.relationship-topology-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 14px 0 0;
+}
+
+.relationship-topology-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.relationship-topology-fieldset legend {
+  margin: 0 0 5px;
+  padding: 0;
+  color: #5f6165;
+  font-size: 10px;
+  letter-spacing: .5px;
+}
+
+.relationship-topology-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.relationship-topology-option {
+  padding: 4px 10px;
+  border: 1px solid #deded7;
+  border-radius: 999px;
+  background: #fbfbf8;
+  color: #5f645d;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.relationship-topology-option:hover {
+  border-color: #b9bcb9;
+  color: #343833;
+}
+
+.relationship-topology-option[aria-pressed='true'] {
+  border-color: #8b5e54;
+  background: #eee9e4;
+  color: #68463f;
+}
+
+.relationship-topology-option:focus-visible,
+.relationship-topology-details summary:focus-visible {
+  outline: 2px solid #8b5e54;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.relationship-topology-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 14px 0 0;
+  color: #5f6165;
+  font-size: 10px;
+}
+
+.relationship-topology-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relationship-topology-group {
+  padding: 12px 14px;
+  border: 1px solid #e4e4de;
+  border-radius: 10px;
+  background: #fbfbf8;
+}
+
+.relationship-topology-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.relationship-topology-group-head h3 {
+  margin: 0;
+  color: #343833;
+  font: 600 13px/1.4 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.relationship-topology-group.unlabeled .relationship-topology-group-head h3 {
+  color: #5f6165;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.relationship-topology-direction {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border: 1px solid #e1dccf;
+  border-radius: 999px;
+  color: #5f6165;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.relationship-topology-direction.direction-more-later,
+.relationship-topology-direction.direction-only-later {
+  border-color: #d8bdb2;
+  color: #8b5e54;
+}
+
+.relationship-topology-delta {
+  font-variant-numeric: tabular-nums;
+}
+
+.relationship-topology-windows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.relationship-topology-window {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #ecebe5;
+  border-radius: 8px;
+  background: #f7f5ef;
+}
+
+.relationship-topology-window-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 8px;
+  margin: 0;
+  color: #5f6165;
+  font-size: 10px;
+}
+
+.relationship-topology-range {
+  color: #5f6165;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.relationship-topology-count {
+  margin: 3px 0 0;
+  color: #343833;
+  font-size: 12px;
+}
+
+.relationship-topology-count strong {
+  font: 600 20px/1.1 Georgia, "Songti SC", serif;
+}
+
+.relationship-topology-count-unit {
+  margin-left: 3px;
+  color: #5f6165;
+  font-size: 10px;
+}
+
+.relationship-topology-facets {
+  margin: 4px 0 0;
+  color: #5f6165;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.relationship-topology-window-empty {
+  margin: 4px 0 0;
+  color: #5f6165;
+  font-size: 10px;
+}
+
+.relationship-topology-details {
+  margin-top: 8px;
+}
+
+.relationship-topology-details summary {
+  color: #8b5e54;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.relationship-topology-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.relationship-topology-detail {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #ecebe5;
+  border-radius: 8px;
+  background: #f7f4ec;
+}
+
+.relationship-topology-detail h4 {
+  margin: 0 0 5px;
+  color: #343833;
+  font: 600 11px/1.4 -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif;
+}
+
+.relationship-topology-detail-facets {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+}
+
+.relationship-topology-detail-facets div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 6px;
+}
+
+.relationship-topology-detail-facets dt {
+  color: #5f6165;
+  font-size: 10px;
+}
+
+.relationship-topology-detail-facets dd {
+  margin: 0;
+  color: #343833;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.relationship-topology-moments {
+  display: grid;
+  gap: 3px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relationship-topology-moments li {
+  color: #5f6165;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.relationship-topology-moments time {
+  margin-right: 5px;
+  color: #5f6165;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.relationship-topology-empty {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px dashed #dcdcd5;
+  border-radius: 9px;
+  color: #5f6165;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.relationship-topology-footer {
+  margin: 10px 0 0;
+  color: #5f6165;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.relationship-topology-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .relationship-topology {
+    margin-left: 28px;
+    margin-right: 28px;
+  }
+}
+
+@media (max-width: 680px) {
+  .relationship-topology {
+    margin: 16px 18px 28px;
+  }
+
+  .relationship-topology-windows,
+  .relationship-topology-details-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .relationship-topology-group {
+    transition: border-color .16s ease;
+  }
+}
+
+[data-theme='dark'] .relationship-topology {
+  border-top-color: #34363b;
+  color: #d6d7d4;
+}
+
+[data-theme='dark'] .relationship-topology h2,
+[data-theme='dark'] .relationship-topology-group-head h3,
+[data-theme='dark'] .relationship-topology-count,
+[data-theme='dark'] .relationship-topology-detail h4,
+[data-theme='dark'] .relationship-topology-detail-facets dd {
+  color: #ecece8;
+}
+
+[data-theme='dark'] .relationship-topology-eyebrow,
+[data-theme='dark'] .relationship-topology-note,
+[data-theme='dark'] .relationship-topology-summary,
+[data-theme='dark'] .relationship-topology-window-label,
+[data-theme='dark'] .relationship-topology-range,
+[data-theme='dark'] .relationship-topology-count-unit,
+[data-theme='dark'] .relationship-topology-facets,
+[data-theme='dark'] .relationship-topology-window-empty,
+[data-theme='dark'] .relationship-topology-detail-facets dt,
+[data-theme='dark'] .relationship-topology-moments li,
+[data-theme='dark'] .relationship-topology-moments time,
+[data-theme='dark'] .relationship-topology-footer {
+  color: #b8babc;
+}
+
+[data-theme='dark'] .relationship-topology-pill,
+[data-theme='dark'] .relationship-topology-direction {
+  border-color: #3a3c41;
+  color: #b8babc;
+}
+
+[data-theme='dark'] .relationship-topology-group {
+  border-color: #33353a;
+  background: #1d1e21;
+}
+
+[data-theme='dark'] .relationship-topology-window {
+  border-color: #33353a;
+  background: #202124;
+}
+
+[data-theme='dark'] .relationship-topology-option {
+  border-color: #3a3c41;
+  background: #202124;
+  color: #b8babc;
+}
+
+[data-theme='dark'] .relationship-topology-option:hover {
+  border-color: #b78a79;
+  color: #f0f0ec;
+}
+
+[data-theme='dark'] .relationship-topology-option[aria-pressed='true'] {
+  border-color: #b78a79;
+  background: #332a27;
+  color: #e1bba9;
+}
+
+[data-theme='dark'] .relationship-topology-direction.direction-more-later,
+[data-theme='dark'] .relationship-topology-direction.direction-only-later {
+  border-color: #5a4943;
+  color: #e1bba9;
+}
+
+[data-theme='dark'] .relationship-topology-details summary {
+  color: #e1bba9;
+}
+
+[data-theme='dark'] .relationship-topology-detail {
+  border-color: #33353a;
+  background: #1b1c1f;
+}
+
+[data-theme='dark'] .relationship-topology-empty {
+  border-color: #3a3c41;
+  color: #b8babc;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSignalSession, isSignalSession } from './signal-session'
+import { createSignalSession, isSignalSession, removeSignalSession } from './signal-session'
 import type { SignalTimeline } from './signal-source'
 
 const timeline: SignalTimeline = {
@@ -27,5 +27,14 @@ describe('signal sessions', () => {
 
   it('rejects malformed sessions', () => {
     expect(isSignalSession({ version: 'signal-session-v1' })).toBe(false)
+  })
+})
+
+
+describe('signal session retraction', () => {
+  it('removes exactly the explicitly selected session', () => {
+    const first = createSignalSession(timeline, '2026-11-01T00:00:16.000Z', 'session-1')
+    const second = createSignalSession(timeline, '2026-11-01T00:01:16.000Z', 'session-2')
+    expect(removeSignalSession([first, second], 'session-1')).toEqual([second])
   })
 })

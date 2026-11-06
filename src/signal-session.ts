@@ -112,3 +112,7 @@ export function saveSignalSessions(storage: SignalSessionStorageLike, sessions: 
 export function clearSignalSessions(storage: SignalSessionStorageLike) {
   storage.removeItem(signalSessionStorageKey)
 }
+
+export function removeSignalSession(sessions: SignalSession[], id: string): SignalSession[] {
+  return sessions.filter(session => session.id !== id)
+}

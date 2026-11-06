@@ -10,7 +10,9 @@ const valueAfter = (flag: string) => {
 }
 const port = Number(valueAfter('--port') ?? 8765)
 const token = valueAfter('--token') ?? randomBytes(18).toString('base64url')
+const sampleRateHz = Number(valueAfter('--rate') ?? 1)
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('invalid --port')
+if (!Number.isFinite(sampleRateHz) || sampleRateHz <= 0) throw new Error('invalid --rate')
 
 function tokenMatches(expected: string, received: unknown) {
   if (typeof received !== 'string') return false
@@ -18,6 +20,9 @@ function tokenMatches(expected: string, received: unknown) {
   const right = Buffer.from(received)
   return left.length === right.length && timingSafeEqual(left, right)
 }
+
+const signalKinds = new Set(['heart_rate', 'eda', 'breath_phase', 'voice_energy', 'body_event', 'imagery_event', 'relationship_event'])
+const stats = { received: 0, forwarded: 0, rejected: 0, lastSampleAt: null as string | null }
 
 function allowedOrigin(origin: string | undefined) {
   if (!origin) return true
@@ -33,7 +38,7 @@ function allowedOrigin(origin: string | undefined) {
 const server = createServer((request, response) => {
   if (request.url === '/health') {
     response.writeHead(200, { 'content-type': 'application/json' })
-    response.end(JSON.stringify({ ok: true, bridge: 'bci-3', clients: wss.clients.size }))
+    response.end(JSON.stringify({ ok: true, bridge: 'bci-3', clients: wss.clients.size, ...stats }))
     return
   }
   response.writeHead(404, { 'content-type': 'text/plain' })
@@ -76,8 +81,8 @@ wss.on('connection', (socket, request) => {
     send(socket, {
       type: 'hello',
       sourceId: 'bci-3-bridge',
-      kinds: ['heart_rate', 'eda', 'breath_phase', 'voice_energy', 'body_event', 'imagery_event', 'relationship_event'],
-      sampleRateHz: 1,
+      kinds: [...signalKinds],
+      sampleRateHz,
     })
   })
   socket.on('close', () => { clearTimeout(timeout); authenticated.delete(socket) })
@@ -89,17 +94,30 @@ server.listen(port, '127.0.0.1', () => {
   console.log(`Token: ${token}`)
   console.log('Health: http://127.0.0.1:' + port + '/health')
   console.log('Pipe JSONL sample/samples packets via stdin; no raw samples are stored by this process.')
+console.log(`Declared source rate: ${sampleRateHz} Hz (override with --rate).`)
 })
 
 const input = createInterface({ input: process.stdin, crlfDelay: Infinity })
 input.on('line', line => {
   if (!line.trim()) return
   try {
-    const packet = JSON.parse(line) as { type?: string; sourceId?: string }
+    const packet = JSON.parse(line) as { type?: string; sourceId?: string; kind?: string; samples?: Array<{ kind?: string; value?: number; tMs?: number }>; value?: number; tMs?: number }
+    stats.received += 1
     if (packet.type !== 'sample' && packet.type !== 'samples') {
+      stats.rejected += 1
       console.error('Ignoring packet: expected type sample or samples')
       return
     }
+    const samples = packet.type === 'sample' ? [packet] : (packet.samples ?? [])
+    if (!samples.length || samples.some(sample => typeof sample.kind !== 'string' || !signalKinds.has(sample.kind)
+      || (sample.value !== undefined && (typeof sample.value !== 'number' || !Number.isFinite(sample.value)))
+      || (sample.tMs !== undefined && (typeof sample.tMs !== 'number' || !Number.isFinite(sample.tMs) || sample.tMs < 0)))) {
+      stats.rejected += 1
+      console.error('Ignoring packet: invalid sample shape')
+      return
+    }
+    stats.forwarded += 1
+    stats.lastSampleAt = new Date().toISOString()
     broadcast({ ...packet, sourceId: packet.sourceId ?? 'bci-3-bridge' })
   } catch (error) {
     console.error('Invalid JSONL packet:', error instanceof Error ? error.message : String(error))

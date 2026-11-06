@@ -4,7 +4,7 @@ import { exportLocalTimeline } from './local-timeline'
 import { useLanguage } from './i18n'
 import { decryptBackup, encryptBackup, isSecureBackup } from './secure-backup'
 
-export function LocalDataPanel({ snapshot, onImport, onClear }: { snapshot: LocalSnapshot; onImport: (snapshot: LocalSnapshot) => void; onClear: () => void }) {
+export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal }: { snapshot: LocalSnapshot; onImport: (snapshot: LocalSnapshot) => void; onClear: () => void; onRetractSignal?: (id: string) => void }) {
   const { t } = useLanguage()
   const input = useRef<HTMLInputElement>(null)
   const [status, setStatus] = useState('')
@@ -56,6 +56,13 @@ export function LocalDataPanel({ snapshot, onImport, onClear }: { snapshot: Loca
     <h2 id="local-data-title">{t('本机数据')}</h2>
     <p className="note">{t('母题、关系触发点与可选声音摘要都保存在本机；不会上传。可以整体导出、导入或删除。')}</p>
     <p className="note">{t('捕获出处')}：{snapshot.captures?.length ?? 0} · {t('信号会话')}：{snapshot.signals?.length ?? 0}</p>
+    {Boolean(snapshot.signals?.length) && <div className="signal-session-list">
+      <h3>{t('信号摘要')}</h3>
+      {snapshot.signals!.slice(0, 5).map(session => <div className="signal-session-row" key={session.id}>
+        <span>{new Date(session.createdAt).toLocaleString()} · {session.sourceIds.join(', ') || t('本机')}</span>
+        {onRetractSignal && <button type="button" className="quiet small" onClick={() => onRetractSignal(session.id)}>{t('撤回')}</button>}
+      </div>)}
+    </div>}
     <div className="actions">
       <button type="button" className="quiet" onClick={exportAll}>{t('导出全部本机数据')}</button>
       <button type="button" className="quiet" onClick={() => void exportEncrypted()}>{t('导出加密备份')}</button>

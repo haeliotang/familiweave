@@ -13,7 +13,7 @@ import { appLockStorageKey, createAppLockRecord, loadAppLockRecord, loadLockout,
 import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo } from './host'
 import { fragments, regions, sensations, breaths } from './somatic'
 import { addFieldLink, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFieldNode, type FieldLayout, type FieldLens, type FieldRange } from './field'
-import { createSignalSession, loadSignalSessions, type SignalSession } from './signal-session'
+import { createSignalSession, loadSignalSessions, removeSignalSession, type SignalSession } from './signal-session'
 import type { CaptureProvenance } from './capture'
 import { addCaptureProvenance } from './capture-ledger'
 
@@ -379,6 +379,12 @@ export function DesktopShell() {
     void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
   }
 
+  const retractSignalSession = (id: string) => {
+    const next = removeSignalSession(signalSessions, id)
+    setSignalSessions(next)
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
+  }
+
   const loadDemo = () => {
     const demoMotifs = [
       createMotif({ name: lang === 'en' ? 'Demo · door in the chest' : '示例 · 胸口的旧门', capture: { region: 'chest', sensation: 'pressure', intensity: 4, breath: 'held', fragments: ['wet-corridor', 'dusk-stairs'] } }),
@@ -482,8 +488,8 @@ export function DesktopShell() {
               </>}
               {view === 'lab' && <>
                 <WorkspaceHeader eyebrow={t('实验台')} title={t('先把信号管线立住。')} meta={t('模拟数据和设备桥接都明确标注；没有真实神经数据。')} />
-                <Suspense fallback={null}><SignalSimulator onSession={recordSignalSession} /></Suspense>
-                <Suspense fallback={null}><DeviceSignalPanel onSession={recordSignalSession} /></Suspense>
+                <Suspense fallback={null}><SignalSimulator onSession={recordSignalSession} onRetract={retractSignalSession} /></Suspense>
+                <Suspense fallback={null}><DeviceSignalPanel onSession={recordSignalSession} onRetract={retractSignalSession} /></Suspense>
               </>}
               {view === 'settings' && <>
                 <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : t('浏览器预览：数据在 localStorage')} />
@@ -494,7 +500,7 @@ export function DesktopShell() {
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.1'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
-                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
+                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} /></Suspense>
               </>}
             </>}
         </div>

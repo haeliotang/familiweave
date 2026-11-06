@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { breaths, regions, sensations, type BreathState, type SomaticRegion, type SomaticSensation } from './somatic'
 import { exportRelationshipTriggers, responses, summarizeRelationshipTriggers, type RelationshipInput, type RelationshipResponse, type RelationshipSummary, type RelationshipTrigger } from './relationship'
 import { useLanguage, type Language } from './i18n'
+import { RelationshipTopologyView } from './relationship-topology.jsx'
 
 function TriggerSummary({ summary, lang, t }: { summary: RelationshipSummary; lang: Language; t: (zh: string) => string }) {
   if (!summary.total) return null
@@ -107,6 +108,7 @@ export function RelationshipJournal({ entries, onAdd, onRemove, onClear }: { ent
       : <>
         <TriggerMap entries={entries} lang={lang} t={t} />
         <TriggerSummary summary={summary} lang={lang} t={t} />
+        <RelationshipTopologyView entries={entries} />
         <ul className="motif-list">
           {entries.map(entry => <li key={entry.id} className="motif-item">
             <div className="motif-main"><span className="motif-name">{entry.role || t('未命名的角色')}</span><span className="motif-date">{new Date(entry.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'zh-CN')}</span></div>
