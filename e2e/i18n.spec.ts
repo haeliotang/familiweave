@@ -27,3 +27,14 @@ test('English UI has no untranslated shell/capture/lab strings', async ({ page }
     expect(chineseTokens(await page.locator('.workspace-scroll').innerText()), label).toEqual([])
   }
 })
+
+test('English scene toolbar has no untranslated fallback', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('tacitweave.lang', 'en'))
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Load demo field' }).click()
+  await page.locator('.field-node').first().focus()
+  await page.keyboard.press('Enter')
+  await page.getByRole('button', { name: /Enter 75s space/ }).click()
+  expect(chineseTokens(await page.locator('.scene-toolbar').innerText())).toEqual([])
+  expect(chineseTokens(await page.locator('.scene-footer').innerText())).toEqual([])
+})

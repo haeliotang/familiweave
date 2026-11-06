@@ -6,6 +6,7 @@ function memoryStorage(initial: Record<string, string> = {}) {
   return {
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => { values.set(key, value) },
+    removeItem: (key: string) => { values.delete(key) },
     dump: () => Object.fromEntries(values),
   }
 }
@@ -15,6 +16,8 @@ describe('legacy localStorage migration', () => {
     const storage = memoryStorage({ 'familiweave.theme': 'dark', 'familiweave.lang': 'en' })
     migrateLegacyLocalStorage(storage)
     expect(storage.dump()).toMatchObject({ 'tacitweave.theme': 'dark', 'tacitweave.lang': 'en', [storageMigrationMarker]: '1' })
+    expect(storage.getItem('familiweave.theme')).toBeNull()
+    expect(storage.getItem('familiweave.lang')).toBeNull()
   })
 
   it('never overwrites newer Tacitweave values and runs once', () => {

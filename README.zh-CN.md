@@ -130,7 +130,7 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 | 应用锁 | 本机 PIN + AES-GCM 加密快照；可配置无操作自动锁定（默认 5 分钟）、5 次错误 PIN 锁定 30 秒；不是系统锁屏 |
 | 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
 | 双语 | 中文 / English 界面切换 |
-| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除；捕获出处与信号摘要 |
+| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除；捕获出处与信号摘要。删除包含旧 key、local-files 与旧 app data 目录；SQLite 使用 secure_delete + VACUUM（不是整盘取证级擦除保证） |
 | 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
 | 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
 | 关系拓扑 | 30/90 天纵向对比用户自述触发点；不推断对方 |

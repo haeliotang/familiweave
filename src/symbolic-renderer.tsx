@@ -53,7 +53,7 @@ export function SymbolicRenderer({ encounter, replay, onAgency }: WorldRendererP
     return () => window.clearInterval(timer)
   }, [plan, paused, left])
 
-  if (!plan) return <div className="scene-placeholder" role="alert">这次相遇没有内在景观计划，暂时无法进入。</div>
+  if (!plan) return <div className="scene-placeholder" role="alert">{t('这次相遇没有内在景观计划，暂时无法进入。')}</div>
 
   if (left) {
     return (
@@ -70,7 +70,7 @@ export function SymbolicRenderer({ encounter, replay, onAgency }: WorldRendererP
   const phase = symbolicPhase(seconds, plan.durationSec, plan.format)
   const done = !isSpace && seconds >= plan.durationSec
   return (
-    <div className={`symbolic-episode motif-${plan.motifs[0]} phase-${phase} format-${plan.format}`} role="img" aria-label="象征空间">
+    <div className={`symbolic-episode motif-${plan.motifs[0]} phase-${phase} format-${plan.format}`} role="img" aria-label={t('象征空间')}>
       <div className="symbolic-sky" />
       <div className="symbolic-horizon" />
       <div className="symbolic-water" />

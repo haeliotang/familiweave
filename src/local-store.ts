@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { isTauriRuntime } from './host'
-import { clearEncryptedState, loadEncryptedState, saveEncryptedState } from './host'
+import { clearEncryptedState, clearLegacyAppData, clearLocalFiles, loadEncryptedState, saveEncryptedState } from './host'
 import { isMotifEntry, loadMotifs, motifStorageKey, saveMotifs } from './motif-journal'
 import { isRelationshipTrigger, loadRelationshipTriggers, relationshipStorageKey, saveRelationshipTriggers } from './relationship'
 import type { LocalSnapshot } from './local-dataset'
@@ -8,7 +8,8 @@ import { clearFieldLayout, emptyFieldLayout, fieldStorageKey, isFieldLayout, loa
 import { clearSignalSessions, isSignalSession, loadSignalSessions, saveSignalSessions, signalSessionStorageKey } from './signal-session'
 import { captureStorageKey, isCaptureLedger, loadCaptureProvenance, saveCaptureProvenance } from './capture-ledger'
 import { isSymbolicSession, loadSymbolicSessions, saveSymbolicSessions, symbolicSessionStorageKey } from './symbolic-session'
-import type { AppLockRecord } from './app-lock'
+import { removeLegacyLocalStorage } from './storage-migration'
+import { createAppLockRecord, type AppLockRecord } from './app-lock'
 import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState, type EncryptedLocalState } from './encrypted-store'
 
 const encryptedStorageKey = 'tacitweave.encrypted-state.v1'
@@ -33,6 +34,7 @@ function clearWebPlaintext(storage: Storage) {
   storage.removeItem(signalSessionStorageKey)
   storage.removeItem(captureStorageKey)
   storage.removeItem(symbolicSessionStorageKey)
+  removeLegacyLocalStorage(storage)
 }
 
 export function readWebSnapshot(): LocalSnapshot {
@@ -100,13 +102,13 @@ async function readEncryptedPayload(): Promise<EncryptedLocalState | null> {
   }
 }
 
-async function writeEncryptedPayload(payload: EncryptedLocalState) {
+async function writeEncryptedPayload(payload: EncryptedLocalState, purgePlaintext = false) {
   const storage = webStorage()
   if (storage) {
     clearWebPlaintext(storage)
     storage.setItem(encryptedStorageKey, JSON.stringify(payload))
   }
-  if (isTauriRuntime()) await saveEncryptedState(JSON.stringify(payload))
+  if (isTauriRuntime()) await saveEncryptedState(JSON.stringify(payload), purgePlaintext)
 }
 
 async function removeEncryptedPayload() {
@@ -196,11 +198,22 @@ export async function unlockLocalSnapshot(pin: string, record: AppLockRecord): P
   return valid
 }
 
+/** Recover an encrypted payload when the old WebView lock record was not migrated. */
+export async function recoverEncryptedSnapshot(pin: string): Promise<{ snapshot: LocalSnapshot; record: AppLockRecord }> {
+  const payload = await readEncryptedPayload()
+  if (!payload) throw new Error('no_encrypted_state')
+  const { snapshot } = await decryptLocalSnapshot(payload, pin)
+  const normalized = normalizeSnapshot(snapshot)
+  const record = await createAppLockRecord(pin)
+  await enableLocalEncryption(normalized, pin, record)
+  return { snapshot: normalized, record }
+}
+
 export async function enableLocalEncryption(snapshot: LocalSnapshot, pin: string, record: AppLockRecord): Promise<void> {
   const key = await deriveDataKey(pin, record.salt, record.iterations)
   const payload = await encryptLocalSnapshot(snapshot, record, key)
   activeEncryption = { record, key }
-  await writeEncryptedPayload(payload)
+  await writeEncryptedPayload(payload, true)
 }
 
 export async function disableLocalEncryption(pin: string, record: AppLockRecord, fallback: LocalSnapshot): Promise<LocalSnapshot> {
@@ -225,4 +238,6 @@ export async function clearLocalSnapshot(): Promise<void> {
   activeEncryption = null
   if (!isTauriRuntime()) return
   try { await invoke('clear_local_state') } catch { /* local web copy already cleared */ }
+  await clearLocalFiles()
+  await clearLegacyAppData()
 }

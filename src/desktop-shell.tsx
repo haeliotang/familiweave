@@ -5,7 +5,7 @@ import { innerPlanFromCapture } from './inner'
 import { SceneView } from './scene-loader'
 import { createMotif, loadMotifs, type MotifEntry } from './motif-journal'
 import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipInput, type RelationshipTrigger } from './relationship'
-import { clearActiveEncryption, clearLocalSnapshot, disableLocalEncryption, enableLocalEncryption, loadLocalSnapshot, saveLocalSnapshot, unlockLocalSnapshot } from './local-store'
+import { clearActiveEncryption, clearLocalSnapshot, disableLocalEncryption, enableLocalEncryption, hasEncryptedLocalState, loadLocalSnapshot, recoverEncryptedSnapshot, saveLocalSnapshot, unlockLocalSnapshot } from './local-store'
 import type { LocalSnapshot } from './local-dataset'
 import { useLanguage, type Language } from './i18n'
 import { useTheme } from './theme'
@@ -82,7 +82,7 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
   return <>
     <WorkspaceHeader
       eyebrow={t('母题')}
-      title={motif.name || '未命名'}
+      title={motif.name || t('未命名')}
       meta={`${dateLabel(motif.createdAt, lang)} · ${t('本机保存')} · ${motif.capture.fragments.length} ${t('块意象')}`}
       action={<button className="primary-button" onClick={onEnter}>{t('进入空间')}</button>}
     />
@@ -188,6 +188,7 @@ export function DesktopShell() {
   const [symbolicSessions, setSymbolicSessions] = useState<SymbolicSession[]>([])
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
+  const [recoveryNeeded, setRecoveryNeeded] = useState(false)
   const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('tacitweave.autolock-ms') ?? 300_000))
   const [lockout, setLockout] = useState<LockoutState>(() => typeof window === 'undefined' ? { failed: 0, blockedUntil: 0 } : loadLockout(window.localStorage))
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
@@ -307,6 +308,11 @@ export function DesktopShell() {
     setCaptures([])
     setSymbolicSessions([])
     setSelectedId(null)
+    window.localStorage.removeItem(appLockStorageKey)
+    window.localStorage.removeItem('tacitweave.app-lock-lockout.v1')
+    setLockRecord(null)
+    setLocked(false)
+    setRecoveryNeeded(false)
     clearActiveEncryption()
     void clearLocalSnapshot()
   }
@@ -345,7 +351,26 @@ export function DesktopShell() {
 
   const unlockApp = async (pin: string): Promise<boolean> => {
     if (lockoutRemainingMs(lockout) > 0) return false
-    if (!lockRecord || !await verifyAppLock(pin, lockRecord)) {
+    if (!lockRecord) {
+      try {
+        const recovered = await recoverEncryptedSnapshot(pin)
+        saveAppLockRecord(window.localStorage, recovered.record)
+        setLockRecord(recovered.record)
+        applySnapshot(recovered.snapshot)
+        setRecoveryNeeded(false)
+        setLocked(false)
+        const reset = { failed: 0, blockedUntil: 0 }
+        saveLockout(window.localStorage, reset)
+        setLockout(reset)
+        return true
+      } catch {
+        const next = registerFailedAttempt(lockout)
+        saveLockout(window.localStorage, next)
+        setLockout(next)
+        return false
+      }
+    }
+    if (!await verifyAppLock(pin, lockRecord)) {
       const next = registerFailedAttempt(lockout)
       saveLockout(window.localStorage, next)
       setLockout(next)
@@ -377,6 +402,14 @@ export function DesktopShell() {
     clearActiveEncryption()
     setLocked(true)
   }
+
+  useEffect(() => {
+    if (lockRecord || typeof window === 'undefined') {
+      setRecoveryNeeded(false)
+      return
+    }
+    void hasEncryptedLocalState().then(present => setRecoveryNeeded(present))
+  }, [lockRecord])
 
   useEffect(() => {
     if (!lockRecord || locked || typeof window === 'undefined') return
@@ -503,7 +536,7 @@ export function DesktopShell() {
         <div className="workspace-scroll">
           {view === 'space' && encounter
             ? <div className="scene-workspace">
-              <div className="scene-toolbar"><button className="text-button" onClick={backFromSpace}>← 返回工作台</button><span>{encounter.innerPlan?.format === 'space' ? `${t('内在景观')} · ${t('空间')}` : `${t('内在景观')} · ${t('相遇')}`}</span><span className="local-badge">{t('无声 · 本地')}</span></div>
+              <div className="scene-toolbar"><button className="text-button" onClick={backFromSpace}>← {t('返回工作台')}</button><span>{encounter.innerPlan?.format === 'space' ? `${t('内在景观')} · ${t('空间')}` : `${t('内在景观')} · ${t('相遇')}`}</span><span className="local-badge">{t('无声 · 本地')}</span></div>
               <SceneView encounter={encounter} replay={replay} onAgency={recordAgency} />
               <div className="scene-footer"><span>{t('不解释、不诊断；离开随时可用。')}</span><button className="quiet-button" onClick={() => setReplay(value => value + 1)}>{t('重新进入')}</button></div>
             </div>
@@ -515,7 +548,7 @@ export function DesktopShell() {
                   ? <div className="capture-wrap"><Suspense fallback={null}><InnerEntry onStart={start} /></Suspense></div>
                   : <div className="capture-wrap"><Suspense fallback={null}><SomaticEntry onStart={start} onRemember={remember} /></Suspense></div>)}
                 {view === 'motif' && selected && <MotifDetail motif={selected} tab={detailTab} setTab={setDetailTab} onEnter={enterSelected} />}
-                {view === 'motif' && !selected && <div className="empty-state"><h2>这个母题不在了</h2><p>它可能已被删除。可以从左侧新建一个片段。</p><button className="primary-button" onClick={openNew}>新建片段</button></div>}
+                {view === 'motif' && !selected && <div className="empty-state"><h2>{t('这个母题不在了')}</h2><p>{t('它可能已被删除。可以从左侧新建一个片段。')}</p><button className="primary-button" onClick={openNew}>新建片段</button></div>}
               </>}
               {view === 'journal' && <>
                 <WorkspaceHeader eyebrow={t('本机母题日记')} title={t('反复出现的东西，先放在一起。')} meta={t('不推断因果，只做并列、回看与导出。')} />
@@ -548,7 +581,7 @@ export function DesktopShell() {
 
       <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />
     </div>
-    {locked && lockRecord && <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} blockedUntil={lockout.blockedUntil} /></Suspense>}
+    {(locked && lockRecord) || recoveryNeeded ? <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} blockedUntil={lockout.blockedUntil} /></Suspense> : null}
   </div>
 
 }

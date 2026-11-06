@@ -55,12 +55,22 @@ export async function loadEncryptedState(): Promise<string | null> {
   try { return await invoke<string | null>('load_encrypted_state') } catch { return null }
 }
 
-export async function saveEncryptedState(payload: string): Promise<boolean> {
+export async function saveEncryptedState(payload: string, purgePlaintext = false): Promise<boolean> {
   if (!isTauriRuntime()) return false
-  try { await invoke('save_encrypted_state', { payload }); return true } catch { return false }
+  try { await invoke('save_encrypted_state', { payload, purge: purgePlaintext }); return true } catch { return false }
 }
 
 export async function clearEncryptedState(): Promise<void> {
   if (!isTauriRuntime()) return
   try { await invoke('clear_encrypted_state') } catch { /* local web copy is still cleared by caller */ }
+}
+
+export async function clearLocalFiles(): Promise<void> {
+  if (!isTauriRuntime()) return
+  try { await invoke('clear_local_files') } catch { /* best effort; caller still clears the DB */ }
+}
+
+export async function clearLegacyAppData(): Promise<void> {
+  if (!isTauriRuntime()) return
+  try { await invoke('clear_legacy_app_data') } catch { /* old app data may not exist */ }
 }

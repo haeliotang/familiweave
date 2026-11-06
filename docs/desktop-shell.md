@@ -99,7 +99,7 @@ pnpm tauri:dev
 - `pnpm build`：通过
 - `pnpm test`：51 项通过
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
-- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：7 个宿主测试通过（文件 API 边界/符号链接 + SQLite 快照）
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：8 个宿主测试通过（文件 API 边界/符号链接 + SQLite 快照）
 - `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区权限下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
 - `pnpm tauri:build --bundles app`：成功生成 `Tacitweave.app`（约 10.45 MiB；无 Developer ID 签名），并应用自定义 Tacitweave 图标。
 - `pnpm package:macos` 会构建、`strip -x`、ad-hoc 重签名并生成 zip；本机验证 app 约 8.4 MiB、zip 约 3.4 MB。

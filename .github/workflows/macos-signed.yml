@@ -23,7 +23,11 @@ permissions:
   attestations: write
 
 jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+
   macos:
+    needs: verify
     name: macOS Developer ID build
     runs-on: macos-latest
     timeout-minutes: 45

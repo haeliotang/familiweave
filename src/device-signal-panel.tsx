@@ -56,7 +56,7 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
       next.start(grantLocalSignalConsent())
     } catch (error) {
       setState('error')
-      setMessage(error instanceof Error ? error.message : '无法连接本机桥接')
+      setMessage(error instanceof Error ? error.message : t('无法连接本机桥接'))
     }
   }
 

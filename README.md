@@ -131,7 +131,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | App lock | Local PIN + AES-GCM encrypted snapshot; configurable idle auto-lock (5 min default), 5-attempt/30s PIN lockout; not system lock |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
 | Bilingual | Chinese / English UI switch |
-| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete; capture provenance and signal-session summaries |
+| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete; capture provenance and signal-session summaries. Deletion includes legacy keys, local-files and old app-data dirs; SQLite uses secure_delete + VACUUM (not a forensic full-disk guarantee) |
 | Update check | Explicit GitHub Releases check; no auto-download |
 | Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
 | Relationship topology | 30/90-day longitudinal comparison of user-authored triggers; no partner inference |
@@ -154,7 +154,7 @@ As of the latest `main`:
 - 21 Playwright browser E2E scenarios
 - 6 Rust host tests
 - WCAG A/AA structural and contrast checks in light/dark themes
-- main JS bundle about 305 KB, with heavy views lazy-loaded
+- main JS bundle about 309 KB, with heavy views lazy-loaded
 - macOS app bundle about 10.45 MiB before packaging; `pnpm package:macos` strips to about 8.4 MiB / ~3.4 MB zip, ad-hoc signed
 - Linux/Windows release builds plus startup smoke in CI
 - GitHub Actions checks: Symbolic space, Rust operational and Browser E2E

@@ -5,12 +5,12 @@ This is an engineering/security/release review, not a clinical or legal audit. T
 
 ## Health baseline
 
-- Vitest: 152 passed
-- Playwright: 23 passed
+- Vitest: 154 passed (after remediation)
+- Playwright: 24 passed (after remediation)
 - Rust ops: 10 passed
-- Rust desktop: 6 passed
-- Production build after remediation: passes; main bundle 305,555 B (budget 320,000 B)
-- `pnpm audit`: critical/high findings in dev/build tooling; see Finding 1
+- Rust desktop: 8 passed (after remediation)
+- Production build after remediation: passes; main bundle 308,610 B (budget 320,000 B)
+- `pnpm audit`: no known vulnerabilities after remediation
 - `v0.1.3`: no tag, no release (intentional)
 - Git working tree: clean at review start
 
@@ -23,12 +23,15 @@ The first three requested fixes are now implemented:
 - **Dependency advisories**: `vite` 7.3.7, `vitest` 4.1.12, `source-map-js` 1.2.2; `tinypool` critical path removed. `pnpm audit --audit-level high` reports no known vulnerabilities. CI and `release:check` now run the audit.
 - **macOS release workflow**: version check, `codesign`/`stapler`/`spctl` publication gate, and post-upload `SHA256SUMS.txt` regeneration/verification added.
 - **Sandbox wording**: the claim is now “app-data-only file API (not an OS sandbox)”; UI/docs updated. Local file commands reject symlinks and have a Rust regression test. This is still not an OS sandbox.
+- **Data lifecycle**: secure_delete + VACUUM on clear/encryption purge; clear removes legacy keys, local-files and old app-data dirs; encrypted payloads without a lock record get a recovery lock screen.
+- **Release gate**: tag/signed workflows now call the CI workflow via `workflow_call`; tag builds require verify (unit, audit, E2E, desktop Rust).
+- **English errors**: scene/back/empty/capture error paths now use translation keys; E2E covers the English scene toolbar.
 
 Remaining findings below are not fixed by this pass.
 
 ## Findings
 
-### P1 — Critical dev-toolchain advisories are unpatched
+### P1 — Critical dev-toolchain advisories are unpatched (fixed)
 
 Evidence:
 
@@ -43,7 +46,7 @@ Impact: not shipped in the production bundle, but the dev server, tests and CI r
 
 Fix: patch `vite` to >=7.3.7, override/patch `source-map-js` >=1.2.2 and `tinypool` >=2.1.2 (or upgrade Vitest to a patched major), then run `pnpm audit` in CI. Do not just update the lockfile without running tests.
 
-### P1 — macOS signed workflow can publish a release with stale checksums and no version check
+### P1 — macOS signed workflow can publish a release with stale checksums and no version check (fixed)
 
 Evidence:
 
@@ -55,11 +58,11 @@ Impact: a signed macOS zip can be attached to `v0.1.2` while `SHA256SUMS.txt` do
 
 Fix: require tag/version match, upload the signed zip, regenerate `SHA256SUMS` from all release assets, upload the new sums, verify with `sha256sum -c`, and run `spctl --assess`/`stapler validate` in the workflow.
 
-### P1 — The “app-data file sandbox” claim is stronger than the implementation
+### P1 — The “app-data file sandbox” claim is stronger than the implementation (fixed)
 
 Evidence:
 
-- `apps/desktop/src-tauri/src/lib.rs:148-169`: `sandbox_file_name` is a filename filter; `host_info` reports `sandbox: "app-data-only"`.
+- At review time, `apps/desktop/src-tauri/src/lib.rs:148-169` was a filename filter; `host_info` reported `sandbox: "app-data-only"`. It now reports `app-data-api-only` and rejects symlinks.
 - `README.md:129,191` describes an “app-data file sandbox”.
 - The macOS bundle has no App Sandbox entitlement; `Entitlements.plist` only grants JIT/unsigned-executable-memory.
 
@@ -67,7 +70,7 @@ Impact: the renderer's registered file commands are app-data-only by application
 
 Fix: rename to “app-data-only file API” or “application-level path restriction” in UI/docs; add App Sandbox only if the product is ready to accept its consequences; review whether both entitlements are needed.
 
-### P1 — Enabling the app lock does not securely erase plaintext SQLite pages
+### P1 — Enabling the app lock does not securely erase plaintext SQLite pages (fixed; residual risk documented)
 
 Evidence:
 
@@ -80,7 +83,7 @@ Impact: “AES-GCM encrypted snapshot; plaintext keys removed” is logically tr
 
 Fix: set `PRAGMA secure_delete=ON` for sensitive DBs; `VACUUM` after enabling encryption/clearing; checkpoint/replace WAL; document that this is not forensic secure erase; consider SQLCipher if the threat model requires at-rest encryption of the whole DB.
 
-### P1 — Old encrypted app data can become inaccessible after the bundle-ID rename
+### P1 — Old encrypted app data can become inaccessible after the bundle-ID rename (fixed with recovery lock)
 
 Evidence:
 
@@ -93,7 +96,7 @@ Impact: a user who had app lock enabled in the old Familiweave app may launch Ta
 
 Fix: migrate the lock verifier metadata into SQLite (or a sidecar file) before/with the DB, or detect an `encrypted` payload without a local lock record and show a “restore old lock” flow. Add a test with an encrypted old DB + no WebView storage.
 
-### P1 — “Delete all local data” is not a clean-slate deletion
+### P1 — “Delete all local data” is not a clean-slate deletion (fixed)
 
 Evidence:
 
@@ -108,11 +111,11 @@ Impact: users can delete all data and still leave legacy plaintext keys, exporte
 
 Fix: define deletion scope; add a host command to remove `local-files` and legacy local data (or document it), remove legacy keys after verified migration, clean old app-data directories after a successful copy, and decide whether “delete all” should also disable app lock.
 
-### P1 — Release/CI is not a gate
+### P1 — Release/CI is not a gate (fixed)
 
 Evidence:
 
-- `.github/workflows/ci.yml` runs unit/build and Chromium E2E; no `pnpm audit`, no lint.
+- At review time, `.github/workflows/ci.yml` ran unit/build and Chromium E2E; it now runs audit and includes a desktop Rust job, and tag workflows call it.
 - `.github/workflows/rust.yml` runs only `rust/Cargo.toml`; the **desktop** Rust tests are not in CI.
 - Tag-triggered `Desktop builds` builds bundles without running the test/audit workflow.
 - `macos-signed.yml` has no version check and no checksum regeneration.
@@ -121,7 +124,7 @@ Impact: a tag can publish artifacts even when tests, dependency audit or desktop
 
 Fix: make tag workflows depend on a shared verify job; run `pnpm audit`, desktop Rust tests, `check:symbolic-path`, E2E and version guard before build/publish. Add `workflow_run`/reusable workflow or a single release workflow.
 
-### P2 — English-first is not enforced on error and fallback paths
+### P2 — English-first is not enforced on error and fallback paths (fixed for scene/back/capture/empty paths)
 
 Evidence (examples):
 
@@ -146,7 +149,7 @@ Impact: a 4-digit PIN is brute-forceable offline by an attacker who copies the e
 
 Fix: require a longer PIN/passphrase or an OS keychain/biometric unlock; raise PBKDF2/Argon2 parameters; state the threat model next to the feature.
 
-### P2 — Local file API still follows symlinks
+### P2 — Local file API still follows symlinks (fixed)
 
 - `sandbox_file_name` blocks `..`, slashes and hidden names, but `read_local_text`/`write_local_text` use `fs::read_to_string`/`fs::write` on a joined path.
 - A symlink inside `local-files` can escape the directory.

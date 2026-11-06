@@ -44,6 +44,7 @@ Tauri 宿主在 app data 的 `tacitweave.db` 中写入 `local_state`：
 | `field` | 场域布局（位置与用户连接） |
 | `signals` | 信号 session 摘要数组（v1/v2） |
 | `captures` | 捕获出处数组；不含媒体字节 |
+| `symbolic_sessions` | 象征空间会话摘要（agency、duration、completed/leftEarly） |
 | `encrypted` | 启用应用锁后的 AES-GCM 密文；此时明文 key 被删除 |
 
 - 应用锁开启时，整个 snapshot 加密为一个 `encrypted-local-state-v1` 负载；PIN 经 PBKDF2 派生 AES-GCM key。没有 PIN 时应用只显示锁屏，不读取明文。
@@ -52,8 +53,9 @@ Tauri 宿主在 app data 的 `tacitweave.db` 中写入 `local_state`：
 - 桌面端 SQLite 是 canonical：若 SQLite 为空且 Web 回退有数据，执行一次性迁移；若 SQLite 有数据，则把同一 snapshot 镜像回 Web 回退，避免两边继续分叉。
 - `local_meta.schema_version` 当前写入 `2`；新数据库启动时补齐。
 - 读取时缺失 key 返回空数组/空布局。
-- 清除本机数据会清空 `local_state`，并清空 Web 回退 localStorage。
-- 旧的拼写标识 app data 目录仍会在启动时迁移，不覆盖新目录数据。
+- 清除本机数据会清空 `local_state`、Web 回退 localStorage、旧 `familiweave.*` key、`local-files` 和旧 app data 目录；SQLite 使用 `secure_delete` + `VACUUM` 清理删除页。
+- 旧的拼写标识 app data 目录仍会在启动时迁移，不覆盖新目录数据；明确清理时也会删除旧目录。
+- 若 encrypted payload 存在但旧 WebView 的 app-lock record 丢失，启动时会进入恢复锁屏；输入旧 PIN 后会重新建立 lock record。
 
 ## 导出与删除
 

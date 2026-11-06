@@ -12,6 +12,12 @@ use tauri::{Manager, State};
 const LOCAL_STATE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS local_state (\n  key TEXT PRIMARY KEY,\n  value TEXT NOT NULL,\n  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP\n);";
 const DATABASE_SCHEMA_VERSION: i64 = 2;
 
+fn secure_vacuum(connection: &Connection) -> Result<(), String> {
+    connection
+        .execute_batch("PRAGMA secure_delete = ON; PRAGMA wal_checkpoint(TRUNCATE); VACUUM;")
+        .map_err(|error| error.to_string())
+}
+
 fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut statement = connection
         .prepare(
@@ -233,6 +239,39 @@ fn clear_local_state(state: State<'_, DbState>) -> Result<(), String> {
     connection
         .execute("DELETE FROM local_state", [])
         .map_err(|error| error.to_string())?;
+    secure_vacuum(&connection)?;
+    Ok(())
+}
+
+#[tauri::command]
+fn clear_local_files(app: tauri::AppHandle) -> Result<(), String> {
+    let directory = app_data_dir(&app)?.join("local-files");
+    reject_symlink(&directory)?;
+    if !directory.is_dir() {
+        return Ok(());
+    }
+    for entry in fs::read_dir(&directory).map_err(|error| error.to_string())? {
+        let entry = entry.map_err(|error| error.to_string())?;
+        if entry
+            .file_type()
+            .map_err(|error| error.to_string())?
+            .is_file()
+        {
+            fs::remove_file(entry.path()).map_err(|error| error.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn clear_legacy_app_data(app: tauri::AppHandle) -> Result<(), String> {
+    let data = app_data_dir(&app)?;
+    for legacy in legacy_app_data_dirs(&data) {
+        if legacy.is_dir() {
+            reject_symlink(&legacy)?;
+            fs::remove_dir_all(&legacy).map_err(|error| error.to_string())?;
+        }
+    }
     Ok(())
 }
 
@@ -311,12 +350,20 @@ fn load_encrypted_state(state: State<'_, DbState>) -> Result<Option<String>, Str
 }
 
 #[tauri::command]
-fn save_encrypted_state(state: State<'_, DbState>, payload: String) -> Result<(), String> {
+fn save_encrypted_state(
+    state: State<'_, DbState>,
+    payload: String,
+    purge: Option<bool>,
+) -> Result<(), String> {
     if payload.len() > 20_000_000 {
         return Err("encrypted_state_too_large".into());
     }
     let connection = state.connection.lock().map_err(|error| error.to_string())?;
-    write_encrypted_state(&connection, &payload)
+    write_encrypted_state(&connection, &payload)?;
+    if purge.unwrap_or(false) {
+        secure_vacuum(&connection)?;
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -428,6 +475,9 @@ pub fn run() {
             fs::create_dir_all(&data)?;
             let database_path = data.join("tacitweave.db");
             let connection = Connection::open(&database_path)?;
+            connection
+                .execute_batch("PRAGMA secure_delete = ON;")
+                .map_err(|error| error.to_string())?;
             connection.execute_batch(
                 "CREATE TABLE IF NOT EXISTS local_meta (
            key TEXT PRIMARY KEY,
@@ -466,6 +516,8 @@ pub fn run() {
             load_local_state,
             save_local_state,
             clear_local_state,
+            clear_local_files,
+            clear_legacy_app_data,
             load_encrypted_state,
             save_encrypted_state,
             clear_encrypted_state,
@@ -525,6 +577,16 @@ mod tests {
             assert!(sandbox_file_name(name).is_err(), "accepted {name:?}");
         }
         assert!(sandbox_file_name(&"a".repeat(121)).is_err());
+    }
+
+    #[test]
+    fn secure_vacuum_enables_secure_delete() {
+        let connection = Connection::open_in_memory().unwrap();
+        super::secure_vacuum(&connection).unwrap();
+        let mode: i64 = connection
+            .query_row("PRAGMA secure_delete", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(mode, 1);
     }
 
     #[cfg(unix)]

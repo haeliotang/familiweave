@@ -23,6 +23,7 @@ const suffixes = [
 export interface StorageLike {
   getItem(key: string): string | null
   setItem(key: string, value: string): void
+  removeItem(key: string): void
 }
 
 /** Copy legacy values only into missing Tacitweave keys; never overwrite newer data. */
@@ -33,7 +34,20 @@ export function migrateLegacyLocalStorage(storage: StorageLike): void {
     const currentKey = `tacitweave.${suffix}`
     if (storage.getItem(currentKey) !== null) continue
     const value = storage.getItem(legacyKey)
-    if (value !== null) storage.setItem(currentKey, value)
+    if (value !== null) {
+      try {
+        storage.setItem(currentKey, value)
+      } catch {
+        continue
+      }
+    }
+    // The legacy copy is safe to remove once the new key exists.
+    if (storage.getItem(currentKey) !== null) storage.removeItem(legacyKey)
   }
   storage.setItem(storageMigrationMarker, '1')
+}
+
+/** Remove any remaining legacy keys, including ones added after migration ran. */
+export function removeLegacyLocalStorage(storage: StorageLike): void {
+  for (const suffix of suffixes) storage.removeItem(`${legacyStoragePrefix}${suffix}`)
 }
