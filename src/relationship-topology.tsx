@@ -97,7 +97,7 @@ function WindowColumn({
       <span className="relationship-topology-range">{formatRange(window, lang)}</span>
     </p>
     <p className="relationship-topology-count">
-      <strong>{group?.total ?? 0}</strong>
+      <strong>{group?.total ?? 0}</strong>{' '}
       <span className="relationship-topology-count-unit">{t('条记录')}</span>
     </p>
     {group && topResponses.length > 0

@@ -9,6 +9,12 @@ test('three-pane shell and symbolic space fit the minimum desktop window', async
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
 
+  await page.getByRole('button', { name: 'Relationship triggers' }).click()
+  await expect(page.locator('.relationship-topology')).toBeVisible()
+  const topologyOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(topologyOverflow).toBeLessThanOrEqual(0)
+  await page.getByRole('button', { name: 'Field' }).click()
+
   const node = page.locator('.field-node').first()
   await node.focus()
   await page.keyboard.press('Enter')
