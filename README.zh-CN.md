@@ -12,14 +12,16 @@
 
 ## 下载
 
-[v0.1.1 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) 提供：
+最新 tag 构建为 [v0.1.2](https://github.com/haeliotang/familiweave/releases/tag/v0.1.2)（仅 Linux/Windows，未签名；macOS 签名仍待完成）。已归档的 [v0.1.1 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) 仍是下载资产最完整的版本。
+
+已归档 v0.1.1 资产：
 
 - macOS 12+ Apple Silicon：`Familiweave-v0.1.1-macos-arm64.zip`
 - Windows 10/11 x64：`Familiweave_0.1.1_x64-setup.exe`
 - Linux x86_64：`Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` 校验所有产物
 
-> v0.1.1 是已归档的原型 Release；它早于 main 上的 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。v0.1.2 正在准备 Developer ID/Authenticode 签名，**尚未发布**。
+> v0.1.2 是仅 Linux/Windows 的**未签名** tag 构建；macOS Developer ID 签名/公证与 Windows Authenticode 仍待完成。v0.1.1 归档早于 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。
 
 macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
 
