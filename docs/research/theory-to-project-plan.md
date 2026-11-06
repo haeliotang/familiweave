@@ -143,3 +143,15 @@ P1/P2/P3/P4/P5 已完成。下一步：
 - LSM 协议理论定位；
 - `SomaticCapture.certainty` 类型与兼容校验；
 - 更新测试；不改动发布 tag。
+
+
+## 5. 完成状态（2026-11-06）
+
+- P1 叙事：README 中英文 research framing + theory positioning + LSM protocol 理论定位。
+- P2 不确定性：`SomaticCapture.certainty`、UI、持久化、LSM 描述性报告。
+- P3 象征空间：approach/stay/resume/leave/reenter agency 事件、会话持久化/导出/撤回；修复离开覆盖层溢出。
+- P4 关系边界：关系拓扑文档复核；固定用户自述、不做对方推断。
+- P5 LSM：certainty、agency/exit 摘要、`--negative-control --seed` 确定性阴性对照。
+- P6 验证：150 Vitest、22 Playwright、6 Rust、Tauri 8.4 MiB；CI 通过。
+
+保留的限制：LSM 的 `certainty` 是自报确定度，不是计算精度；阴性对照不是显著性检验；项目仍不提供临床或意识理论证明。
