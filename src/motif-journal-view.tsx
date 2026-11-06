@@ -11,7 +11,7 @@ export function MotifJournal({ entries, onRemove, onClear }: { entries: MotifEnt
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'familiweave-motifs.json'
+    link.download = 'tacitweave-motifs.json'
     link.click()
     URL.revokeObjectURL(url)
   }

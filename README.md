@@ -1,4 +1,4 @@
-# Familiweave
+# Tacitweave
 
 [中文](README.zh-CN.md) | **English**
 
@@ -6,24 +6,24 @@
 >
 > An enterable, exit-able, self-interpreted space for pre-verbal experience.
 
-![Familiweave inner field — light](docs/assets/desktop-shell-en.png)
+![Tacitweave inner field — light](docs/assets/desktop-shell-en.png)
 
-![Familiweave inner field — dark](docs/assets/desktop-shell-dark-en.png)
+![Tacitweave inner field — dark](docs/assets/desktop-shell-dark-en.png)
 
 ## Download
 
-The latest tag build is [v0.1.2](https://github.com/haeliotang/familiweave/releases/tag/v0.1.2) (Linux/Windows only, unsigned; macOS signing is still pending). The archived [v0.1.1 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) remains the most complete downloadable archive.
+The latest public tag is [v0.1.2](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.2), published under the former Familiweave name (Linux/Windows only, unsigned; macOS signing is still pending). The archived [v0.1.1 release](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.1) remains the most complete downloadable archive. The renamed main branch is version 0.1.3 and is **not released yet**.
 
-Archived v0.1.1 assets:
+Archived v0.1.1 assets (former name):
 
 - macOS 12+ Apple Silicon: `Familiweave-v0.1.1-macos-arm64.zip`
 - Windows 10/11 x64: `Familiweave_0.1.1_x64-setup.exe`
 - Linux x86_64: `Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` for every artifact
 
-> v0.1.2 is a Linux/Windows **unsigned** tag build; macOS Developer ID signing/notarization and Windows Authenticode are still pending. The v0.1.1 archive predates the storage-v2, BCI resilience, topology and LSM-0 work. Build `main` for the newest prototype. Research prototype, not for clinical use.
+> v0.1.2 is a Linux/Windows **unsigned** tag build published before the rename. The v0.1.1 archive predates the storage-v2, BCI resilience, topology and LSM-0 work. Build `main` for the newest prototype; a renamed v0.1.3 is not released yet. Research prototype, not for clinical use.
 
-Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
+Tacitweave is a public research project initiated by **Inceptless** about pre-verbal experience and optional local BCI signals.
 
 It is not trying to build a “therapist chatbot”. It does not claim to read the deep subconscious. It starts from a narrower, testable question:
 
@@ -31,7 +31,7 @@ It is not trying to build a “therapist chatbot”. It does not claim to read t
 
 ## Research framing
 
-Familiweave studies a narrower, testable question than "reading the deep subconscious":
+Tacitweave studies a narrower, testable question than "reading the deep subconscious":
 
 > Can pre-verbal bodily, imaginal and relational experience be held in an enterable, exit-able symbolic space, and can it be described with reproducible within-person measurements under explicit consent?
 
@@ -57,7 +57,7 @@ As AI takes over explicit knowledge, logical reasoning, language and external ex
 
 LLMs are built on tokens. Implicit memory, attachment reactions and somatic states are more **pre-verbal, associative and affective**. Asking someone to “put it into words” often compresses it into a label like “I am anxious”.
 
-Familiweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
+Tacitweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
 
 ### 1.1 Terminology
 
@@ -154,7 +154,7 @@ As of the latest `main`:
 - 21 Playwright browser E2E scenarios
 - 6 Rust host tests
 - WCAG A/AA structural and contrast checks in light/dark themes
-- main JS bundle about 302 KB, with heavy views lazy-loaded
+- main JS bundle about 305 KB, with heavy views lazy-loaded
 - macOS app bundle about 10.45 MiB before packaging; `pnpm package:macos` strips to about 8.4 MiB / ~3.4 MB zip, ad-hoc signed
 - Linux/Windows release builds plus startup smoke in CI
 - GitHub Actions checks: Symbolic space, Rust operational and Browser E2E
@@ -192,7 +192,7 @@ WorldRenderer (symbolic today; Genie 4 later)
 
 ## 5. BCI and LSM: the aggressive path
 
-Familiweave is not “a chatbot with a few physiological sensors”. Our long-term claim is more aggressive:
+Tacitweave is not “a chatbot with a few physiological sensors”. Our long-term claim is more aggressive:
 
 > **The next mental-health infrastructure will not be a better-speaking LLM. It will be a BCI-native interface to the pre-verbal layer.**
 
@@ -366,4 +366,4 @@ Historical large-file and audio audit: [docs/privacy/history-audit-2026-11-01.md
 
 ## 13. Initiator
 
-Familiweave is initiated by **Inceptless**.
+Tacitweave is initiated by **Inceptless**.

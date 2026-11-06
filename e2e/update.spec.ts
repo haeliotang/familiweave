@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 
 test('explicit update check shows a newer release without downloading it', async ({ page }) => {
-  await page.route('https://api.github.com/repos/haeliotang/familiweave/releases/latest', route => route.fulfill({
+  await page.route('https://api.github.com/repos/haeliotang/tacitweave/releases/latest', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ tag_name: 'v0.2.0', name: 'Familiweave v0.2.0', html_url: 'https://example.test/release', published_at: '2026-11-04T00:00:00Z' }),
+    body: JSON.stringify({ tag_name: 'v0.2.0', name: 'Tacitweave v0.2.0', html_url: 'https://example.test/release', published_at: '2026-11-04T00:00:00Z' }),
   }))
   await page.goto('/')
   await page.getByRole('button', { name: 'Local & settings' }).click()
@@ -15,7 +15,7 @@ test('explicit update check shows a newer release without downloading it', async
 
 
 test('update check failure is non-destructive', async ({ page }) => {
-  await page.route('https://api.github.com/repos/haeliotang/familiweave/releases/latest', route => route.fulfill({ status: 503, body: 'unavailable' }))
+  await page.route('https://api.github.com/repos/haeliotang/tacitweave/releases/latest', route => route.fulfill({ status: 503, body: 'unavailable' }))
   await page.goto('/')
   await page.getByRole('button', { name: 'Local & settings' }).click()
   await page.getByRole('button', { name: 'Check for updates' }).click()

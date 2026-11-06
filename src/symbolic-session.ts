@@ -12,7 +12,7 @@ export interface SymbolicSession {
   agency: SymbolicAgencyEvent[]
 }
 
-export const symbolicSessionStorageKey = 'familiweave.symbolic-sessions.v1'
+export const symbolicSessionStorageKey = 'tacitweave.symbolic-sessions.v1'
 const maxSessions = 100
 const actions = new Set(['approach', 'stay', 'resume', 'leave', 'reenter'])
 

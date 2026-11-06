@@ -91,7 +91,7 @@ export interface SignalSessionStorageLike {
   removeItem(key: string): void
 }
 
-export const signalSessionStorageKey = 'familiweave.signal-sessions.v1'
+export const signalSessionStorageKey = 'tacitweave.signal-sessions.v1'
 const maxSessions = 100
 
 export function loadSignalSessions(storage: SignalSessionStorageLike): SignalSession[] {

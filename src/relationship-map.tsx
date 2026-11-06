@@ -68,7 +68,7 @@ export function RelationshipJournal({ entries, onAdd, onRemove, onClear }: { ent
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'familiweave-relationship-triggers.json'
+    link.download = 'tacitweave-relationship-triggers.json'
     link.click()
     URL.revokeObjectURL(url)
   }

@@ -1,14 +1,14 @@
 import type { LocalDataset } from './local-dataset'
 
 export interface SecureBackup {
-  format: 'familiweave-encrypted-backup-v1'
+  format: 'tacitweave-encrypted-backup-v1'
   salt: string
   iterations: number
   iv: string
   ciphertext: string
 }
 
-export const secureBackupFormat = 'familiweave-encrypted-backup-v1'
+export const secureBackupFormat = 'tacitweave-encrypted-backup-v1'
 const iterations = 120_000
 
 function bytesToBase64(bytes: Uint8Array) {
@@ -23,7 +23,7 @@ function base64ToBytes(value: string) {
 }
 
 async function deriveKey(passphrase: string, salt: Uint8Array) {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${passphrase}\u0000familiweave-backup-v1`), 'PBKDF2', false, ['deriveKey'])
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${passphrase}\u0000tacitweave-backup-v1`), 'PBKDF2', false, ['deriveKey'])
   return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt as BufferSource, iterations, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt'])
 }
 

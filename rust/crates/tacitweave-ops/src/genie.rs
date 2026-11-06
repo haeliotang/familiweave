@@ -37,7 +37,7 @@ pub fn status_from(env: &BTreeMap<String, String>) -> GenieStatus {
 
 pub fn run(args: &[String]) -> Result<(), String> {
     if !args.is_empty() {
-        return Err("usage: familiweave-ops genie-status".into());
+        return Err("usage: tacitweave-ops genie-status".into());
     }
     let env: BTreeMap<String, String> = std::env::vars().collect();
     println!(

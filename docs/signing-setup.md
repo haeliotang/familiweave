@@ -136,10 +136,10 @@ Tauri 只会在 keychain 中已有证书、且设置了身份/公证变量时签
 ### 验证 macOS 产物
 
 ```sh
-codesign --verify --deep --strict --verbose=2 Familiweave.app
-spctl --assess --type execute --verbose Familiweave.app
+codesign --verify --deep --strict --verbose=2 Tacitweave.app
+spctl --assess --type execute --verbose Tacitweave.app
 xcrun notarytool log <submission-id> ...
-xcrun stapler validate Familiweave.app
+xcrun stapler validate Tacitweave.app
 ```
 
 Tauri 在检测到 Apple 公证变量时会提交公证；最终必须看到 `spctl` accepted，而不是 ad-hoc 的 rejected。
@@ -198,7 +198,7 @@ Tauri 配置中启用（示例）：
 ### 验证 Windows 产物
 
 ```powershell
-signtool verify /pa /v Familiweave_0.1.2_x64-setup.exe
+signtool verify /pa /v Tacitweave_0.1.3_x64-setup.exe
 ```
 
 ## 6. 不要在聊天或仓库里发这些内容

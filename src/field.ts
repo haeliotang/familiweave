@@ -20,7 +20,7 @@ export interface FieldLayout {
   links: FieldLink[]
 }
 
-export const fieldStorageKey = 'familiweave.field-layout.v1'
+export const fieldStorageKey = 'tacitweave.field-layout.v1'
 export const fieldMin = 0.04
 export const fieldMax = 0.96
 

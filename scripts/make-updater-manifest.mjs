@@ -7,8 +7,8 @@ const platforms = new Set(['darwin-aarch64', 'darwin-x86_64', 'linux-x86_64', 'w
 function usage() {
   console.log(`Usage:
   node scripts/make-updater-manifest.mjs --version 0.2.0 --tag v0.2.0 --repo owner/repo \\
-    --platform windows-x86_64=path/to/Familiweave-setup.exe.sig \\
-    --platform linux-x86_64=path/to/Familiweave.AppImage.sig \\
+    --platform windows-x86_64=path/to/Tacitweave-setup.exe.sig \\
+    --platform linux-x86_64=path/to/Tacitweave.AppImage.sig \\
     --notes "release notes" --out latest.json
 
 Artifacts are uploaded to GitHub Releases and referenced by their signature filename

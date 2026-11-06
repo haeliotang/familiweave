@@ -1,6 +1,6 @@
 # 命名决策：保留 `+ weave` 格式
 
-日期：2026-11-06。状态：**建议方案，等待项目所有者确认；尚未执行改名。**  
+日期：2026-11-06。状态：**已确认 Tacitweave；改名迁移进行中。**
 范围：`[prefix] + weave` 形式的品牌名、GitHub 仓库名、桌面 App 名与 bundle identifier。  
 注意：以下是**语义与技术初筛**，不是商标、域名或法律意见。
 
@@ -142,7 +142,7 @@ Familiweave 看起来是：
 
 ### Phase 1：仓库改名
 
-- GitHub repo `familiweave` → `tacitweave`；
+- GitHub repo `tacitweave` → `tacitweave`；
 - 本地 remote 更新；
 - README、docs、badge、workflow 中的旧 URL；
 - 旧 URL 由 GitHub 重定向，但需要复验 release 资产、raw 链接、外部引用。
@@ -185,12 +185,11 @@ Familiweave 看起来是：
 - **bundle identifier 改名会断开旧本地数据**：当前无真实用户，成本可接受；若有测试数据，先导出。
 - **GitHub 重定向不等于所有外部链接永久有效**：release 资产和第三方引用需要复验。
 
-## 9. 决策请求
+## 9. 执行状态
 
-建议确认：
-
-1. 是否接受 **Tacitweave / 默织** 作为新名；
-2. 是否在 **v0.1.3 之前**执行仓库 + App 标识符改名；
-3. 是否先做商标检索，再执行代码替换。
-
-未确认前，不执行改名，不修改 204 处引用，不创建新 release。
+- 已确认 **Tacitweave / 默织**；
+- GitHub 仓库已改名，remote 已更新为 `haeliotang/tacitweave`；
+- 代码、App、bundle identifier、Rust crate、localStorage、SQLite 路径已改名；
+- 版本提升到 `0.1.3`；
+- **尚未创建 v0.1.3 tag 或 Release**；
+- 商标检索与社交 handle 仍需在正式发布前完成。

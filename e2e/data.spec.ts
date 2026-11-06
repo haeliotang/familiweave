@@ -19,7 +19,7 @@ test('exports a v2 dataset and imports it back', async ({ page }) => {
   expect(Array.isArray(dataset.signals)).toBe(true)
 
   await page.locator('input[type="file"]').setInputFiles({
-    name: 'familiweave-local-dataset.json',
+    name: 'tacitweave-local-dataset.json',
     mimeType: 'application/json',
     buffer: Buffer.from(JSON.stringify(dataset)),
   })
@@ -70,7 +70,7 @@ test('exports and imports an encrypted backup', async ({ page }) => {
   expect(filePath).not.toBeNull()
   const backupText = await readFile(filePath!, 'utf8')
   const backup = JSON.parse(backupText) as { format: string; ciphertext: string }
-  expect(backup.format).toBe('familiweave-encrypted-backup-v1')
+  expect(backup.format).toBe('tacitweave-encrypted-backup-v1')
   expect(backup.ciphertext).not.toContain('Demo')
   expect(backup.ciphertext).not.toContain('motif')
 
@@ -87,7 +87,7 @@ test('exports persisted capture provenance from the web fallback', async ({ page
     version: 'capture-v1', captureId: 'capture-e2e', rendererKind: 'captured', mimeType: 'video/mp4',
     durationSec: 75, sha256: 'b'.repeat(64), synthId: false, createdAt: '2026-11-01T00:00:00.000Z',
   }
-  await page.addInitScript(value => localStorage.setItem('familiweave.captures.v1', JSON.stringify([value])), capture)
+  await page.addInitScript(value => localStorage.setItem('tacitweave.captures.v1', JSON.stringify([value])), capture)
   await page.goto('/')
   await page.getByRole('button', { name: 'Local & settings' }).click()
   const downloadPromise = page.waitForEvent('download')

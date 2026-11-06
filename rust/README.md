@@ -18,10 +18,10 @@ being rewritten.
 
 ```sh
 cargo test --manifest-path rust/Cargo.toml
-cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- eval-validate docs/evaluation/experiment-log.example.json
-cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-hash path/to/capture.mp4 --id capture-1 --renderer captured --mime video/mp4 --duration 75 --synth-id
-cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- capture-verify capture.json path/to/capture.mp4
-cargo run -q --manifest-path rust/Cargo.toml -p familiweave-ops -- genie-status
+cargo run -q --manifest-path rust/Cargo.toml -p tacitweave-ops -- eval-validate docs/evaluation/experiment-log.example.json
+cargo run -q --manifest-path rust/Cargo.toml -p tacitweave-ops -- capture-hash path/to/capture.mp4 --id capture-1 --renderer captured --mime video/mp4 --duration 75 --synth-id
+cargo run -q --manifest-path rust/Cargo.toml -p tacitweave-ops -- capture-verify capture.json path/to/capture.mp4
+cargo run -q --manifest-path rust/Cargo.toml -p tacitweave-ops -- genie-status
 ```
 
 The root `pnpm eval:validate`, `pnpm capture:hash` and `pnpm genie:status`

@@ -144,7 +144,7 @@ pnpm lsm0:baseline --in fixture.jsonl --negative-control --seed 7
 `scripts/lsm0-export.ts` 把 `local-dataset-v2` 中的母题转换为 LSM-0 输入，避免手工拼接 fixture：
 
 ```bash
-pnpm lsm0:export --dataset familiweave-local-dataset.json --participant P01 --out /tmp/lsm0-fixture.json
+pnpm lsm0:export --dataset tacitweave-local-dataset.json --participant P01 --out /tmp/lsm0-fixture.json
 pnpm lsm0:baseline --in /tmp/lsm0-fixture.json
 ```
 

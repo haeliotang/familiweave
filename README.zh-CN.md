@@ -1,4 +1,4 @@
-# Familiweave
+# Tacitweave
 
 [English](README.md) | **中文**
 
@@ -6,26 +6,26 @@
 >
 > A local-first symbolic interface for the pre-verbal layer.
 
-![Familiweave 内在场域（浅色，英文界面）](docs/assets/desktop-shell-en.png)
+![Tacitweave 内在场域（浅色，英文界面）](docs/assets/desktop-shell-en.png)
 
-![Familiweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
+![Tacitweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
 
 ## 下载
 
-最新 tag 构建为 [v0.1.2](https://github.com/haeliotang/familiweave/releases/tag/v0.1.2)（仅 Linux/Windows，未签名；macOS 签名仍待完成）。已归档的 [v0.1.1 Release](https://github.com/haeliotang/familiweave/releases/tag/v0.1.1) 仍是下载资产最完整的版本。
+最新公开 tag 为 [v0.1.2](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.2)，以旧名 Familiweave 发布（仅 Linux/Windows，未签名；macOS 签名仍待完成）。已归档的 [v0.1.1 Release](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.1) 仍是下载资产最完整的版本。改名后的 main 版本为 0.1.3，**尚未发布**。
 
-已归档 v0.1.1 资产：
+已归档 v0.1.1 资产（旧名）：
 
 - macOS 12+ Apple Silicon：`Familiweave-v0.1.1-macos-arm64.zip`
 - Windows 10/11 x64：`Familiweave_0.1.1_x64-setup.exe`
 - Linux x86_64：`Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` 校验所有产物
 
-> v0.1.2 是仅 Linux/Windows 的**未签名** tag 构建；macOS Developer ID 签名/公证与 Windows Authenticode 仍待完成。v0.1.1 归档早于 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。
+> v0.1.2 是改名前的仅 Linux/Windows **未签名** tag 构建；macOS Developer ID 签名/公证与 Windows Authenticode 仍待完成。v0.1.1 归档早于 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main；改名后的 v0.1.3 尚未发布。
 
 macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
 
-Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层潜意识**的公开研究项目。
+Tacitweave 由 **Inceptless** 发起，是一个关于**前语言经验与可选本地 BCI 信号**的公开研究项目。
 
 它不试图造一个“更懂心理学的聊天机器人”，也不声称能读取深层潜意识。它从一个更窄、更可验证的问题开始：
 
@@ -33,7 +33,7 @@ Familiweave 由 **Inceptless** 发起，是一个关于**脑机接口与深层�
 
 ## 研究定位
 
-Familiweave 研究的是一个比“读取深层潜意识”更窄、更可检验的问题：
+Tacitweave 研究的是一个比“读取深层潜意识”更窄、更可检验的问题：
 
 > 语言之前的身体、意象与关系经验，能否被一个可进入、可退出的象征空间承载；并且，在明确同意与本地保存的前提下，能否用可复现的个体内测量描述它？
 
@@ -59,7 +59,7 @@ Familiweave 研究的是一个比“读取深层潜意识”更窄、更可检�
 
 大语言模型建立在 Token 上；而内隐记忆、依恋反应与躯体感觉，更多是**前语言、联想性、情绪性**的。要求用户先“把感觉说清楚”，常常会把它压缩成“我很焦虑”这样的标签。
 
-Familiweave 的方向不是替代语言，而是补上语言之前的入口：**身体定位、意象选择、关系触发、生理/声音信号，再到象征空间。**
+Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**身体定位、意象选择、关系触发、生理/声音信号，再到象征空间。**
 
 ### 1.1 术语约定
 
@@ -191,7 +191,7 @@ WorldRenderer（当前 symbolic；未来 Genie 4 等）
 
 ## 5. BCI 与 LSM：激进路线
 
-Familiweave 不是“给聊天机器人加几个生理传感器”。我们的长期主张更激进：
+Tacitweave 不是“给聊天机器人加几个生理传感器”。我们的长期主张更激进：
 
 > **未来的精神基础设施不会是更会说话的 LLM，而是 BCI 原生的前语言接口。**
 
@@ -365,4 +365,4 @@ Apache License 2.0。Copyright 2026 Inceptless。见 [LICENSE](LICENSE)。
 
 ## 13. 发起方
 
-Familiweave 由 **Inceptless 公司**发起。
+Tacitweave 由 **Inceptless 公司**发起。

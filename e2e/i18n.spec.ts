@@ -5,7 +5,7 @@ function chineseTokens(text: string) {
 }
 
 test('English UI has no untranslated shell/capture/lab strings', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('familiweave.lang', 'en'))
+  await page.addInitScript(() => localStorage.setItem('tacitweave.lang', 'en'))
   await page.goto('/')
 
   await page.getByRole('button', { name: 'New inner fragment' }).click()

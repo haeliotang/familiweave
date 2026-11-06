@@ -61,7 +61,7 @@ UI 在首页「BCI-1 信号实验台」：
 - 母题 → `body_event`、`imagery_event`、可选 `voice_energy`
 - 关系触发点 → `relationship_event`
 - 只用结构化字段；不写入角色、场景、瞬间等自由文本
-- 从本机数据面板导出 `familiweave-local-timeline.json`
+- 从本机数据面板导出 `tacitweave-local-timeline.json`
 
 ## 5. 不声称什么
 

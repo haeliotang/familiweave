@@ -5,7 +5,7 @@ export interface AppLockRecord {
   iterations: number
 }
 
-export const appLockStorageKey = 'familiweave.app-lock.v1'
+export const appLockStorageKey = 'tacitweave.app-lock.v1'
 const iterations = 120_000
 
 function bytesToBase64(bytes: Uint8Array) {
@@ -73,7 +73,7 @@ export interface LockoutState {
   blockedUntil: number
 }
 
-export const lockoutStorageKey = 'familiweave.app-lock-lockout.v1'
+export const lockoutStorageKey = 'tacitweave.app-lock-lockout.v1'
 export const maxLockoutAttempts = 5
 export const lockoutDurationMs = 30_000
 

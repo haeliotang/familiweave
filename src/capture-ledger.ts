@@ -1,6 +1,6 @@
 import { isCaptureProvenance, type CaptureProvenance } from './capture'
 
-export const captureStorageKey = 'familiweave.captures.v1'
+export const captureStorageKey = 'tacitweave.captures.v1'
 export const maxCaptureProvenance = 100
 
 export interface CaptureStorageLike {

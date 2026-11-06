@@ -49,7 +49,7 @@
 }
 ```
 
-校验命令（由 Rust `familiweave-ops` 执行）：
+校验命令（由 Rust `tacitweave-ops` 执行）：
 
 ```sh
 pnpm eval:validate path/to/experiment-log.json

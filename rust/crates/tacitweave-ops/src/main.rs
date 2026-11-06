@@ -1,12 +1,12 @@
-use familiweave_ops::{capture, eval, genie};
+use tacitweave_ops::{capture, eval, genie};
 
-const HELP: &str = r#"familiweave-ops
+const HELP: &str = r#"tacitweave-ops
 
 Usage:
-  familiweave-ops capture-hash <file> --id <id> --renderer <procedural|genie4|marble|captured|symbolic> --mime <type> --duration <seconds> [--url <url>] [--model <id>] [--prompt-hash <sha256>] [--synth-id] [--created-at <RFC3339>]
-  familiweave-ops capture-verify <capture.json> <media-file>
-  familiweave-ops eval-validate <experiment-log.json>
-  familiweave-ops genie-status
+  tacitweave-ops capture-hash <file> --id <id> --renderer <procedural|genie4|marble|captured|symbolic> --mime <type> --duration <seconds> [--url <url>] [--model <id>] [--prompt-hash <sha256>] [--synth-id] [--created-at <RFC3339>]
+  tacitweave-ops capture-verify <capture.json> <media-file>
+  tacitweave-ops eval-validate <experiment-log.json>
+  tacitweave-ops genie-status
 
 All commands are local-only; genie-status never calls a network service.
 "#;

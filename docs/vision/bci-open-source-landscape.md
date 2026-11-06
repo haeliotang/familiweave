@@ -7,7 +7,7 @@
 - **Neuralink 没有公开 N1 植入体的固件、解码模型、开发者 SDK 或第三方 BCI API。**
 - 目前可确认的、与 Neuralink 直接相关的开源工程是 [`neuralinkcorp/datarepo`](https://github.com/neuralinkcorp/datarepo)：一个 Apache-2.0 的**多模态数据目录/查询平台**，不是脑机接口。
 - 另有 [`neuralinkcorp/tsui`](https://github.com/neuralinkcorp/tsui)（Tailscale 的 TUI）与 `electron` fork，属于工具/基础设施，与 BCI 解码无关。
-- 因此，Familiweave 不该等待 Neuralink 开源 BCI SDK；更现实的是：**保持设备无关的信号层，先接 OpenBCI / BrainFlow / LSL 一类开放生态**，并把 BCI 当作未来可选输入，而不是核心依赖。
+- 因此，Tacitweave 不该等待 Neuralink 开源 BCI SDK；更现实的是：**保持设备无关的信号层，先接 OpenBCI / BrainFlow / LSL 一类开放生态**，并把 BCI 当作未来可选输入，而不是核心依赖。
 
 ## 2. Neuralink 的开源仓库
 
@@ -21,7 +21,7 @@
 - 定位：用 Python 声明 catalog/database/table，查询 Parquet、Delta Lake、关系数据库或自定义函数；生成静态 catalog 站点或只读 API；强调本地开发、无需常驻服务。
 - README 明确写的是“Neuralink 对开源社区的承诺，加速数据工程与生物技术”，不是 BCI 运行时。
 
-**对 Familiweave 的可借鉴点：**
+**对 Tacitweave 的可借鉴点：**
 
 - 本地优先、静态可浏览的数据目录；
 - 表/字段 schema 与来源说明（data input、latency、example）写进 catalog；
@@ -46,7 +46,7 @@
 
 ## 3. 更值得参考的开放 BCI 生态
 
-| 项目 | 作用 | 对 Familiweave 的相关性 |
+| 项目 | 作用 | 对 Tacitweave 的相关性 |
 | --- | --- | --- |
 | [OpenBCI](https://openbci.com/) / [OpenBCI_GUI](https://github.com/OpenBCI/OpenBCI_GUI) | 开放硬件与采集 GUI | 未来低成本 EEG/生理采集的入口 |
 | [BrainFlow](https://github.com/brainflow-dev/brainflow) | 跨设备生物信号采集库 | 设备抽象层，适合做适配器 |
@@ -58,7 +58,7 @@
 
 注意：这些项目的许可证、硬件兼容性与数据质量差异很大；接入前要逐个核对，不要假设“开源 = 可直接临床使用”。
 
-## 4. 对 Familiweave 的技术启示
+## 4. 对 Tacitweave 的技术启示
 
 ### 4.1 现在不要做
 

@@ -65,7 +65,7 @@ export function SignalSimulator({ onSession, onRetract }: { onSession?: (session
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = 'familiweave-simulated-timeline.json'
+    link.download = 'tacitweave-simulated-timeline.json'
     link.click()
     URL.revokeObjectURL(url)
   }

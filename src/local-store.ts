@@ -11,7 +11,7 @@ import { isSymbolicSession, loadSymbolicSessions, saveSymbolicSessions, symbolic
 import type { AppLockRecord } from './app-lock'
 import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState, type EncryptedLocalState } from './encrypted-store'
 
-const encryptedStorageKey = 'familiweave.encrypted-state.v1'
+const encryptedStorageKey = 'tacitweave.encrypted-state.v1'
 let activeEncryption: { record: AppLockRecord; key: CryptoKey } | null = null
 
 export function hasActiveEncryption() {

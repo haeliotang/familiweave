@@ -127,7 +127,7 @@ export class WebSocketSignalSource implements SignalSource {
     this.onState?.(this.reconnects ? 'reconnecting' : 'connecting')
     socket.onopen = () => {
       this.reconnectAttempts = 0
-      socket.send(JSON.stringify({ type: 'hello', client: 'familiweave', token: this.token }))
+      socket.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: this.token }))
       this.onState?.('connected')
     }
     socket.onerror = () => this.onState?.('error', 'bridge_connection_error')

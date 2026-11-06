@@ -89,7 +89,7 @@ jobs:
       - name: Upload signed zip artifact
         uses: actions/upload-artifact@v4
         with:
-          name: familiweave-macos-signed-${{ github.event.inputs.ref }}
+          name: tacitweave-macos-signed-${{ github.event.inputs.ref }}
           path: dist/release/*.zip
           if-no-files-found: error
           retention-days: 7

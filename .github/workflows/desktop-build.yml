@@ -6,7 +6,7 @@ on:
       tag:
         description: Release tag to attach assets to
         required: true
-        default: v0.1.2
+        default: v0.1.3
       ref:
         description: Optional branch or tag to build (defaults to the tag input)
         required: false
@@ -107,15 +107,15 @@ jobs:
           test -n "$APP"
           chmod +x "$APP"
           dbus-run-session -- xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
-            "$1" --appimage-extract-and-run > /tmp/familiweave-linux.log 2>&1 &
+            "$1" --appimage-extract-and-run > /tmp/tacitweave-linux.log 2>&1 &
             pid=$!
             found=0
             for i in $(seq 1 30); do
-              if xdotool search --name Familiweave >/dev/null 2>&1; then found=1; break; fi
+              if xdotool search --name Tacitweave >/dev/null 2>&1; then found=1; break; fi
               sleep 1
             done
             if [ "$found" != "1" ]; then
-              cat /tmp/familiweave-linux.log || true
+              cat /tmp/tacitweave-linux.log || true
               kill "$pid" 2>/dev/null || true
               exit 1
             fi
@@ -136,7 +136,7 @@ jobs:
             Write-Host "WINDOWS_CERTIFICATE not configured; unsigned installer remains"
             exit 0
           }
-          $pfx = Join-Path $env:RUNNER_TEMP "familiweave.pfx"
+          $pfx = Join-Path $env:RUNNER_TEMP "tacitweave.pfx"
           [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
           $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
           $cert = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password -PassThru
@@ -157,22 +157,22 @@ jobs:
         run: |
           $installer = Get-ChildItem "apps/desktop/src-tauri/target/release/bundle/nsis/*.exe" | Select-Object -First 1
           if (-not $installer) { throw "NSIS installer not found" }
-          $installDir = Join-Path $env:RUNNER_TEMP "Familiweave"
+          $installDir = Join-Path $env:RUNNER_TEMP "Tacitweave"
           Start-Process -FilePath $installer.FullName -ArgumentList "/S", "/D=$installDir" -Wait
-          $app = Get-ChildItem -Path $installDir, (Join-Path $env:LOCALAPPDATA "Familiweave") -Include "familiweave-desktop.exe", "Familiweave.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+          $app = Get-ChildItem -Path $installDir, (Join-Path $env:LOCALAPPDATA "Tacitweave") -Include "tacitweave-desktop.exe", "Tacitweave.exe" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $app) {
-            Get-ChildItem -Path $installDir, (Join-Path $env:LOCALAPPDATA "Familiweave") -Recurse -ErrorAction SilentlyContinue | Select-Object -First 40 FullName
-            throw "Installed Familiweave executable not found"
+            Get-ChildItem -Path $installDir, (Join-Path $env:LOCALAPPDATA "Tacitweave") -Recurse -ErrorAction SilentlyContinue | Select-Object -First 40 FullName
+            throw "Installed Tacitweave executable not found"
           }
           Start-Process -FilePath $app.FullName
           Start-Sleep -Seconds 8
-          if (-not (Get-Process -Name "familiweave-desktop", "Familiweave" -ErrorAction SilentlyContinue)) { throw "Familiweave process did not start" }
-          Stop-Process -Name "familiweave-desktop", "Familiweave" -Force -ErrorAction SilentlyContinue
+          if (-not (Get-Process -Name "tacitweave-desktop", "Tacitweave" -ErrorAction SilentlyContinue)) { throw "Tacitweave process did not start" }
+          Stop-Process -Name "tacitweave-desktop", "Tacitweave" -Force -ErrorAction SilentlyContinue
 
       - name: Upload ${{ matrix.name }} artifact
         uses: actions/upload-artifact@v4
         with:
-          name: familiweave-${{ matrix.artifact }}-${{ github.event.inputs.tag || github.ref_name }}
+          name: tacitweave-${{ matrix.artifact }}-${{ github.event.inputs.tag || github.ref_name }}
           path: ${{ matrix.files }}
           if-no-files-found: error
           retention-days: 7

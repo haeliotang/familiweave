@@ -143,8 +143,8 @@ const en: Record<string, string> = {
   '已导入': 'Imported',
   '个母题': 'motifs',
   '条关系触发点': 'relationship triggers',
-  '导入失败：需要 familiweave 导出的 local-dataset-v1 JSON。': 'Import failed: use a local-dataset-v1 JSON exported by Familiweave.',
-  '导入失败：需要 familiweave 导出的 local-dataset-v1/v2 JSON。': 'Import failed: use a local-dataset-v1/v2 JSON exported by Familiweave.',
+  '导入失败：需要 tacitweave 导出的 local-dataset-v1 JSON。': 'Import failed: use a local-dataset-v1 JSON exported by Tacitweave.',
+  '导入失败：需要 tacitweave 导出的 local-dataset-v1/v2 JSON。': 'Import failed: use a local-dataset-v1/v2 JSON exported by Tacitweave.',
   '删除本机全部数据？此操作不可撤销。': 'Delete all local data? This cannot be undone.',
   '自动反应': 'Automatic response',
   '共': 'Total',
@@ -291,7 +291,7 @@ const en: Record<string, string> = {
   '加密备份失败': 'Could not create encrypted backup',
   '输入加密备份口令': 'Enter the encrypted backup passphrase',
   '导出加密备份': 'Export encrypted backup',
-  '导入失败：需要 familiweave 导出的 local-dataset-v1/v2 或加密备份 JSON。': 'Import failed: use a local-dataset-v1/v2 or an encrypted Familiweave backup.',
+  '导入失败：需要 tacitweave 导出的 local-dataset-v1/v2 或加密备份 JSON。': 'Import failed: use a local-dataset-v1/v2 or an encrypted Tacitweave backup.',
 
   '只记录你自己写下的瞬间；不分析对方，不做匹配，不推断“依恋类型”。': 'Record only the moments you wrote down; do not analyse the other person, match, or infer an “attachment type”.',
 
@@ -373,7 +373,7 @@ const LanguageContext = createContext<LanguageContextValue | null>(null)
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Language>(() => {
     if (typeof window === 'undefined') return 'en'
-    const saved = window.localStorage.getItem('familiweave.lang')
+    const saved = window.localStorage.getItem('tacitweave.lang')
     if (saved === 'zh' || saved === 'en') return saved
     return navigator.language.startsWith('zh') ? 'zh' : 'en'
   })
@@ -383,7 +383,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     lang,
     setLang: (next: Language) => {
       setLangState(next)
-      if (typeof window !== 'undefined') window.localStorage.setItem('familiweave.lang', next)
+      if (typeof window !== 'undefined') window.localStorage.setItem('tacitweave.lang', next)
     },
     t: (zh: string) => lang === 'en' ? (en[zh] ?? zh) : zh,
   }), [lang])

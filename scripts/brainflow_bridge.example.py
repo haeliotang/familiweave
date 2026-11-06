@@ -23,7 +23,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--board", type=int, default=0, help="BrainFlow board id")
-    parser.add_argument("--kind", default="eda", help="Familiweave signal kind")
+    parser.add_argument("--kind", default="eda", help="Tacitweave signal kind")
     parser.add_argument("--channel", type=int, default=0, help="BrainFlow channel index")
     parser.add_argument("--source-id", default="brainflow-bridge")
     parser.add_argument("--interval-ms", type=int, default=100)

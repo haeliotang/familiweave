@@ -65,7 +65,7 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
     const blob = new Blob([JSON.stringify(timeline, null, 2)], { type: 'application/json' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
-    link.download = 'familiweave-device-timeline.json'
+    link.download = 'tacitweave-device-timeline.json'
     link.click()
     URL.revokeObjectURL(link.href)
   }

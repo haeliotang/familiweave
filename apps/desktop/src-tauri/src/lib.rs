@@ -223,7 +223,7 @@ fn export_local_state(app: tauri::AppHandle, state: State<'_, DbState>) -> Resul
         .duration_since(std::time::UNIX_EPOCH)
         .map_err(|error| error.to_string())?
         .as_secs();
-    let name = format!("familiweave-export-{seconds}.json");
+    let name = format!("tacitweave-export-{seconds}.json");
     fs::write(
         directory.join(&name),
         serde_json::to_string_pretty(&snapshot).map_err(|error| error.to_string())?,
@@ -337,36 +337,57 @@ fn copy_legacy_file(source: &Path, destination: &Path) -> Result<(), std::io::Er
     Ok(())
 }
 
-fn legacy_app_data_dir(data: &Path) -> Option<PathBuf> {
-    let parent = data.parent()?;
-    let name = data.file_name()?.to_string_lossy();
-    if !name.contains("inceptless") {
-        return None;
-    }
-    // The corrected identifier differs from the legacy identifier by one "n".
-    Some(parent.join(name.replacen("in", "i", 1)))
+const LEGACY_BUNDLE_IDS: &[&str] = &[
+    "com.inceptless.familiweave",
+    "com.iceptless.familiweave",
+    "com.iceptless.tacitweave",
+];
+const LEGACY_DB_NAME: &str = "familiweave.db";
+
+fn legacy_app_data_dirs(data: &Path) -> Vec<PathBuf> {
+    let Some(parent) = data.parent() else {
+        return Vec::new();
+    };
+    LEGACY_BUNDLE_IDS
+        .iter()
+        .map(|identifier| parent.join(identifier))
+        .filter(|path| path != data)
+        .collect()
 }
 
 fn migrate_legacy_app_data(data: &Path) -> Result<(), std::io::Error> {
-    let Some(legacy) = legacy_app_data_dir(data) else {
-        return Ok(());
-    };
-    if legacy == data || !legacy.is_dir() {
+    let legacy_dirs = legacy_app_data_dirs(data);
+    if legacy_dirs.iter().all(|legacy| !legacy.is_dir()) {
         return Ok(());
     }
     fs::create_dir_all(data)?;
-    if !data.join("familiweave.db").exists() {
-        copy_legacy_file(&legacy.join("familiweave.db"), &data.join("familiweave.db"))?;
-    }
-    let legacy_files = legacy.join("local-files");
-    if legacy_files.is_dir() {
-        for entry in fs::read_dir(legacy_files)? {
-            let entry = entry?;
-            if entry.file_type()?.is_file() {
-                copy_legacy_file(
-                    &entry.path(),
-                    &data.join("local-files").join(entry.file_name()),
-                )?;
+    for legacy in legacy_dirs {
+        if !legacy.is_dir() {
+            continue;
+        }
+        if !data.join("tacitweave.db").exists() {
+            for candidate in [LEGACY_DB_NAME, "tacitweave.db"] {
+                copy_legacy_file(&legacy.join(candidate), &data.join("tacitweave.db"))?;
+                if data.join("tacitweave.db").exists() {
+                    break;
+                }
+            }
+            for suffix in ["-wal", "-shm"] {
+                let source = legacy.join(format!("{LEGACY_DB_NAME}{suffix}"));
+                let destination = data.join(format!("tacitweave.db{suffix}"));
+                copy_legacy_file(&source, &destination)?;
+            }
+        }
+        let legacy_files = legacy.join("local-files");
+        if legacy_files.is_dir() {
+            for entry in fs::read_dir(legacy_files)? {
+                let entry = entry?;
+                if entry.file_type()?.is_file() {
+                    copy_legacy_file(
+                        &entry.path(),
+                        &data.join("local-files").join(entry.file_name()),
+                    )?;
+                }
             }
         }
     }
@@ -382,7 +403,7 @@ pub fn run() {
                 eprintln!("legacy app-data migration skipped: {error}");
             }
             fs::create_dir_all(&data)?;
-            let database_path = data.join("familiweave.db");
+            let database_path = data.join("tacitweave.db");
             let connection = Connection::open(&database_path)?;
             connection.execute_batch(
                 "CREATE TABLE IF NOT EXISTS local_meta (
@@ -429,7 +450,7 @@ pub fn run() {
             import_local_state
         ])
         .run(tauri::generate_context!())
-        .expect("error while running Familiweave");
+        .expect("error while running Tacitweave");
 }
 
 #[cfg(test)]
@@ -503,16 +524,16 @@ mod tests {
     }
 
     #[test]
-    fn migrates_legacy_app_data_into_the_corrected_bundle_id() {
+    fn migrates_legacy_familiweave_app_data_into_tacitweave() {
         let root = std::env::temp_dir().join(format!(
-            "familiweave-migration-{}",
+            "tacitweave-migration-{}",
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos()
         ));
-        let current = root.join("com.inceptless.familiweave");
-        let legacy = super::legacy_app_data_dir(&current).unwrap();
+        let current = root.join("com.inceptless.tacitweave");
+        let legacy = root.join("com.inceptless.familiweave");
         std::fs::create_dir_all(legacy.join("local-files")).unwrap();
         std::fs::write(legacy.join("familiweave.db"), b"legacy-db").unwrap();
         std::fs::write(legacy.join("local-files/note.json"), b"{\"ok\":true}").unwrap();
@@ -520,7 +541,7 @@ mod tests {
         super::migrate_legacy_app_data(&current).unwrap();
 
         assert_eq!(
-            std::fs::read(current.join("familiweave.db")).unwrap(),
+            std::fs::read(current.join("tacitweave.db")).unwrap(),
             b"legacy-db"
         );
         assert_eq!(

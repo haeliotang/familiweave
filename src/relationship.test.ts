@@ -27,7 +27,7 @@ describe('relationship trigger journal', () => {
 
   it('ignores corrupt storage and supports delete/clear', () => {
     const storage = memoryStorage()
-    storage.setItem('familiweave.relationship-triggers.v1', '{bad')
+    storage.setItem('tacitweave.relationship-triggers.v1', '{bad')
     expect(loadRelationshipTriggers(storage)).toEqual([])
     const entries = addRelationshipTrigger(storage, base)
     expect(removeRelationshipTrigger(storage, entries[0].id)).toEqual([])

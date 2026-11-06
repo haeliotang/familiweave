@@ -25,7 +25,7 @@ Tauri updater 需要三样东西：
 2. 在维护者机器生成 updater key pair：
 
 ```sh
-pnpm tauri signer generate -w ~/.tauri/familiweave-updater.key
+pnpm tauri signer generate -w ~/.tauri/tacitweave-updater.key
 ```
 
    - 公钥填入 `tauri.conf.json` 的 updater 配置。
@@ -52,10 +52,10 @@ pnpm tauri signer generate -w ~/.tauri/familiweave-updater.key
 
 ```sh
 node scripts/make-updater-manifest.mjs \
-  --version 0.2.0 --tag v0.2.0 --repo haeliotang/familiweave \
-  --platform windows-x86_64=path/Familiweave_0.2.0_x64-setup.exe.sig \
-  --platform linux-x86_64=path/Familiweave_0.2.0_amd64.AppImage.sig \
-  --platform darwin-aarch64=path/Familiweave_0.2.0_aarch64.app.tar.gz.sig \
+  --version 0.2.0 --tag v0.2.0 --repo haeliotang/tacitweave \
+  --platform windows-x86_64=path/Tacitweave_0.2.0_x64-setup.exe.sig \
+  --platform linux-x86_64=path/Tacitweave_0.2.0_amd64.AppImage.sig \
+  --platform darwin-aarch64=path/Tacitweave_0.2.0_aarch64.app.tar.gz.sig \
   --notes "..." --out latest.json
 ```
 

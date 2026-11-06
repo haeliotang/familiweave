@@ -1,5 +1,5 @@
 {
-  "name": "familiweave-desktop",
+  "name": "tacitweave-desktop",
   "private": true,
   "scripts": {
     "dev": "pnpm --dir ../.. dev",

@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Familiweave</title>
+    <title>Tacitweave</title>
     <meta name="theme-color" content="#f7f7f7" />
     <script>
       (() => {
         try {
-          const saved = localStorage.getItem('familiweave.theme');
+          const saved = localStorage.getItem('tacitweave.theme');
           const dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
           document.documentElement.dataset.theme = dark ? 'dark' : 'light';
           document.documentElement.style.colorScheme = dark ? 'dark' : 'light';

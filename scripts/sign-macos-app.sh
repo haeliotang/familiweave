@@ -8,7 +8,7 @@
 # The identity must already exist in the current keychain.
 set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP="${1:-$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Familiweave.app}"
+APP="${1:-$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Tacitweave.app}"
 ENTITLEMENTS="$ROOT/apps/desktop/src-tauri/Entitlements.plist"
 IDENTITY="${APPLE_SIGNING_IDENTITY:?APPLE_SIGNING_IDENTITY is required}"
 [ -d "$APP" ] || { echo "app bundle missing: $APP" >&2; exit 1; }
@@ -17,7 +17,7 @@ codesign --force --deep --options runtime --entitlements "$ENTITLEMENTS" --sign 
 codesign --verify --deep --strict --verbose=2 "$APP"
 
 if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
-  TMP_ZIP="$(mktemp -t familiweave-notarize).zip"
+  TMP_ZIP="$(mktemp -t tacitweave-notarize).zip"
   trap 'rm -f "$TMP_ZIP"' EXIT
   ditto -c -k --sequesterRsrc --keepParent "$APP" "$TMP_ZIP"
   xcrun notarytool submit "$TMP_ZIP" --apple-id "$APPLE_ID" --password "$APPLE_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
@@ -32,7 +32,7 @@ VERSION=$(node -p "require('$ROOT/apps/desktop/src-tauri/tauri.conf.json').versi
 ARCH=$(uname -m)
 OUT="$ROOT/dist/release"
 mkdir -p "$OUT"
-ZIP="$OUT/Familiweave-v${VERSION}-macos-${ARCH}.zip"
+ZIP="$OUT/Tacitweave-v${VERSION}-macos-${ARCH}.zip"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ZIP"
-(cd "$OUT" && shasum -a 256 "$(basename "$ZIP")" > "Familiweave-v${VERSION}-macos-${ARCH}.sha256")
+(cd "$OUT" && shasum -a 256 "$(basename "$ZIP")" > "Tacitweave-v${VERSION}-macos-${ARCH}.sha256")
 echo "wrote $ZIP"

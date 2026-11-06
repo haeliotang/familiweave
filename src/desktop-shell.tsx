@@ -188,7 +188,7 @@ export function DesktopShell() {
   const [symbolicSessions, setSymbolicSessions] = useState<SymbolicSession[]>([])
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
-  const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000))
+  const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('tacitweave.autolock-ms') ?? 300_000))
   const [lockout, setLockout] = useState<LockoutState>(() => typeof window === 'undefined' ? { failed: 0, blockedUntil: 0 } : loadLockout(window.localStorage))
   const [detailTab, setDetailTab] = useState<DetailTab>('overview')
   const [motifs, setMotifs] = useState<MotifEntry[]>(() => typeof window === 'undefined' ? [] : loadMotifs(window.localStorage))
@@ -336,7 +336,7 @@ export function DesktopShell() {
     const restored = await disableLocalEncryption(pin, lockRecord, currentSnapshot())
     applySnapshot(restored)
     window.localStorage.removeItem(appLockStorageKey)
-    window.localStorage.removeItem('familiweave.app-lock-lockout.v1')
+    window.localStorage.removeItem('tacitweave.app-lock-lockout.v1')
     setLockout({ failed: 0, blockedUntil: 0 })
     setLockRecord(null)
     setLocked(false)
@@ -369,7 +369,7 @@ export function DesktopShell() {
   }
 
   const updateAutoLock = (value: number) => {
-    window.localStorage.setItem('familiweave.autolock-ms', String(value))
+    window.localStorage.setItem('tacitweave.autolock-ms', String(value))
     setAutoLockMs(value)
   }
 
@@ -462,7 +462,7 @@ export function DesktopShell() {
       <aside className="sidebar">
         <div className="sidebar-top" data-tauri-drag-region>
           {!isTauriRuntime() && <div className="traffic-lights" aria-hidden="true"><span /><span /><span /></div>}
-          <div className="sidebar-brand">Familiweave</div>
+          <div className="sidebar-brand">Tacitweave</div>
           <label className="search-box"><span>⌕</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索母题')} /></label>
           <button className="new-button" onClick={openNew}><span>＋</span> {t('新建内在片段')}</button>
         </div>
@@ -537,7 +537,7 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · ${t('沙箱')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}${db ? ` · schema v${db.schema_version}` : ''}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
-                <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.2'} /></Suspense>
+                <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.3'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} onRetractCapture={retractCapture} onRetractSymbolic={retractSymbolicSession} /></Suspense>
               </>}

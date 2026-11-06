@@ -34,7 +34,7 @@ describe('local motif journal', () => {
 
   it('ignores corrupt storage and removes/clears entries', () => {
     const storage = memoryStorage()
-    storage.setItem('familiweave.motifs.v1', 'not-json')
+    storage.setItem('tacitweave.motifs.v1', 'not-json')
     expect(loadMotifs(storage)).toEqual([])
     const entries = addMotif(storage, { name: '可删除', capture })
     expect(removeMotif(storage, entries[0].id)).toEqual([])

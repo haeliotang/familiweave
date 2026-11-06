@@ -14,13 +14,13 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'light'
-    return resolveTheme(window.localStorage.getItem('familiweave.theme'), window.matchMedia('(prefers-color-scheme: dark)').matches)
+    return resolveTheme(window.localStorage.getItem('tacitweave.theme'), window.matchMedia('(prefers-color-scheme: dark)').matches)
   })
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.documentElement.style.colorScheme = theme
-    window.localStorage.setItem('familiweave.theme', theme)
+    window.localStorage.setItem('tacitweave.theme', theme)
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#17181a' : '#f7f7f7')
   }, [theme])
 

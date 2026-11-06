@@ -12,7 +12,7 @@ export type UpdateStatus =
   | { kind: 'available'; latest: ReleaseInfo }
   | { kind: 'error'; message: string }
 
-const releaseApi = 'https://api.github.com/repos/haeliotang/familiweave/releases/latest'
+const releaseApi = 'https://api.github.com/repos/haeliotang/tacitweave/releases/latest'
 
 function parseVersion(value: string) {
   const match = value.trim().replace(/^v/i, '').match(/^(\d+)\.(\d+)\.(\d+)/)

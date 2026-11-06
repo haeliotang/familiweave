@@ -34,8 +34,8 @@ APPLE_TEAM_ID
 
 ```sh
 APPLE_SIGNING_IDENTITY="Developer ID Application: ..." sh scripts/package-macos.sh
-codesign --verify --deep --strict --verbose=2 Familiweave.app
-spctl --assess --type execute --verbose Familiweave.app
+codesign --verify --deep --strict --verbose=2 Tacitweave.app
+spctl --assess --type execute --verbose Tacitweave.app
 ```
 
 `.github/workflows/macos-signed.yml` 可在配置 secrets 后手动跑签名/公证并上传 artifact；默认不发布 Release。

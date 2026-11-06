@@ -32,7 +32,7 @@ describe('symbolic sessions', () => {
     saveSymbolicSessions(storage, [session])
     expect(loadSymbolicSessions(storage)).toEqual([session])
     expect(removeSymbolicSession([session], 'session-1')).toEqual([])
-    storage.setItem('familiweave.symbolic-sessions.v1', JSON.stringify([{ nope: true }]))
+    storage.setItem('tacitweave.symbolic-sessions.v1', JSON.stringify([{ nope: true }]))
     expect(loadSymbolicSessions(storage)).toEqual([])
   })
 })

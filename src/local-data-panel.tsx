@@ -19,23 +19,23 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
     link.click()
     URL.revokeObjectURL(url)
   }
-  const exportAll = () => download(JSON.stringify(localDatasetFromSnapshot(snapshot), null, 2), 'familiweave-local-dataset.json')
+  const exportAll = () => download(JSON.stringify(localDatasetFromSnapshot(snapshot), null, 2), 'tacitweave-local-dataset.json')
   const exportEncrypted = async () => {
     const passphrase = window.prompt(t('设置备份口令（至少 8 位）'))
     if (!passphrase) return
     if (passphrase.length < 8) { setStatus(t('备份口令至少 8 位')); return }
     if (window.prompt(t('再次输入备份口令')) !== passphrase) { setStatus(t('两次口令不一致')); return }
     try {
-      download(JSON.stringify(await encryptBackup(localDatasetFromSnapshot(snapshot), passphrase), null, 2), 'familiweave-encrypted-backup.json')
+      download(JSON.stringify(await encryptBackup(localDatasetFromSnapshot(snapshot), passphrase), null, 2), 'tacitweave-encrypted-backup.json')
       setStatus(t('已生成加密备份；口令无法找回。'))
     } catch { setStatus(t('加密备份失败')) }
   }
-  const exportTimeline = () => download(exportLocalTimeline(localDatasetFromSnapshot(snapshot)), 'familiweave-local-timeline.json')
+  const exportTimeline = () => download(exportLocalTimeline(localDatasetFromSnapshot(snapshot)), 'tacitweave-local-timeline.json')
   const exportLsm0 = () => {
     const participantId = window.prompt(t('输入匿名参与者编号（例如 P01）'))
     if (!participantId) return
     const result = datasetToLsm0Sessions(localDatasetFromSnapshot(snapshot), participantId)
-    download(JSON.stringify(result.records, null, 2), 'familiweave-lsm0-sessions.json')
+    download(JSON.stringify(result.records, null, 2), 'tacitweave-lsm0-sessions.json')
     setStatus(`${t('已导出 LSM-0 会话')} ${result.records.length} · ${t('警告')} ${result.warnings.length}`)
   }
   const importFile = async (file: File | undefined) => {
@@ -54,7 +54,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
       onImport(next)
       setStatus(`${t('已导入')} ${next.motifs.length} ${t('个母题')}、${next.relationships.length} ${t('条关系触发点')}。`)
     } catch {
-      setStatus(t('导入失败：需要 familiweave 导出的 local-dataset-v1/v2 或加密备份 JSON。'))
+      setStatus(t('导入失败：需要 tacitweave 导出的 local-dataset-v1/v2 或加密备份 JSON。'))
     } finally {
       if (input.current) input.current.value = ''
     }

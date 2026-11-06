@@ -13,7 +13,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, ErrorBo
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Familiweave UI error', error, info.componentStack)
+    console.error('Tacitweave UI error', error, info.componentStack)
   }
 
   render() {
@@ -21,7 +21,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, ErrorBo
     const chinese = typeof navigator !== 'undefined' && navigator.language.startsWith('zh')
     return <div className="error-fallback" role="alert">
       <div>
-        <p className="eyebrow">Familiweave</p>
+        <p className="eyebrow">Tacitweave</p>
         <h1>{chinese ? '界面遇到了问题' : 'The interface hit a problem'}</h1>
         <p>{chinese ? '本机数据没有被上传。你可以重新加载；如果问题持续，导出诊断前先确认不含私人内容。' : 'Local data was not uploaded. Reload the app; if this persists, inspect the console before exporting anything private.'}</p>
         <code>{this.state.message}</code>

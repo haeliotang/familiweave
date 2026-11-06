@@ -4,7 +4,7 @@
 
 ## 1. 版本与内容
 
-1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.2`）。
+1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.3`）。
 2. 确认 README 的已知限制/签名状态与产物一致。
 3. 确认没有把证书、私钥、`.env`、`.local-assets` 或本机路径提交。
 
@@ -30,8 +30,8 @@ sh scripts/package-macos.sh        # macOS 构建 + strip + ad-hoc + zip
 ```sh
 git status --short          # 必须为空
 git log -1
-git tag -a v0.1.1 -m "Familiweave v0.1.1"
-git push origin v0.1.1
+git tag -a v0.1.3 -m "Tacitweave v0.1.3"
+git push origin v0.1.3
 ```
 
 标签会触发 `Desktop builds`。workflow 会先检查 tag 与 `tauri.conf.json` 的版本是否一致，然后：
@@ -61,7 +61,7 @@ Release 若不存在会创建并使用 `docs/release-notes/<tag>.md` 作为说�
 
 - 检查 Release 是 Latest 还是 Pre-release，与稳定性一致。
 - 下载并校验 `SHA256SUMS.txt`。
-- 使用 `gh attestation verify <artifact> --repo haeliotang/familiweave` 验证构建出处。
+- 使用 `gh attestation verify <artifact> --repo haeliotang/tacitweave` 验证构建出处。
 - 记录已知问题与回滚版本。
 - 如果发现凭据泄露：吊销证书、轮换 secrets、重新构建并撤销旧 Release。
 

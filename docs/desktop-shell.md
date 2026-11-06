@@ -39,24 +39,24 @@ src/
 | `load_local_state` | 从 SQLite `local_state` 读取母题/关系触发点快照 |
 | `save_local_state` | 写入/更新母题与关系触发点快照 |
 | `clear_local_state` | 删除本机快照 |
-| `export_local_state` | 把当前快照写到 app data/local-files/familiweave-export-*.json |
+| `export_local_state` | 把当前快照写到 app data/local-files/tacitweave-export-*.json |
 | `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
-- SQLite 位于 app data：`familiweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`；启用应用锁后保存 `encrypted` 密文并删除明文 key。
-- bundle id 已修正为 `com.inceptless.familiweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `familiweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
+- SQLite 位于 app data：`tacitweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`；启用应用锁后保存 `encrypted` 密文并删除明文 key。
+- bundle id 已修正为 `com.inceptless.tacitweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `tacitweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
 - 已建 `local_meta` 与 `local_state` 表；界面中的母题、关系触发点、场域节点位置/用户连线与信号 session 摘要通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
 ## 3. 主题与语言
 
-- 顶栏提供「明 / 暗」主题切换；默认跟随系统，选择写入 `familiweave.theme`。
-- 顶栏提供「中文 / English」切换；默认跟随浏览器语言，选择写入 `familiweave.lang`。
+- 顶栏提供「明 / 暗」主题切换；默认跟随系统，选择写入 `tacitweave.theme`。
+- 顶栏提供「中文 / English」切换；默认跟随浏览器语言，选择写入 `tacitweave.lang`。
 - `index.html` 在 React 启动前写入 `data-theme`，避免深色主题闪白。
 - 深色主题覆盖侧栏、工作区、上下文面板、卡片、身体地图、日记、关系表单与实验台。
 
 ## 4. 三栏工作台
 
-Familiweave 自己的默认布局不是文档编辑器，而是 **场域（Field）**：
+Tacitweave 自己的默认布局不是文档编辑器，而是 **场域（Field）**：
 
 - 中间：母题星座 + 关系节点；顶部镜头切换 Constellation / Body / Imagery / Relationship；底部时间轴。
 - 节点可拖拽、缩放、重置；用户可主动连接节点，连接与位置写入 SQLite。
@@ -101,10 +101,10 @@ pnpm tauri:dev
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
 - `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：4 个宿主测试通过（文件沙箱 + SQLite 快照）
 - `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
-- `pnpm tauri:build --bundles app`：成功生成 `Familiweave.app`（约 10.45 MiB；无 Developer ID 签名），并应用自定义 Familiweave 图标。
+- `pnpm tauri:build --bundles app`：成功生成 `Tacitweave.app`（约 10.45 MiB；无 Developer ID 签名），并应用自定义 Tacitweave 图标。
 - `pnpm package:macos` 会构建、`strip -x`、ad-hoc 重签名并生成 zip；本机验证 app 约 8.4 MiB、zip 约 3.4 MB。
 - 本机 Homebrew Rust 1.94 下必须显式设置 `CARGO_PROFILE_RELEASE_STRIP=none`，否则 Tauri CLI 的 strip 会破坏 proc-macro dylib；根脚本和 CI 已设置。
-- 启动打包后的 App：成功创建 `~/Library/Application Support/com.inceptless.familiweave/familiweave.db`，包含 `local_meta` 与 `local_state` 表。
+- 启动打包后的 App：成功创建 `~/Library/Application Support/com.inceptless.tacitweave/tacitweave.db`，包含 `local_meta` 与 `local_state` 表。
 - 导出/导入：Rust 命令写入/读取 app data/local-files；前端也支持 JSON 下载与文件导入。
 - 签名、公证与正式安装包尚未验收。
 - Web 预览截图：见上方图片。
@@ -140,7 +140,7 @@ sh scripts/desktop-sign-adhoc.sh
 
 ## 9. 应用图标
 
-- 用户提供的单色源文件：`apps/desktop/src-tauri/icons/familiweave-mono.svg`
+- 用户提供的单色源文件：`apps/desktop/src-tauri/icons/tacitweave-mono.svg`
 - 带纸面圆角底的生成源：`apps/desktop/src-tauri/icons/icon-source.svg`
 - 重新生成：
 
@@ -149,7 +149,7 @@ node_modules/.bin/tauri icon apps/desktop/src-tauri/icons/icon-source.svg \
   -o apps/desktop/src-tauri/icons
 ```
 
-- 打包后的 `Familiweave.app` 已包含新的 `icon.icns` / `icon.ico` 与 Windows/Linux PNG。
+- 打包后的 `Tacitweave.app` 已包含新的 `icon.icns` / `icon.ico` 与 Windows/Linux PNG。
 
 
 ## 10. 安全与 BCI-3

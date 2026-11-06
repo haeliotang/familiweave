@@ -153,10 +153,10 @@ pub fn verify_capture(capture: &CaptureProvenance, media_path: &Path) -> Result<
 
 pub fn run_verify(args: &[String]) -> Result<(), String> {
     let capture_path = args.first().ok_or_else(|| {
-        "usage: familiweave-ops capture-verify <capture.json> <media-file>".to_string()
+        "usage: tacitweave-ops capture-verify <capture.json> <media-file>".to_string()
     })?;
     let media_path = args.get(1).ok_or_else(|| {
-        "usage: familiweave-ops capture-verify <capture.json> <media-file>".to_string()
+        "usage: tacitweave-ops capture-verify <capture.json> <media-file>".to_string()
     })?;
     let raw = std::fs::read_to_string(capture_path)
         .map_err(|error| format!("cannot read {capture_path}: {error}"))?;
@@ -169,7 +169,7 @@ pub fn run_verify(args: &[String]) -> Result<(), String> {
 
 pub fn run(args: &[String]) -> Result<(), String> {
     let path = args.first().filter(|arg| !arg.starts_with("--")).ok_or_else(|| {
-        "usage: familiweave-ops capture-hash <file> --id <id> --renderer <kind> --mime <type> --duration <seconds> [--url <url>] [--model <id>] [--prompt-hash <sha256>] [--synth-id] [--created-at <RFC3339>]".to_string()
+        "usage: tacitweave-ops capture-hash <file> --id <id> --renderer <kind> --mime <type> --duration <seconds> [--url <url>] [--model <id>] [--prompt-hash <sha256>] [--synth-id] [--created-at <RFC3339>]".to_string()
     })?;
     let id = required_value(args, "--id")?;
     let renderer = required_value(args, "--renderer")?.parse::<RendererKind>()?;
@@ -240,7 +240,7 @@ mod tests {
     #[test]
     fn verifies_media_hash_and_rejects_mismatch() {
         let path =
-            std::env::temp_dir().join(format!("familiweave-capture-{}.bin", std::process::id()));
+            std::env::temp_dir().join(format!("tacitweave-capture-{}.bin", std::process::id()));
         std::fs::write(&path, b"abc").expect("write fixture");
         let capture = CaptureProvenance {
             version: "capture-v1".into(),

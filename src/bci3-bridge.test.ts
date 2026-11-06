@@ -43,13 +43,13 @@ describe('BCI-3 local bridge', () => {
   it('rejects a bad token and accepts a valid hello', async () => {
     const bad = await connect()
     const badReply = next(bad)
-    bad.send(JSON.stringify({ type: 'hello', client: 'familiweave', token: 'wrong' }))
+    bad.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'wrong' }))
     expect(await badReply).toMatchObject({ type: 'error', message: 'bridge_auth_failed' })
     bad.close()
 
     const good = await connect()
     const goodReply = next(good)
-    good.send(JSON.stringify({ type: 'hello', client: 'familiweave', token: 'test-token' }))
+    good.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'test-token' }))
     expect(await goodReply).toMatchObject({ type: 'hello', sourceId: 'bci-3-bridge' })
     good.close()
   }, 10_000)
@@ -57,7 +57,7 @@ describe('BCI-3 local bridge', () => {
   it('forwards a stdin sample to authenticated clients', async () => {
     const socket = await connect()
     const hello = next(socket)
-    socket.send(JSON.stringify({ type: 'hello', client: 'familiweave', token: 'test-token' }))
+    socket.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'test-token' }))
     await hello
     const sampleReply = next(socket)
     bridge.stdin.write(JSON.stringify({ type: 'sample', kind: 'heart_rate', value: 66, tMs: 100 }) + '\n')

@@ -24,7 +24,7 @@ export interface StorageLike {
   removeItem(key: string): void
 }
 
-export const motifStorageKey = 'familiweave.motifs.v1'
+export const motifStorageKey = 'tacitweave.motifs.v1'
 const maxEntries = 200
 
 function normalizeName(name: string) {

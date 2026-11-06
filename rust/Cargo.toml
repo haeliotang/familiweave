@@ -1,3 +1,3 @@
 [workspace]
-members = ["crates/familiweave-ops"]
+members = ["crates/tacitweave-ops"]
 resolver = "2"

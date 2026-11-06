@@ -22,7 +22,7 @@ export interface RelationshipStorageLike {
   removeItem(key: string): void
 }
 
-export const relationshipStorageKey = 'familiweave.relationship-triggers.v1'
+export const relationshipStorageKey = 'tacitweave.relationship-triggers.v1'
 const maxEntries = 100
 
 export const responses: Array<{ value: RelationshipResponse; label: string; labelEn: string }> = [

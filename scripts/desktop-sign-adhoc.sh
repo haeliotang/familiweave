@@ -3,7 +3,7 @@
 # for distribution. Use a Developer ID identity + notarytool for real releases.
 set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP="$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Familiweave.app"
+APP="$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Tacitweave.app"
 ENTITLEMENTS="$ROOT/apps/desktop/src-tauri/Entitlements.plist"
 [ -d "$APP" ] || { echo "Build the app first: pnpm tauri:build --bundles app" >&2; exit 1; }
 codesign --force --deep --sign - --entitlements "$ENTITLEMENTS" "$APP"

@@ -31,7 +31,7 @@ export function isEncryptedLocalState(value: unknown): value is EncryptedLocalSt
 }
 
 export async function deriveDataKey(pin: string, salt: string, iterations: number): Promise<CryptoKey> {
-  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${pin}\u0000familiweave-data-v1`), 'PBKDF2', false, ['deriveKey'])
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(`${pin}\u0000tacitweave-data-v1`), 'PBKDF2', false, ['deriveKey'])
   return crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: base64ToBytes(salt) as BufferSource, iterations, hash: 'SHA-256' },
     material,

@@ -42,7 +42,7 @@ const server = createServer((request, response) => {
     return
   }
   response.writeHead(404, { 'content-type': 'text/plain' })
-  response.end('Familiweave BCI-3 local bridge\n')
+  response.end('Tacitweave BCI-3 local bridge\n')
 })
 const wss = new WebSocketServer({ server, path: '/bci', maxPayload: 256 * 1024 })
 const authenticated = new Set<WebSocket>()
@@ -71,7 +71,7 @@ wss.on('connection', (socket, request) => {
       if (!authenticated.has(socket)) send(socket, { type: 'error', message: 'bridge_hello_required' })
       return
     }
-    if (!tokenMatches(token, packet.token) || packet.client !== 'familiweave') {
+    if (!tokenMatches(token, packet.token) || packet.client !== 'tacitweave') {
       send(socket, { type: 'error', message: 'bridge_auth_failed' })
       socket.close(1008, 'auth_failed')
       return
@@ -90,7 +90,7 @@ wss.on('connection', (socket, request) => {
 })
 
 server.listen(port, '127.0.0.1', () => {
-  console.log(`Familiweave BCI-3 local bridge listening on ws://127.0.0.1:${port}/bci`)
+  console.log(`Tacitweave BCI-3 local bridge listening on ws://127.0.0.1:${port}/bci`)
   console.log(`Token: ${token}`)
   console.log('Health: http://127.0.0.1:' + port + '/health')
   console.log('Pipe JSONL sample/samples packets via stdin; no raw samples are stored by this process.')

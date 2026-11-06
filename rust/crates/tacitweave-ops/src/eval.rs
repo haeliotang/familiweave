@@ -175,7 +175,7 @@ fn load(path: &str) -> Result<ExperimentLog, String> {
 pub fn run(args: &[String]) -> Result<(), String> {
     let path = args
         .first()
-        .ok_or_else(|| "usage: familiweave-ops eval-validate <experiment-log.json>".to_string())?;
+        .ok_or_else(|| "usage: tacitweave-ops eval-validate <experiment-log.json>".to_string())?;
     let log = load(path)?;
     println!(
         "{}",

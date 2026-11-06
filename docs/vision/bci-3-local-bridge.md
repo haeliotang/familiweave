@@ -6,8 +6,8 @@
 
 `scripts/bci3-bridge.ts` 是一个只监听 `127.0.0.1` 的 WebSocket 桥接进程：
 
-- 客户端（Familiweave）连接 `ws://127.0.0.1:8765/bci`
-- 先发送 `hello`，包含 `client: "familiweave"` 和启动时打印的 token
+- 客户端（Tacitweave）连接 `ws://127.0.0.1:8765/bci`
+- 先发送 `hello`，包含 `client: "tacitweave"` 和启动时打印的 token
 - 桥接验证 token 后返回能力列表
 - 真实设备/采集程序通过 **stdin JSONL** 送入 `sample` 或 `samples`
 - 桥接只转发样本，不持久化原始信号
@@ -27,7 +27,7 @@ pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
 客户端连接：
 
 ```json
-{"type":"hello","client":"familiweave","token":"local-dev-token"}
+{"type":"hello","client":"tacitweave","token":"local-dev-token"}
 ```
 
 桥接成功：
