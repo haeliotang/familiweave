@@ -178,6 +178,24 @@ describe('LSM-0 per-participant stability', () => {
   })
 })
 
+describe('LSM-0 negative control', () => {
+  it('reports a deterministic within-participant signal shuffle', () => {
+    const first = evaluateLsm0Values(varyingSessions(), { negativeControl: true, seed: 7 })
+    const second = evaluateLsm0Values(varyingSessions(), { negativeControl: true, seed: 7 })
+    expect(first.negativeControl).toBeDefined()
+    expect(first.negativeControl?.method).toBe('within_participant_deterministic_shuffle')
+    expect(first.negativeControl?.aggregate).toEqual(second.negativeControl?.aggregate)
+    expect(first.negativeControl?.participants[0].associations).toEqual(second.negativeControl?.participants[0].associations)
+  })
+
+  it('keeps sessions without signals in the negative control and formats the section', () => {
+    const report = evaluateLsm0Values([session({ signals: undefined })], { negativeControl: true })
+    const text = formatLsm0Report(report)
+    expect(text).toContain('Negative control')
+    expect(text).toContain('not a significance test')
+  })
+})
+
 describe('LSM-0 certainty', () => {
   it('reports optional certainty counts without imputing missing values', () => {
     const report = evaluateLsm0Values([

@@ -136,7 +136,7 @@
 
 ## 4. 第一轮验收
 
-P1/P2 已完成；P3 已落地象征空间 agency 事件、会话持久化与撤回。下一步：
+P1/P2/P3 已完成；P4 边界复核与 P5 阴性对照已落地。下一步：
 
 - README 中英文 research framing；
 - theory positioning 文档；

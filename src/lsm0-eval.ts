@@ -276,6 +276,13 @@ export const LSM0_LIMITATIONS: readonly string[] = [
   'Symbolic-space metrics are descriptive summaries of optional, system-produced parameters; they do not establish meaning, clinical validity, or causality.',
 ]
 
+export interface Lsm0NegativeControl {
+  method: 'within_participant_deterministic_shuffle'
+  seed: number
+  participants: Array<{ participantId: string; associations: Lsm0AssociationResult[] }>
+  aggregate: Lsm0AssociationAggregate[]
+}
+
 export interface Lsm0EvaluationReport {
   version: typeof LSM0_EVAL_VERSION
   prespecification: Lsm0Prespecification
@@ -296,6 +303,7 @@ export interface Lsm0EvaluationReport {
   rejected: Lsm0Issue[]
   warnings: Lsm0Issue[]
   limitations: string[]
+  negativeControl?: Lsm0NegativeControl
 }
 
 // ---------------------------------------------------------------------------
@@ -559,13 +567,13 @@ export function parseLsm0Text(text: string): Lsm0ParseResult {
 }
 
 /** Convenience: parse fixture text and evaluate it in one call. */
-export function evaluateLsm0Text(text: string): Lsm0EvaluationReport {
-  return evaluateLsm0(parseLsm0Text(text))
+export function evaluateLsm0Text(text: string, options: { negativeControl?: boolean; seed?: number } = {}): Lsm0EvaluationReport {
+  return evaluateLsm0(parseLsm0Text(text), options)
 }
 
 /** Convenience: parse decoded values and evaluate them in one call. */
-export function evaluateLsm0Values(values: readonly unknown[]): Lsm0EvaluationReport {
-  return evaluateLsm0(parseLsm0Values(values))
+export function evaluateLsm0Values(values: readonly unknown[], options: { negativeControl?: boolean; seed?: number } = {}): Lsm0EvaluationReport {
+  return evaluateLsm0(parseLsm0Values(values), options)
 }
 
 // ---------------------------------------------------------------------------
@@ -930,11 +938,40 @@ function compareNormalizedRecords(left: Lsm0NormalizedRecord, right: Lsm0Normali
   return left.rowIndex - right.rowIndex
 }
 
+/** Deterministic within-participant shuffle of present signal values, preserving missingness. */
+export function shuffleSignalValues(parsed: Lsm0ParseResult, seed = 1): Lsm0ParseResult {
+  let state = seed >>> 0
+  const random = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0
+    return state / 0x100000000
+  }
+  const records = parsed.records.map(item => ({ ...item, record: { ...item.record, signals: item.record.signals ? { ...item.record.signals } : undefined } }))
+  const participantIds = [...new Set(records.map(item => item.record.participantId))].sort(compareStrings)
+  for (const participantId of participantIds) {
+    const members = records.filter(item => item.record.participantId === participantId)
+    for (const key of SIGNAL_KEYS) {
+      const values = members.map(item => item.record.signals?.[key]).filter((value): value is number => typeof value === 'number')
+      for (let index = values.length - 1; index > 0; index -= 1) {
+        const swap = Math.floor(random() * (index + 1))
+        ;[values[index], values[swap]] = [values[swap], values[index]]
+      }
+      let cursor = 0
+      for (const item of members) {
+        if (typeof item.record.signals?.[key] !== 'number') continue
+        if (!item.record.signals) item.record.signals = {}
+        item.record.signals[key] = values[cursor]
+        cursor += 1
+      }
+    }
+  }
+  return { ...parsed, records }
+}
+
 /**
  * Evaluate parsed rows. Duplicate (participantId, sessionId) pairs are rejected
  * deterministically after sorting by capturedAt, sessionId, then row index.
  */
-export function evaluateLsm0(parsed: Lsm0ParseResult): Lsm0EvaluationReport {
+export function evaluateLsm0(parsed: Lsm0ParseResult, options: { negativeControl?: boolean; seed?: number } = {}): Lsm0EvaluationReport {
   const warnings = sortIssues([...parsed.warnings])
   const rejected = sortIssues([...parsed.rejected])
   const sorted = [...parsed.records].sort(compareNormalizedRecords)
@@ -967,7 +1004,7 @@ export function evaluateLsm0(parsed: Lsm0ParseResult): Lsm0EvaluationReport {
   const participantIds = [...byParticipant.keys()].sort(compareStrings)
   const participants = participantIds.map(participantId => evaluateParticipant(participantId, byParticipant.get(participantId) ?? []))
 
-  return {
+  const report: Lsm0EvaluationReport = {
     version: LSM0_EVAL_VERSION,
     prespecification: {
       ...LSM0_PRESPECIFICATION,
@@ -993,6 +1030,17 @@ export function evaluateLsm0(parsed: Lsm0ParseResult): Lsm0EvaluationReport {
     warnings,
     limitations: [...LSM0_LIMITATIONS],
   }
+  if (options.negativeControl) {
+    const seed = options.seed ?? 1
+    const shuffled = evaluateLsm0(shuffleSignalValues(parsed, seed), {})
+    report.negativeControl = {
+      method: 'within_participant_deterministic_shuffle',
+      seed,
+      participants: shuffled.participants.map(participant => ({ participantId: participant.participantId, associations: participant.associations })),
+      aggregate: shuffled.aggregate.associations,
+    }
+  }
+  return report
 }
 
 // ---------------------------------------------------------------------------
@@ -1120,6 +1168,16 @@ export function formatLsm0Report(report: Lsm0EvaluationReport): string {
 
   appendIssues(lines, 'Warnings', report.warnings)
   appendIssues(lines, 'Rejected rows', report.rejected)
+
+  if (report.negativeControl) {
+    lines.push('')
+    lines.push('Negative control (deterministic within-participant signal shuffle)')
+    lines.push(`- seed: ${report.negativeControl.seed}`)
+    for (const association of report.negativeControl.aggregate) {
+      lines.push(`- intensity ~ ${association.signal}: participants ${association.participantsWithValue}; positive ${association.positive}, negative ${association.negative}, zero ${association.zero}; median rho ${formatMetric(association.medianRho)}`)
+    }
+    lines.push('- This is a negative-control description, not a significance test.')
+  }
 
   lines.push('')
   lines.push('Limitations')
