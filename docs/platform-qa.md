@@ -16,7 +16,7 @@
 
 macOS 本机截图：[desktop-tauri-dark.png](assets/desktop-tauri-dark.png)
 
-Playwright E2E：场域拖拽/缩放/连线/持久化、主题与语言、应用锁错误 PIN/加密/恢复、懒加载视图与资源加载、键盘选择、v2 导出/导入、v1 兼容导入、加密备份导出/导入、显式更新检查成功/失败、明暗主题 WCAG A/AA 可访问性，共 20 项（含最小桌面窗口布局、全视图 WCAG A/AA、拓扑暗色审计、捕获出处导出、信号摘要撤回、英语完整性、自动锁定、PIN 锁定、键盘、懒加载资源与加密备份）；CI `Browser E2E` 已通过。
+Playwright E2E：场域拖拽/缩放/连线/持久化、主题与语言、应用锁错误 PIN/加密/恢复、懒加载视图与资源加载、键盘选择、v2 导出/导入、v1 兼容导入、加密备份导出/导入、显式更新检查成功/失败、明暗主题 WCAG A/AA 可访问性，共 20 项（含最小桌面窗口布局、全视图 WCAG A/AA、拓扑暗色审计、捕获出处导出/撤回、信号摘要撤回、英语完整性、自动锁定、PIN 锁定、键盘、懒加载资源与加密备份）；CI `Browser E2E` 已通过。
 
 当前 main（加密应用锁 + lazy split + error boundary）的 Desktop builds run `41700820961`：Linux AppImage 在 xvfb 中启动成功，Windows NSIS 安装与进程启动成功；release 上传在该次校验中按设计跳过。E2E 4 项也已在 CI 通过。
 

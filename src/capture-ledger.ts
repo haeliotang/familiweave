@@ -38,3 +38,7 @@ export function addCaptureProvenance(captures: CaptureProvenance[], capture: Cap
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
     .slice(0, maxCaptureProvenance)
 }
+
+export function removeCaptureProvenance(captures: CaptureProvenance[], captureId: string): CaptureProvenance[] {
+  return captures.filter(item => item.captureId !== captureId)
+}

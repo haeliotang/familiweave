@@ -15,7 +15,7 @@ import { fragments, regions, sensations, breaths } from './somatic'
 import { addFieldLink, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFieldNode, type FieldLayout, type FieldLens, type FieldRange } from './field'
 import { createSignalSession, loadSignalSessions, removeSignalSession, type SignalSession } from './signal-session'
 import type { CaptureProvenance } from './capture'
-import { addCaptureProvenance } from './capture-ledger'
+import { addCaptureProvenance, removeCaptureProvenance } from './capture-ledger'
 
 const FieldView = lazy(() => import('./field-view').then(module => ({ default: module.FieldView })))
 const TimelineRail = lazy(() => import('./field-view').then(module => ({ default: module.TimelineRail })))
@@ -379,6 +379,12 @@ export function DesktopShell() {
     void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
   }
 
+  const retractCapture = (captureId: string) => {
+    const next = removeCaptureProvenance(captures, captureId)
+    setCaptures(next)
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures: next })
+  }
+
   const retractSignalSession = (id: string) => {
     const next = removeSignalSession(signalSessions, id)
     setSignalSessions(next)
@@ -500,7 +506,7 @@ export function DesktopShell() {
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.1'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
-                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} /></Suspense>
+                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} onRetractCapture={retractCapture} /></Suspense>
               </>}
             </>}
         </div>

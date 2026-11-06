@@ -95,4 +95,6 @@ test('exports persisted capture provenance from the web fallback', async ({ page
   const download = await downloadPromise
   const text = await readFile((await download.path())!, 'utf8')
   expect(JSON.parse(text).captures).toEqual([capture])
+  await page.locator('.capture-list').getByRole('button', { name: 'Retract' }).click()
+  await expect(page.locator('.capture-list')).toHaveCount(0)
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addCaptureProvenance, captureStorageKey, clearCaptureProvenance, loadCaptureProvenance, saveCaptureProvenance } from './capture-ledger'
+import { addCaptureProvenance, captureStorageKey, clearCaptureProvenance, loadCaptureProvenance, removeCaptureProvenance, saveCaptureProvenance } from './capture-ledger'
 import type { CaptureProvenance } from './capture'
 
 const capture = (id: string, createdAt: string): CaptureProvenance => ({
@@ -33,5 +33,6 @@ describe('capture provenance ledger', () => {
     const next = addCaptureProvenance([capture('a', '2026-11-01T00:00:00Z')], capture('a', '2026-11-02T00:00:00Z'))
     expect(next).toHaveLength(1)
     expect(next[0].createdAt).toBe('2026-11-02T00:00:00Z')
+    expect(removeCaptureProvenance(next, 'a')).toEqual([])
   })
 })

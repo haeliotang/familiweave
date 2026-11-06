@@ -457,3 +457,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .signal-session-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; font-size: 11px; color: #5f6165; }
 [data-theme='dark'] .signal-session-list { border-color: #3a3c41 }
 [data-theme='dark'] .signal-session-list h3, [data-theme='dark'] .signal-session-row { color: #b8babc }
+.capture-list { margin-top: 12px; padding-top: 10px; border-top: 1px solid #e7e7e3; }
+.capture-list h3 { margin: 0 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5f6165; }
+[data-theme='dark'] .capture-list { border-color: #3a3c41 }
+[data-theme='dark'] .capture-list h3 { color: #b8babc }
