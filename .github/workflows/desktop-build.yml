@@ -6,7 +6,7 @@ on:
       tag:
         description: Release tag to attach assets to
         required: true
-        default: v0.1.1
+        default: v0.1.2
       ref:
         description: Optional branch or tag to build (defaults to the tag input)
         required: false
@@ -122,6 +122,33 @@ jobs:
             sleep 2
             kill "$pid" 2>/dev/null || true
           ' bash "$APP"
+
+      - name: Sign Windows installer (optional)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ secrets.WINDOWS_CERTIFICATE_THUMBPRINT }}
+          WINDOWS_TIMESTAMP_URL: ${{ secrets.WINDOWS_TIMESTAMP_URL }}
+        run: |
+          if (-not $env:WINDOWS_CERTIFICATE) {
+            Write-Host "WINDOWS_CERTIFICATE not configured; unsigned installer remains"
+            exit 0
+          }
+          $pfx = Join-Path $env:RUNNER_TEMP "familiweave.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+          $cert = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password -PassThru
+          $thumbprint = if ($env:WINDOWS_CERTIFICATE_THUMBPRINT) { $env:WINDOWS_CERTIFICATE_THUMBPRINT } else { $cert.Thumbprint }
+          $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName | Select-Object -Last 1
+          if (-not $signtool) { throw "signtool.exe not found" }
+          $timestamp = if ($env:WINDOWS_TIMESTAMP_URL) { $env:WINDOWS_TIMESTAMP_URL } else { "http://timestamp.digicert.com" }
+          $installer = Get-ChildItem "apps/desktop/src-tauri/target/release/bundle/nsis/*.exe" | Select-Object -First 1
+          if (-not $installer) { throw "NSIS installer not found" }
+          & $signtool.FullName sign /sha1 $thumbprint /fd SHA256 /tr $timestamp /td SHA256 $installer.FullName
+          & $signtool.FullName verify /pa /v $installer.FullName
+          Remove-Item -Force $pfx
 
       - name: Smoke test Windows bundle
         if: runner.os == 'Windows'

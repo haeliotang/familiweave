@@ -19,7 +19,7 @@
 - Linux x86_64：`Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` 校验所有产物
 
-> v0.1.1 是已归档的原型 Release；它早于 main 上的 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。
+> v0.1.1 是已归档的原型 Release；它早于 main 上的 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。v0.1.2 正在准备 Developer ID/Authenticode 签名，**尚未发布**。
 
 macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
 

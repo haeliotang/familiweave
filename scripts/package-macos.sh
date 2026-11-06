@@ -9,6 +9,10 @@ APP="$ROOT/apps/desktop/src-tauri/target/release/bundle/macos/Familiweave.app"
 [ -d "$APP" ] || { echo "app bundle missing" >&2; exit 1; }
 EXEC="$APP/Contents/MacOS/familiweave-desktop"
 strip -x "$EXEC"
+if [ -n "${APPLE_SIGNING_IDENTITY:-}" ]; then
+  sh "$ROOT/scripts/sign-macos-app.sh" "$APP"
+  exit $?
+fi
 codesign --force --deep --sign - --entitlements "$ROOT/apps/desktop/src-tauri/Entitlements.plist" "$APP"
 VERSION=$(node -p "require('$ROOT/apps/desktop/src-tauri/tauri.conf.json').version")
 ARCH=$(uname -m)

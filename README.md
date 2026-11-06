@@ -19,7 +19,7 @@ The [v0.1.1 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1
 - Linux x86_64: `Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` for every artifact
 
-> v0.1.1 is the current archived prototype release; it predates the storage-v2, BCI resilience, topology and LSM-0 work on `main`. Build `main` for the newest prototype. macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
+> v0.1.1 is the current archived prototype release; it predates the storage-v2, BCI resilience, topology and LSM-0 work on `main`. Build `main` for the newest prototype. v0.1.2 is being prepared for Developer ID/Authenticode signing and is **not released yet**. macOS v0.1.1 is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 

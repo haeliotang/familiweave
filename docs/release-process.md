@@ -4,7 +4,7 @@
 
 ## 1. 版本与内容
 
-1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.1`）。
+1. 确认 `apps/desktop/src-tauri/tauri.conf.json` 的 `version` 与目标版本一致（当前 `0.1.2`）。
 2. 确认 README 的已知限制/签名状态与产物一致。
 3. 确认没有把证书、私钥、`.env`、`.local-assets` 或本机路径提交。
 

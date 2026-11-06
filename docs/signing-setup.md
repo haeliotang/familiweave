@@ -198,7 +198,7 @@ Tauri 配置中启用（示例）：
 ### 验证 Windows 产物
 
 ```powershell
-signtool verify /pa /v Familiweave_0.1.1_x64-setup.exe
+signtool verify /pa /v Familiweave_0.1.2_x64-setup.exe
 ```
 
 ## 6. 不要在聊天或仓库里发这些内容
@@ -225,7 +225,8 @@ Tauri updater 使用独立的 updater 签名密钥（通常 minisign），与 Ap
 
 ## 8. 本仓库当前状态
 
+- v0.1.2 签名流程已准备；本机 Developer ID 签名可用，公证凭据尚未配置。
 - v0.1.1 的 macOS 包是 ad-hoc、未公证。
 - Windows/Linux 包未签名。
 - 没有任何证书或 secrets 被提交。
-- 配置好上述 secrets 后，仍需在 workflow 中加入签名 job/环境变量；当前 `Desktop builds` 只构建并上传未签名产物。
+- 配置好上述 secrets 后：macOS 使用 `macos-signed.yml`；Windows 使用 `desktop-build.yml` 的可选签名步骤。未配置时不会生成签名资产。

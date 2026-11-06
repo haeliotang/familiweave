@@ -1,0 +1,109 @@
+name: Signed macOS build
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or tag to build
+        required: true
+        default: main
+      tag:
+        description: Release tag for an optional upload
+        required: false
+        default: ''
+      publish:
+        description: Upload the signed zip to the release tag
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  macos:
+    name: macOS Developer ID build
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Import Apple Developer ID certificate
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          if [ -z "$APPLE_CERTIFICATE" ]; then
+            echo "APPLE_CERTIFICATE is not configured; refusing to produce an unsigned 'signed' build" >&2
+            exit 1
+          fi
+          echo "$APPLE_CERTIFICATE" | base64 -D > "$RUNNER_TEMP/apple.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          security import "$RUNNER_TEMP/apple.p12" -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security find-identity -v -p codesigning build.keychain
+          rm -f "$RUNNER_TEMP/apple.p12"
+
+      - name: Build macOS app
+        shell: bash
+        env:
+          CARGO_PROFILE_RELEASE_STRIP: none
+        run: |
+          cd apps/desktop
+          ../../node_modules/.bin/tauri build --bundles app
+
+      - name: Sign and optionally notarize
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: sh scripts/sign-macos-app.sh
+
+      - name: Upload signed zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: familiweave-macos-signed-${{ github.event.inputs.ref }}
+          path: dist/release/*.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Attest signed zip
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: 'dist/release/*.zip'
+
+      - name: Upload signed asset to release
+        if: ${{ inputs.publish && inputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || { echo "release $TAG does not exist" >&2; exit 1; }
+          gh release upload "$TAG" dist/release/*.zip --repo "$GITHUB_REPOSITORY" --clobber
