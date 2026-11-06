@@ -138,3 +138,15 @@ pnpm lsm0:baseline --in /tmp/lsm0-fixture.json
 - 只映射母题中已有的语音摘要（`voiceRmsMean`、`voicePauseRatio`）；不伪造心率/EDA。
 - 独立 signal sessions、关系触发点和捕获出处没有可靠的母题 join key，导出器会明确警告并跳过。
 - 导出器只做格式转换，不推断参与者身份、同意或临床有效性；`participantId` 由调用者显式提供。
+
+
+## 理论定位（2026-11-06）
+
+LSM-0 不是“潜意识读取”实验，也不是意识理论的判决实验。它是一个**理论中立的描述性基线**，用于检验：
+
+- 前语言的身体—意象—关系模式是否有可复现的个体内结构；
+- 可选信号摘要与躯体自报是否存在个体内关联；
+- 符号空间参数是否与身体—意象模式存在描述性对应；
+- 不确定性与主动选择是否让这些关系更可解释。
+
+本基线不把 Friston 的自由能原理、Levin 的多尺度 agency 或 Yamanaka 的细胞重编程当作疗效或意识证据。详细边界见 [theory positioning](theory-positioning.md) 与 [consciousness brief](consciousness-and-plasticity-brief.md)。

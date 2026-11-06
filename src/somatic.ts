@@ -3,6 +3,7 @@ export type SomaticRegion = 'head' | 'jaw' | 'throat' | 'shoulders' | 'chest' | 
 export type SomaticSensation = 'pressure' | 'heaviness' | 'hollowness' | 'tightness' | 'tingling' | 'heat' | 'cold' | 'numbness'
 
 export type BreathState = 'held' | 'shallow' | 'fast' | 'deep' | 'even'
+export type SomaticCertainty = 'clear' | 'mixed' | 'unsure'
 
 export type AssociativeFragmentId =
   | 'dusk-stairs'
@@ -20,6 +21,8 @@ export interface SomaticCapture {
   intensity: 1 | 2 | 3 | 4 | 5
   breath: BreathState
   fragments: AssociativeFragmentId[]
+  /** Optional self-reported confidence in the capture; absent means the old capture format. */
+  certainty?: SomaticCertainty
 }
 
 export interface AssociativeFragment {
@@ -64,6 +67,12 @@ export const breaths: Array<{ value: BreathState; label: string; labelEn: string
   { value: 'even', label: '还算均匀', labelEn: 'Even' },
 ]
 
+export const certainties: Array<{ value: SomaticCertainty; label: string; labelEn: string }> = [
+  { value: 'clear', label: '比较确定', labelEn: 'Fairly clear' },
+  { value: 'mixed', label: '有些矛盾', labelEn: 'Mixed' },
+  { value: 'unsure', label: '说不清', labelEn: 'Not sure' },
+]
+
 export const fragments: AssociativeFragment[] = [
   { id: 'dusk-stairs', label: '黄昏的楼梯间', labelEn: 'Dusk stairwell', motifs: ['house', 'corridor'], light: 'Amber dusk light, dust in the air, long stair shadows.', texture: 'Worn wood and cool plaster.', sound: 'Distant room tone and a faint outside hum.', palette: 'dusk' },
   { id: 'wet-corridor', label: '潮湿的走廊', labelEn: 'Wet corridor', motifs: ['corridor', 'water'], light: 'Dim, greenish light reflected from wet floor.', texture: 'Damp concrete and condensation.', sound: 'Water dripping slowly in a narrow space.', palette: 'wet' },
@@ -85,4 +94,5 @@ export function isSomaticCapture(value: unknown): value is SomaticCapture {
     && Array.isArray(capture.fragments)
     && capture.fragments.length > 0 && capture.fragments.length <= 3
     && capture.fragments.every(id => fragments.some(fragment => fragment.id === id))
+    && (capture.certainty === undefined || certainties.some(item => item.value === capture.certainty))
 }

@@ -350,6 +350,12 @@ const en: Record<string, string> = {
   '符号空间参数': 'Symbolic parameters',
   '由捕获生成，仅用于本机回看与研究导出；不是解释。': 'Generated from the capture for local review and research export only; not an interpretation.',
 
+  '确定程度': 'Certainty',
+  '你对这个感觉有多确定？': 'How certain are you about this feeling?',
+  '比较确定': 'Fairly clear',
+  '有些矛盾': 'Mixed',
+  '说不清': 'Not sure',
+
 }
 
 type LanguageContextValue = {

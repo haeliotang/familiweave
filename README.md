@@ -29,6 +29,23 @@ It is not trying to build a “therapist chatbot”. It does not claim to read t
 
 > Before language is formed, can the body, imagery and relational patterns be held first — and turned into a symbolic experience that only the person can complete?
 
+## Research framing
+
+Familiweave studies a narrower, testable question than "reading the deep subconscious":
+
+> Can pre-verbal bodily, imaginal and relational experience be held in an enterable, exit-able symbolic space, and can it be described with reproducible within-person measurements under explicit consent?
+
+The project uses three theory anchors without treating them as proof:
+
+- **Friston / active inference / interoception** — feelings and emotions are predictive constructions, not direct physiological readouts; uncertainty and precision matter.
+- **Levin / TAME / bioelectricity** — bodies and self-boundaries can be viewed as multi-scale agency; this is a framework, not evidence of a human subconscious.
+- **Yamanaka / iPS** — cell identity is plastic; cell reprogramming is not psychological reprogramming and is not a therapy claim.
+
+Read the full positioning and literature brief:
+
+- [Theory positioning](docs/research/theory-positioning.md)
+- [Consciousness, subconscious and plasticity brief](docs/research/consciousness-and-plasticity-brief.md)
+
 ## 1. Why BCI, not another chat box
 
 As AI takes over explicit knowledge, logical reasoning, language and external execution, **reason and language inflate**. People still feel empty, tense in the body, and stuck in the same relational loop. But these experiences are often pre-verbal:

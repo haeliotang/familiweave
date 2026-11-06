@@ -3,7 +3,7 @@ import { datasetToLsm0Sessions } from './lsm0-dataset'
 import type { LocalDataset } from './local-dataset'
 import type { SomaticCapture } from './somatic'
 
-const capture: SomaticCapture = { region: 'chest', sensation: 'pressure', intensity: 3, breath: 'held', fragments: ['wet-corridor'] }
+const capture: SomaticCapture = { region: 'chest', sensation: 'pressure', intensity: 3, breath: 'held', fragments: ['wet-corridor'], certainty: 'mixed' }
 const dataset = (): LocalDataset => ({
   version: 'local-dataset-v2',
   exportedAt: '2026-11-01T00:00:00Z',
@@ -25,6 +25,7 @@ describe('LSM-0 local dataset export', () => {
     expect(result.records[0]).toMatchObject({ participantId: 'P01', sessionId: 'motif-1', signals: { voiceRmsMean: 0.2, voicePauseRatio: 0.25 } })
     expect(result.records[1].signals).toBeUndefined()
     expect(result.records[1].symbolic).toEqual({ format: 'encounter', motifs: ['door'], figure: 'shadow' })
+    expect(result.records[0].somatic.certainty).toBe('mixed')
     expect(result.warnings).toEqual([])
   })
 

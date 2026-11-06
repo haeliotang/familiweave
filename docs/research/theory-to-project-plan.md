@@ -136,7 +136,7 @@
 
 ## 4. 第一轮验收
 
-第一轮先完成 P1，并开始 P2 的数据类型/兼容层：
+第一轮已完成 P1 与 P2：
 
 - README 中英文 research framing；
 - theory positioning 文档；

@@ -4,7 +4,7 @@ import { createInnerCaptureEncounter } from './inner-encounter'
 import { VoiceTraceRecorder } from './voice-trace'
 import type { MotifSignals } from './somatic-signal'
 import { useLanguage, type Language } from './i18n'
-import { breaths, fragments, regions, sensations, type AssociativeFragmentId, type BreathState, type SomaticCapture, type SomaticRegion, type SomaticSensation } from './somatic'
+import { breaths, certainties, fragments, regions, sensations, type AssociativeFragmentId, type BreathState, type SomaticCapture, type SomaticCertainty, type SomaticRegion, type SomaticSensation } from './somatic'
 
 const bodyRegions: Array<{ region: SomaticRegion; x: number; y: number; rx: number; ry: number }> = [
   { region: 'head', x: 110, y: 52, rx: 27, ry: 29 },
@@ -49,6 +49,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
   const [sensation, setSensation] = useState<SomaticSensation | null>(null)
   const [intensity, setIntensity] = useState<1 | 2 | 3 | 4 | 5>(3)
   const [breath, setBreath] = useState<BreathState | null>(null)
+  const [certainty, setCertainty] = useState<SomaticCertainty>('clear')
   const [selectedFragments, setSelectedFragments] = useState<AssociativeFragmentId[]>([])
   const [name, setName] = useState('')
   const [remember, setRemember] = useState(true)
@@ -66,7 +67,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
   return <form className="somatic-entry" onSubmit={event => {
     event.preventDefault()
     if (!canEnter || !region || !sensation || !breath) return
-    const capture: SomaticCapture = { region, sensation, intensity, breath, fragments: selectedFragments }
+    const capture: SomaticCapture = { region, sensation, intensity, breath, fragments: selectedFragments, certainty }
     if (remember) onRemember?.(capture, name, signals ?? undefined)
     onStart(createInnerCaptureEncounter(capture))
   }}>
@@ -88,6 +89,10 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
       </div>
       <div className="chip-row" role="group" aria-label={t('呼吸')}>
         {breaths.map(item => <button type="button" key={item.value} className={`chip ${breath === item.value ? 'selected' : ''}`} aria-pressed={breath === item.value} onClick={() => setBreath(item.value)}>{item[lang === 'en' ? 'labelEn' : 'label']}{lang === 'en' ? '' : '呼吸'}</button>)}
+      </div>
+      <div className="intensity-row" role="group" aria-label={t('你对这个感觉有多确定？')}>
+        <span>{t('确定程度')}</span>
+        {certainties.map(item => <button type="button" key={item.value} className={`chip small ${certainty === item.value ? 'selected' : ''}`} aria-pressed={certainty === item.value} onClick={() => setCertainty(item.value)}>{item[lang === 'en' ? 'labelEn' : 'label']}</button>)}
       </div>
     </div>
 
@@ -117,6 +122,6 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
       <button disabled={!canEnter}>{t('进入这段空间')}</button>
       <span className="note">{t('不解释、不诊断、不上传；这不是测量，也不会替你命名。')}</span>
     </div>
-    {regionLabel && sensationLabel && <p className="selection-summary">{regionLabel} · {sensationLabel} · {t('强度')} {intensity}/5 · {selectedFragments.length} {t('块意象')}</p>}
+    {regionLabel && sensationLabel && <p className="selection-summary">{regionLabel} · {sensationLabel} · {t('强度')} {intensity}/5 · {selectedFragments.length} {t('块意象')} · {certainties.find(item => item.value === certainty)?.[lang === 'en' ? 'labelEn' : 'label']}</p>}
   </form>
 }

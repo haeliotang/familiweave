@@ -116,6 +116,7 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
         <div><span>{t('感觉')}</span><strong>{localizedLabel(sensations, motif.capture.sensation, lang)}</strong></div>
         <div><span>{t('强度')}</span><strong>{motif.capture.intensity} / 5</strong></div>
         <div><span>{t('呼吸')}</span><strong>{localizedLabel(breaths, motif.capture.breath, lang)}</strong></div>
+        {motif.capture.certainty && <div><span>{t('确定程度')}</span><strong>{motif.capture.certainty === 'clear' ? t('比较确定') : motif.capture.certainty === 'mixed' ? t('有些矛盾') : t('说不清')}</strong></div>}
       </div>
     </section>}
     {tab === 'imagery' && <section className="paper-card">

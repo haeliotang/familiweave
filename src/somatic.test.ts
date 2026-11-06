@@ -29,6 +29,8 @@ describe('pre-verbal capture', () => {
     expect(isSomaticCapture(capture)).toBe(true)
     expect(isSomaticCapture({ ...capture, fragments: [] })).toBe(false)
     expect(isSomaticCapture({ ...capture, intensity: 9 })).toBe(false)
+    expect(isSomaticCapture({ ...capture, certainty: 'unsure' })).toBe(true)
+    expect(isSomaticCapture({ ...capture, certainty: 'definitely' })).toBe(false)
     expect(() => innerPlanFromCapture({ ...capture, fragments: [] })).toThrow()
   })
 

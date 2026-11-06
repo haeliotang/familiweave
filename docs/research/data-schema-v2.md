@@ -23,6 +23,7 @@
 ```
 
 - `v1` 数据集仍可导入；缺失的 `field` / `signals` 按空处理。
+- `capture.certainty` 可选：`clear` / `mixed` / `unsure`；缺失表示旧 capture 格式，不插补。
 - `field.positions` 使用 0–1 归一化坐标，节点 key 为 `motif:<id>` 或 `relationship:<id>`。
 - `field.links` **只由用户主动连接**，不是系统推断。
 - `signals` 只保存 session 摘要（时长、样本数、按 kind 计数），不保存原始信号。

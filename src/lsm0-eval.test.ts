@@ -178,6 +178,17 @@ describe('LSM-0 per-participant stability', () => {
   })
 })
 
+describe('LSM-0 certainty', () => {
+  it('reports optional certainty counts without imputing missing values', () => {
+    const report = evaluateLsm0Values([
+      session({ sessionId: 'C1', capturedAt: day(1), somatic: { certainty: 'clear' } }),
+      session({ sessionId: 'C2', capturedAt: day(2), somatic: { certainty: 'unsure' } }),
+      session({ sessionId: 'C3', capturedAt: day(3) }),
+    ])
+    expect(report.participants[0].certainty).toMatchObject({ sessionsWithValue: 2, counts: { clear: 1, mixed: 0, unsure: 1 }, modeShare: 0.5 })
+  })
+})
+
 describe('LSM-0 symbolic space parameters', () => {
   it('summarizes optional symbolic stability and somatic~symbolic paired counts', () => {
     const records = [1, 2, 3].map(index => session({

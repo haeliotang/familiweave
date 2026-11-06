@@ -16,6 +16,7 @@ import {
   type AssociativeFragmentId,
   type BreathState,
   type SomaticCapture,
+  type SomaticCertainty,
   type SomaticRegion,
   type SomaticSensation,
 } from './somatic'
@@ -68,6 +69,7 @@ export interface Lsm0FeatureVector {
   sensation: SomaticSensation
   breath: BreathState
   intensity: SomaticCapture['intensity']
+  certainty: SomaticCertainty | undefined
   /** First user-chosen associative fragment; order is preserved from the capture. */
   primaryFragment: AssociativeFragmentId
   /** Unique associative fragments in code-unit order, used for set similarity. */
@@ -148,6 +150,12 @@ export interface Lsm0AssociationResult {
   status: Lsm0AssociationStatus
 }
 
+export interface Lsm0CertaintyReport {
+  sessionsWithValue: number
+  counts: Record<SomaticCertainty, number>
+  modeShare: number | null
+}
+
 export interface Lsm0SymbolicReport {
   sessionCount: number
   primaryMotif: Lsm0CategoricalStability | null
@@ -174,6 +182,7 @@ export interface Lsm0ParticipantReport {
   /** 1 - (max - min) / 4 on the 1-5 self-report intensity scale. */
   intensityStability: number | null
   intensity: Lsm0NumericSummary
+  certainty: Lsm0CertaintyReport
   signals: Record<Lsm0SignalKey, Lsm0SignalReport>
   symbolic: Lsm0SymbolicReport
   associations: Lsm0AssociationResult[]
@@ -471,6 +480,7 @@ function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
       intensity: capture.intensity,
       breath: capture.breath,
       fragments: [...capture.fragments],
+      ...(capture.certainty !== undefined ? { certainty: capture.certainty } : {}),
     },
     ...(signals !== undefined ? { signals } : {}),
     ...(symbolicResult.symbolic !== undefined ? { symbolic: symbolicResult.symbolic } : {}),
@@ -582,6 +592,7 @@ export function flattenLsm0Session(record: Lsm0SessionRecord): Lsm0FeatureVector
     sensation: capture.sensation,
     breath: capture.breath,
     intensity: capture.intensity,
+    certainty: capture.certainty,
     primaryFragment: capture.fragments[0],
     fragmentSet: [...new Set(capture.fragments)].sort(compareStrings),
     signals: copySignals(record.signals),
@@ -794,6 +805,21 @@ function evaluateParticipant(participantId: string, sessions: readonly Lsm0Featu
     ? intensitySummary.max - intensitySummary.min
     : 0
 
+  const certaintyCounts: Record<SomaticCertainty, number> = { clear: 0, mixed: 0, unsure: 0 }
+  let certaintySessions = 0
+  for (const session of sessions) {
+    if (!session.certainty) continue
+    certaintySessions += 1
+    certaintyCounts[session.certainty] += 1
+  }
+  const certaintyMode = (Object.entries(certaintyCounts) as Array<[SomaticCertainty, number]>)
+    .sort((left, right) => right[1] - left[1] || compareStrings(left[0], right[0]))[0]
+  const certainty: Lsm0CertaintyReport = {
+    sessionsWithValue: certaintySessions,
+    counts: certaintyCounts,
+    modeShare: certaintySessions > 0 ? round6(certaintyMode[1] / certaintySessions) : null,
+  }
+
   const signals = {} as Record<Lsm0SignalKey, Lsm0SignalReport>
   const missingSessionsBySignal = {} as Record<Lsm0SignalKey, number>
   for (const key of SIGNAL_KEYS) {
@@ -825,6 +851,7 @@ function evaluateParticipant(participantId: string, sessions: readonly Lsm0Featu
       ? null
       : round6(1 - intensityRange / (LSM0_PRESPECIFICATION.intensityScale.max - LSM0_PRESPECIFICATION.intensityScale.min)),
     intensity: intensitySummary,
+    certainty,
     signals,
     symbolic: evaluateSymbolic(sessions),
     associations: PRIMARY_ASSOCIATIONS.map(pair => associateIntensityWithSignal(sessions, pair.signal)),
@@ -1058,6 +1085,7 @@ export function formatLsm0Report(report: Lsm0EvaluationReport): string {
     lines.push(`  categorical stability: region ${formatStability(participant.categoricalStability.region)}; sensation ${formatStability(participant.categoricalStability.sensation)}; breath ${formatStability(participant.categoricalStability.breath)}; primary fragment ${formatStability(participant.categoricalStability.primaryFragment)}`)
     lines.push(`  fragment-set stability: ${formatMetric(participant.fragmentSetStability)}`)
     lines.push(`  intensity stability: ${formatMetric(participant.intensityStability)}; intensity summary: ${formatSignalSummary({ coverage: 1, summary: participant.intensity })}`)
+    lines.push(`  certainty: sessions ${participant.certainty.sessionsWithValue}; clear ${participant.certainty.counts.clear}; mixed ${participant.certainty.counts.mixed}; unsure ${participant.certainty.counts.unsure}; mode share ${formatMetric(participant.certainty.modeShare)}`)
     lines.push(`  symbolic sessions: ${participant.symbolic.sessionCount}; primary motif stability: ${formatStability(participant.symbolic.primaryMotif)}; motif-set stability: ${formatMetric(participant.symbolic.motifSetStability)}; figure stability: ${formatStability(participant.symbolic.figure)}`)
     if (participant.symbolic.somaticPairs.length > 0) {
       const pairs = participant.symbolic.somaticPairs.slice(0, 5).map(pair => `${pair.region}/${pair.sensation}~${pair.primaryMotif} ${pair.count}`).join('; ')
