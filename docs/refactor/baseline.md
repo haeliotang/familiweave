@@ -1,17 +1,25 @@
 # R0 构建基线
 
-日期：2026-11-01。命令：`pnpm build && pnpm measure:build`。
+日期：2026-11-06。命令：`pnpm build && pnpm measure:build`。
 
 ## 本次测量
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-DCnTdm6t.js` | 295,252 | 主入口（contrast + update + error boundary + lazy split） |
-| `index-lnuX4tcs.css` | 54,035 | 样式（场域 + 应用锁 + 可访问性 + 明暗主题） |
-| `field-view-CYaexPve.js` | 8,450 | 懒加载场域组件 |
-| `app-lock-view-BzAGGKNI.js` | 4,416 | 懒加载应用锁界面 |
-| 其他懒加载视图 | 33,269 | capture / journal / relationship / lab / data panel |
-| 合计 | 395,422 | 多个懒加载产物；无 scene 分包 |
+| `index-tLBGbbKo.js` | 298,977 | 主入口（storage + BCI + topology lazy split） |
+| `index-ES6Jbx_z.css` | 54,520 | 主样式（场域 + 应用锁 + 可访问性 + 明暗主题） |
+| `relationship-map-Cm3c82Z7.js` | 17,408 | 关系触发点 + 纵向比较组件 |
+| `relationship-map-CJmGmEzr.css` | 7,423 | 纵向比较组件样式 |
+| `field-view-ygFRiil1.js` | 8,450 | 懒加载场域组件 |
+| `device-signal-panel-nLCIxJHp.js` | 7,539 | BCI 设备桥接面板 |
+| `somatic-entry-BAlfF-pM.js` | 7,460 | 身体捕获 |
+| `local-data-panel-uCLEFIW1.js` | 6,739 | 本机数据与加密备份 |
+| `app-lock-view-50JiNJV4.js` | 4,416 | 应用锁 |
+| `signal-simulator-Cn2mS6OV.js` | 2,648 | LSL 模拟器 |
+| `motif-journal-view-DnJ7WoqB.js` | 2,073 | 母题日记 |
+| `update-panel-DU0ST-rO.js` | 1,989 | 更新检查 |
+| `inner-entry-zckCbG3J.js` | 1,704 | 文字捕获 |
+| 合计 | 421,346 | 多个懒加载产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。

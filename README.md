@@ -19,7 +19,7 @@ The [v0.1.1 release](https://github.com/haeliotang/familiweave/releases/tag/v0.1
 - Linux x86_64: `Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` for every artifact
 
-> v0.1.1 is the current prototype release. macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
+> v0.1.1 is the current archived prototype release; it predates the storage-v2, BCI resilience, topology and LSM-0 work on `main`. Build `main` for the newest prototype. macOS is ad-hoc signed and not notarized; Windows/Linux are unsigned. Research prototype, not for clinical use.
 
 Familiweave is a public research project initiated by **Inceptless** about **brain-computer interfaces and the deep subconscious**.
 
@@ -115,6 +115,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete |
 | Update check | Explicit GitHub Releases check; no auto-download |
 | Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
+| Relationship topology | 30/90-day longitudinal comparison of user-authored triggers; no partner inference |
 
 Currently **not** implemented:
 
@@ -287,6 +288,7 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- [LSM-0 offline baseline](docs/research/lsm-0-evaluation.md): `pnpm lsm0:baseline --in <fixture.jsonl>`
 - [Auto-update plan](docs/updater-plan.md): updater key/endpoint plan and manifest generator
 - [Release signing](docs/release-signing.md)
 - [Release process](docs/release-process.md): tag builds, checksums and GitHub build provenance

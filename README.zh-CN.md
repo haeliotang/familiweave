@@ -19,7 +19,7 @@
 - Linux x86_64：`Familiweave_0.1.1_amd64.AppImage` / `.deb`
 - `SHA256SUMS.txt` 校验所有产物
 
-> v0.1.1 是当前原型 Release。
+> v0.1.1 是已归档的原型 Release；它早于 main 上的 storage v2、BCI 容错、关系拓扑与 LSM-0 工作。体验最新原型请构建 main。
 
 macOS 为 ad-hoc 签名、未公证；Windows/Linux 未签名。研究原型，不用于临床。
 
@@ -114,6 +114,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除 |
 | 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
 | 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
+| 关系拓扑 | 30/90 天纵向对比用户自述触发点；不推断对方 |
 
 当前**没有**：
 
