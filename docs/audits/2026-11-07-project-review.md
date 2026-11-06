@@ -1,7 +1,7 @@
 # Project review — 2026-11-07
 
-Scope: Tacitweave at `5265b28` + handoff commit `43a70c0`, workspace `/Users/hao/Documents/tacitweave`.  
-This is an engineering/security/release review, not a clinical or legal audit. No code was changed in this pass.
+Scope: Tacitweave at `5265b28` + handoff commit `43a70c0`; remediation applied 2026-11-07, workspace `/Users/hao/Documents/tacitweave`.
+This is an engineering/security/release review, not a clinical or legal audit. The original review made no code changes; remediation status is recorded below.
 
 ## Health baseline
 
@@ -9,12 +9,22 @@ This is an engineering/security/release review, not a clinical or legal audit. N
 - Playwright: 23 passed
 - Rust ops: 10 passed
 - Rust desktop: 6 passed
-- Production build: passes; main bundle 305,487 B (budget 320,000 B)
+- Production build after remediation: passes; main bundle 305,555 B (budget 320,000 B)
 - `pnpm audit`: critical/high findings in dev/build tooling; see Finding 1
 - `v0.1.3`: no tag, no release (intentional)
 - Git working tree: clean at review start
 
 The happy-path suite is healthy. The findings below are mostly in **trust boundaries, release automation, migration/cleanup and error paths** — exactly the places ordinary UI tests do not cover.
+
+## Remediation status (2026-11-07)
+
+The first three requested fixes are now implemented:
+
+- **Dependency advisories**: `vite` 7.3.7, `vitest` 4.1.12, `source-map-js` 1.2.2; `tinypool` critical path removed. `pnpm audit --audit-level high` reports no known vulnerabilities. CI and `release:check` now run the audit.
+- **macOS release workflow**: version check, `codesign`/`stapler`/`spctl` publication gate, and post-upload `SHA256SUMS.txt` regeneration/verification added.
+- **Sandbox wording**: the claim is now “app-data-only file API (not an OS sandbox)”; UI/docs updated. Local file commands reject symlinks and have a Rust regression test. This is still not an OS sandbox.
+
+Remaining findings below are not fixed by this pass.
 
 ## Findings
 

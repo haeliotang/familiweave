@@ -32,7 +32,7 @@ src/
 
 | command | 用途 |
 | --- | --- |
-| `host_info` | 平台、版本、app data 目录、数据库路径、沙箱模式 |
+| `host_info` | 平台、版本、app data 目录、数据库路径、文件 API 边界（不是 OS 沙箱） |
 | `db_status` | SQLite 是否就绪、表数量 |
 | `read_local_text` | 只读 app data/local-files 下的文本，限制 1 MB |
 | `write_local_text` | 只写 app data/local-files，文件名禁止路径分隔符/`..`，限制 1 MB |
@@ -99,8 +99,8 @@ pnpm tauri:dev
 - `pnpm build`：通过
 - `pnpm test`：51 项通过
 - `cargo check --manifest-path apps/desktop/src-tauri/Cargo.toml`：通过
-- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：4 个宿主测试通过（文件沙箱 + SQLite 快照）
-- `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区沙箱下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：7 个宿主测试通过（文件 API 边界/符号链接 + SQLite 快照）
+- `pnpm tauri:dev`：Vite 启动、Rust 编译完成；普通工作区权限下 WebKit 写入被拒绝。使用完整宿主权限重试后窗口进程成功启动，无 setup 错误。
 - `pnpm tauri:build --bundles app`：成功生成 `Tacitweave.app`（约 10.45 MiB；无 Developer ID 签名），并应用自定义 Tacitweave 图标。
 - `pnpm package:macos` 会构建、`strip -x`、ad-hoc 重签名并生成 zip；本机验证 app 约 8.4 MiB、zip 约 3.4 MB。
 - 本机 Homebrew Rust 1.94 下必须显式设置 `CARGO_PROFILE_RELEASE_STRIP=none`，否则 Tauri CLI 的 strip 会破坏 proc-macro dylib；根脚本和 CI 已设置。

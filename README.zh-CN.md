@@ -125,7 +125,7 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 | 场域 | 母题星座、关系节点、镜头切换、时间轴、拖拽/缩放、用户连线、时间过滤、示例场域 |
 | BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
 | BCI-2 | 本机 WebSocket 设备桥接契约 + token 鉴权 |
-| 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件沙箱 |
+| 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件 API 边界（不是 OS 沙箱） |
 | 主题 | 明 / 暗主题切换 |
 | 应用锁 | 本机 PIN + AES-GCM 加密快照；可配置无操作自动锁定（默认 5 分钟）、5 次错误 PIN 锁定 30 秒；不是系统锁屏 |
 | 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
@@ -187,7 +187,7 @@ WorldRenderer（当前 symbolic；未来 Genie 4 等）
 - `WorldRenderer`：渲染器接缝；当前是本地 symbolic。
 - `SomaticSignalSource` / `SignalTrace`：设备无关信号接缝。
 - `CaptureProvenance`：非确定性成片的出处与指纹。
-- Tauri Rust 宿主：文件沙箱、SQLite、打包；前端通过 `invoke` 访问。
+- Tauri Rust 宿主：应用级 app data 文件 API、SQLite、打包；前端通过 `invoke` 访问。这不是 OS 沙箱。
 
 ## 5. BCI 与 LSM：激进路线
 

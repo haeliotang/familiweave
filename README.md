@@ -126,7 +126,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | Field | Motif constellation, relationship nodes, lens switch, timeline, drag/zoom, user links, time filter, demo field |
 | BCI-1 | Signal source contract, simulator, local event timeline |
 | BCI-2 | Local WebSocket device bridge contract + token auth |
-| Desktop shell | Tauri 2 + Rust; SQLite; app-data file sandbox |
+| Desktop shell | Tauri 2 + Rust; SQLite; app-data-only file API (not an OS sandbox) |
 | Theme | Light / dark theme |
 | App lock | Local PIN + AES-GCM encrypted snapshot; configurable idle auto-lock (5 min default), 5-attempt/30s PIN lockout; not system lock |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
@@ -188,7 +188,7 @@ WorldRenderer (symbolic today; Genie 4 later)
 - `WorldRenderer`: renderer seam; local symbolic today.
 - `SomaticSignalSource` / `SignalTrace`: device-agnostic signal seam.
 - `CaptureProvenance`: provenance for non-deterministic captures.
-- Tauri Rust host: file sandbox, SQLite, packaging; the frontend uses `invoke`.
+- Tauri Rust host: application-level app-data file API, SQLite, packaging; the frontend uses `invoke`. This is not an OS sandbox.
 
 ## 5. BCI and LSM: the aggressive path
 

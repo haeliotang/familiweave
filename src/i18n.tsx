@@ -13,7 +13,7 @@ const en: Record<string, string> = {
   '最近母题': 'Recent motifs',
   '还没有母题。从身体开始，留下第一个名字。': 'No motifs yet. Start from the body and leave a first name.',
   '未命名': 'Untitled',
-  '文件与 SQLite 位于 app data，受沙箱限制': 'Files and SQLite live in app data, sandboxed',
+  '文件与 SQLite 位于 app data，文件 API 仅限该目录': 'Files and SQLite live in app data; the file API is restricted to that directory',
   '数据只存于浏览器 localStorage': 'Data lives only in browser localStorage',
   '内在工作台': 'Inner workspace',
   '先感觉，不用急着命名。': 'Feel first. No need to name it yet.',
@@ -297,7 +297,7 @@ const en: Record<string, string> = {
 
   '浏览器预览：数据在 localStorage': 'Browser preview: data in localStorage',
   'Web 预览 · 没有 Tauri 宿主': 'Web preview · no Tauri host',
-  '沙箱': 'sandbox',
+  '文件 API': 'file API',
 
   '无操作自动锁定': 'Auto-lock when idle',
   '1 分钟': '1 minute',

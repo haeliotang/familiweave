@@ -482,7 +482,7 @@ export function DesktopShell() {
         </div>
         <div className="sidebar-footer">
           <span className={`host-dot ${host ? 'native' : ''}`} />
-          <div><strong>{hostLabel(host, db, lang)}</strong><small>{host ? t('文件与 SQLite 位于 app data，受沙箱限制') : t('数据只存于浏览器 localStorage')}</small></div>
+          <div><strong>{hostLabel(host, db, lang)}</strong><small>{host ? t('文件与 SQLite 位于 app data，文件 API 仅限该目录') : t('数据只存于浏览器 localStorage')}</small></div>
         </div>
       </aside>
 
@@ -534,7 +534,7 @@ export function DesktopShell() {
                 <WorkspaceHeader eyebrow={t('本机与设置')} title={t('数据留在本机。')} meta={host ? `${host.platform} · ${host.app_data_dir}` : t('浏览器预览：数据在 localStorage')} />
                 <div className="paper-card host-card">
                   <p className="card-label">{t('宿主')}</p>
-                  <p>{host ? `Tauri 2 · ${host.platform} · ${t('沙箱')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
+                  <p>{host ? `Tauri 2 · ${host.platform} · ${t('文件 API')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}${db ? ` · schema v${db.schema_version}` : ''}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.3'} /></Suspense>

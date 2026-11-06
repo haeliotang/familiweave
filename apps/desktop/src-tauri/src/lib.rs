@@ -159,6 +159,26 @@ fn sandbox_file_name(name: &str) -> Result<&str, String> {
 }
 
 #[tauri::command]
+fn reject_symlink(path: &Path) -> Result<(), String> {
+    if fs::symlink_metadata(path)
+        .map(|metadata| metadata.file_type().is_symlink())
+        .unwrap_or(false)
+    {
+        return Err("symlink_not_allowed".into());
+    }
+    Ok(())
+}
+
+fn local_file_path_in(data: &Path, name: &str) -> Result<PathBuf, String> {
+    let name = sandbox_file_name(name)?;
+    let directory = data.join("local-files");
+    reject_symlink(&directory)?;
+    let path = directory.join(name);
+    reject_symlink(&path)?;
+    Ok(path)
+}
+
+#[tauri::command]
 fn host_info(app: tauri::AppHandle, state: State<'_, DbState>) -> Result<HostInfo, String> {
     let data = app_data_dir(&app)?;
     Ok(HostInfo {
@@ -166,15 +186,15 @@ fn host_info(app: tauri::AppHandle, state: State<'_, DbState>) -> Result<HostInf
         app_version: app.package_info().version.to_string(),
         app_data_dir: data.to_string_lossy().into_owned(),
         database_path: state.path.to_string_lossy().into_owned(),
-        sandbox: "app-data-only".into(),
+        sandbox: "app-data-api-only".into(),
     })
 }
 
 #[tauri::command]
 fn read_local_text(app: tauri::AppHandle, name: String) -> Result<String, String> {
-    let name = sandbox_file_name(&name)?;
-    let path = app_data_dir(&app)?.join("local-files").join(name);
-    let metadata = fs::metadata(&path).map_err(|error| error.to_string())?;
+    let path = local_file_path_in(&app_data_dir(&app)?, &name)?;
+    reject_symlink(&path)?;
+    let metadata = fs::symlink_metadata(&path).map_err(|error| error.to_string())?;
     if metadata.len() > 1_048_576 {
         return Err("local_file_too_large".into());
     }
@@ -186,10 +206,13 @@ fn write_local_text(app: tauri::AppHandle, name: String, contents: String) -> Re
     if contents.len() > 1_048_576 {
         return Err("local_file_too_large".into());
     }
-    let name = sandbox_file_name(&name)?;
-    let directory = app_data_dir(&app)?.join("local-files");
+    let data = app_data_dir(&app)?;
+    let path = local_file_path_in(&data, &name)?;
+    let directory = data.join("local-files");
     fs::create_dir_all(&directory).map_err(|error| error.to_string())?;
-    fs::write(directory.join(name), contents).map_err(|error| error.to_string())
+    reject_symlink(&directory)?;
+    reject_symlink(&path)?;
+    fs::write(path, contents).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -238,8 +261,8 @@ fn import_local_state(
     state: State<'_, DbState>,
     name: String,
 ) -> Result<Value, String> {
-    let name = sandbox_file_name(&name)?;
-    let path = app_data_dir(&app)?.join("local-files").join(name);
+    let path = local_file_path_in(&app_data_dir(&app)?, &name)?;
+    reject_symlink(&path)?;
     let text = fs::read_to_string(path).map_err(|error| error.to_string())?;
     let snapshot: Value = serde_json::from_str(&text).map_err(|error| error.to_string())?;
     let connection = state.connection.lock().map_err(|error| error.to_string())?;
@@ -455,7 +478,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{read_snapshot, sandbox_file_name, write_snapshot};
+    use super::{local_file_path_in, read_snapshot, sandbox_file_name, write_snapshot};
     use rusqlite::Connection;
     use serde_json::json;
 
@@ -502,6 +525,26 @@ mod tests {
             assert!(sandbox_file_name(name).is_err(), "accepted {name:?}");
         }
         assert!(sandbox_file_name(&"a".repeat(121)).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn local_file_path_rejects_symlinks() {
+        use std::os::unix::fs::symlink;
+        let root = std::env::temp_dir().join(format!(
+            "tacitweave-symlink-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(root.join("local-files")).unwrap();
+        let target = root.join("outside.txt");
+        std::fs::write(&target, b"outside").unwrap();
+        let link = root.join("local-files/link.txt");
+        symlink(&target, &link).unwrap();
+        assert!(local_file_path_in(&root, "link.txt").is_err());
+        let _ = std::fs::remove_dir_all(root);
     }
     #[test]
     fn encrypted_state_replaces_plaintext_keys_and_round_trips() {

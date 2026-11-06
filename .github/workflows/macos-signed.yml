@@ -32,6 +32,11 @@ jobs:
         with:
           ref: ${{ github.event.inputs.ref }}
 
+      - name: Verify release tag matches app version
+        if: inputs.tag != ''
+        shell: bash
+        run: node scripts/check-release-version.mjs "${{ inputs.tag }}"
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10.32.1
@@ -86,6 +91,16 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: sh scripts/sign-macos-app.sh
 
+      - name: Verify signed artifact for publication
+        if: inputs.publish
+        shell: bash
+        run: |
+          APP="apps/desktop/src-tauri/target/release/bundle/macos/Tacitweave.app"
+          test -d "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          xcrun stapler validate "$APP"
+          spctl --assess --type execute --verbose=4 "$APP"
+
       - name: Upload signed zip artifact
         uses: actions/upload-artifact@v4
         with:
@@ -99,7 +114,7 @@ jobs:
         with:
           subject-path: 'dist/release/*.zip'
 
-      - name: Upload signed asset to release
+      - name: Upload signed asset and refresh checksums
         if: ${{ inputs.publish && inputs.tag != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,3 +122,22 @@ jobs:
         run: |
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || { echo "release $TAG does not exist" >&2; exit 1; }
           gh release upload "$TAG" dist/release/*.zip --repo "$GITHUB_REPOSITORY" --clobber
+
+          VERIFY_DIR="$RUNNER_TEMP/release-verify"
+          rm -rf "$VERIFY_DIR"
+          mkdir -p "$VERIFY_DIR"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir "$VERIFY_DIR" --clobber
+          (
+            cd "$VERIFY_DIR"
+            for file in *; do
+              [ -f "$file" ] || continue
+              [ "$file" = "SHA256SUMS.txt" ] && continue
+              shasum -a 256 "$file"
+            done | sort -k2 > SHA256SUMS.txt
+            shasum -a 256 -c SHA256SUMS.txt
+          )
+          gh release upload "$TAG" "$VERIFY_DIR/SHA256SUMS.txt" --repo "$GITHUB_REPOSITORY" --clobber
+          rm -rf "$VERIFY_DIR"
+          mkdir -p "$VERIFY_DIR"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir "$VERIFY_DIR" --clobber
+          (cd "$VERIFY_DIR" && shasum -a 256 -c SHA256SUMS.txt)
