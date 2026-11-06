@@ -62,14 +62,30 @@ export function normalizeSnapshot(value: unknown): LocalSnapshot {
   }
 }
 
+export type EncryptedReconciliation = { raw: string | null; action: 'none' | 'mirror-host' | 'migrate-web' }
+
+/** SQLite wins on desktop; migrate a web-only legacy payload once. */
+export function reconcileEncryptedPayload(host: string | null, web: string | null): EncryptedReconciliation {
+  if (host) return { raw: host, action: 'mirror-host' }
+  if (web) return { raw: web, action: 'migrate-web' }
+  return { raw: null, action: 'none' }
+}
+
 async function readEncryptedPayload(): Promise<EncryptedLocalState | null> {
   const storage = webStorage()
   let raw: string | null = null
   if (isTauriRuntime()) {
-    raw = await loadEncryptedState()
-    if (raw && storage) storage.setItem(encryptedStorageKey, raw)
+    // SQLite is canonical. Migrate a legacy web-only encrypted payload once,
+    // or heal the web mirror from SQLite.
+    const host = await loadEncryptedState()
+    const web = storage?.getItem(encryptedStorageKey) ?? null
+    const reconciled = reconcileEncryptedPayload(host, web)
+    raw = reconciled.raw
+    if (reconciled.action === 'mirror-host' && raw) storage?.setItem(encryptedStorageKey, raw)
+    if (reconciled.action === 'migrate-web' && raw) await saveEncryptedState(raw)
+  } else {
+    raw = storage?.getItem(encryptedStorageKey) ?? null
   }
-  raw ??= storage?.getItem(encryptedStorageKey) ?? null
   if (!raw) return null
   try {
     const parsed: unknown = JSON.parse(raw)
@@ -132,6 +148,7 @@ export async function loadLocalSnapshot(): Promise<LocalSnapshot> {
       await saveLocalSnapshot(reconciled.snapshot)
     } else if (storage && reconciled.action === 'mirror') {
       // SQLite is canonical on desktop; heal any stale or partial web mirror.
+      storage.removeItem(encryptedStorageKey)
       mirrorWebSnapshot(storage, reconciled.snapshot)
     }
     return reconciled.snapshot

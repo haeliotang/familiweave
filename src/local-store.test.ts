@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeSnapshot, reconcileSnapshots, snapshotHasData } from './local-store'
+import { normalizeSnapshot, reconcileEncryptedPayload, reconcileSnapshots, snapshotHasData } from './local-store'
 import type { LocalSnapshot } from './local-dataset'
 
 const empty = (): LocalSnapshot => ({ motifs: [], relationships: [], field: { version: 'field-layout-v1', positions: {}, links: [] }, signals: [], captures: [] })
@@ -40,5 +40,14 @@ describe('snapshot normalization', () => {
     expect(normalizeSnapshot({ motifs: [], relationships: [], captures: [capture] }).captures).toEqual([capture])
     expect(() => normalizeSnapshot({ motifs: [], relationships: [], captures: [{ nope: true }] })).toThrow()
     expect(snapshotHasData({ ...empty(), captures: [capture] })).toBe(true)
+  })
+})
+
+
+describe('encrypted payload reconciliation', () => {
+  it('treats SQLite as canonical and migrates a web-only payload once', () => {
+    expect(reconcileEncryptedPayload('sqlite', 'web')).toEqual({ raw: 'sqlite', action: 'mirror-host' })
+    expect(reconcileEncryptedPayload(null, 'web')).toEqual({ raw: 'web', action: 'migrate-web' })
+    expect(reconcileEncryptedPayload(null, null)).toEqual({ raw: null, action: 'none' })
   })
 })
