@@ -39,6 +39,6 @@ describe('signal timeline deduplication', () => {
       { tMs: 100, kind: 'heart_rate' as const, value: 60, sourceId: 'a' },
       { tMs: 100, kind: 'heart_rate' as const, value: 61, sourceId: 'a' },
     ]
-    expect(dedupeSignalSamples(samples)).toEqual([samples[0], samples[2]])
+    expect(dedupeSignalSamples([...samples].reverse())).toEqual([samples[0], samples[2]])
   })
 })

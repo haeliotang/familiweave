@@ -61,7 +61,11 @@ function sampleKey(sample: SignalSample) {
 export function dedupeSignalSamples(samples: readonly SignalSample[]): SignalSample[] {
   const seen = new Set<string>()
   return [...samples]
-    .sort((left, right) => left.tMs - right.tMs || left.sourceId.localeCompare(right.sourceId) || left.kind.localeCompare(right.kind))
+    .sort((left, right) => left.tMs - right.tMs
+      || (left.sourceId < right.sourceId ? -1 : left.sourceId > right.sourceId ? 1 : 0)
+      || (left.kind < right.kind ? -1 : left.kind > right.kind ? 1 : 0)
+      || (left.value ?? -Infinity) - (right.value ?? -Infinity)
+      || ((left.label ?? '') < (right.label ?? '') ? -1 : (left.label ?? '') > (right.label ?? '') ? 1 : 0))
     .filter(sample => {
       const key = sampleKey(sample)
       if (seen.has(key)) return false
