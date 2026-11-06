@@ -57,6 +57,7 @@
 - 缺失信号不插补：该 session 不参与相应指标。可选信号值非法（非数字、非有限、越界）时**丢弃该值并记 warning**，session 仍保留；未知信号键记 warning 并忽略。
 - 重复的 `(participantId, sessionId)` 只保留一条：按 `capturedAt`、`sessionId`、输入行号排序后的第一条，其余记为 `duplicate_session` 并计数。
 - `simulatedSignals: true` 表示信号为合成/模拟数据；报告中单列计数并标注非生理证据。`false`/缺失按非合成处理。
+- `symbolic` 可选：`{"format":"encounter"|"space","motifs":["door","corridor"],"figure":"shadow"}`；`motifs` 1–3 个可打印字符串，`figure` 可打印字符串。缺失表示该 session 没有符号空间参数，不插补；格式非法只记 warning 并忽略该字段，不丢弃 session。
 
 ### 特征展平
 
@@ -77,6 +78,16 @@
 - 仅使用同一 session 同时具有自报强度与该信号值的配对；最少 `4` 对，否则状态为 `insufficient_pairs`、`rho = null`。
 - 任一序列秩方差为 0 时状态为 `zero_variance`、`rho = null`（例如强度始终相同）。
 - 不计算 p 值、不报告显著性、不做事后指标/配对/阈值挑选。缺失值不插补，也不因结果剔除参与者。
+
+### 符号空间参数（可选）
+
+- 只统计带有 `symbolic` 的 session；缺失不插补。
+- **primary motif**：`symbolic.motifs[0]` 的众数占比；与 region/sensation 使用相同的 `categoricalStability` 定义，少于 2 个符号 session 时为 `null`。
+- **motif-set stability**：每个 session 去重后的 motif 集合的平均两两 Jaccard；少于 2 个符号 session 时为 `null`。
+- **figure stability**：`symbolic.figure` 的众数占比；少于 2 个符号 session 时为 `null`。
+- **somatic~symbolic paired counts**：对 `(region, sensation, primaryMotif)` 做描述性计数，按 count、region、sensation、motif 排序；不做卡方、p 值、因果或临床推断。
+- 汇总只取有定义值的参与者中位数，并同时报告 `sessionsWithSymbolic` 计数。
+- 本机导出器不会合成 `symbolic`；需要上游采集/计划层显式提供，否则这些指标为 `null`。
 
 ### 汇总（跨参与者）
 

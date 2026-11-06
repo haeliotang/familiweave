@@ -178,6 +178,39 @@ describe('LSM-0 per-participant stability', () => {
   })
 })
 
+describe('LSM-0 symbolic space parameters', () => {
+  it('summarizes optional symbolic stability and somatic~symbolic paired counts', () => {
+    const records = [1, 2, 3].map(index => session({
+      sessionId: `S${index}`,
+      capturedAt: day(index),
+      symbolic: { format: 'encounter', motifs: ['door', 'corridor'], figure: 'shadow' },
+    }))
+    const report = evaluateLsm0Values(records)
+    const participant = report.participants[0]
+    expect(participant.symbolic.sessionCount).toBe(3)
+    expect(participant.symbolic.primaryMotif).toMatchObject({ modalValue: 'door', modeShare: 1 })
+    expect(participant.symbolic.motifSetStability).toBe(1)
+    expect(participant.symbolic.figure).toMatchObject({ modalValue: 'shadow', modeShare: 1 })
+    expect(participant.symbolic.somaticPairs).toEqual([{ region: 'chest', sensation: 'pressure', primaryMotif: 'door', count: 3 }])
+    expect(report.aggregate.symbolic).toMatchObject({ sessionsWithSymbolic: 3, primaryMotifStabilityMedian: 1, motifSetStabilityMedian: 1, figureStabilityMedian: 1 })
+  })
+
+  it('keeps sessions without symbolic parameters and reports null symbolic metrics', () => {
+    const report = evaluateLsm0Values([session({ symbolic: undefined })])
+    expect(report.participants[0].symbolic).toMatchObject({ sessionCount: 0, primaryMotif: null, motifSetStability: null, figure: null, somaticPairs: [] })
+  })
+
+  it('warns and ignores malformed symbolic parameters without rejecting the session', () => {
+    const parsed = parseLsm0Text(JSON.stringify([{
+      ...session({}),
+      symbolic: { format: 'nope', motifs: [], figure: '' },
+    }]))
+    expect(parsed.records).toHaveLength(1)
+    expect(parsed.warnings.some(issue => issue.code === 'invalid_symbolic')).toBe(true)
+    expect(parsed.records[0].record.symbolic).toBeUndefined()
+  })
+})
+
 describe('LSM-0 per-participant associations', () => {
   it('computes the two prespecified intensity pairs with Spearman rho', () => {
     const report = evaluateLsm0Values(varyingSessions())

@@ -39,6 +39,13 @@ export const SIGNAL_KEYS = [
 export type Lsm0SignalKey = (typeof SIGNAL_KEYS)[number]
 export type Lsm0SignalParameters = Partial<Record<Lsm0SignalKey, number>>
 
+export interface Lsm0SymbolicParameters {
+  format: 'encounter' | 'space'
+  /** Primary first, then up to two additional motifs; all user/system symbolic parameters. */
+  motifs: string[]
+  figure: string
+}
+
 export interface Lsm0SessionRecord {
   version: typeof LSM0_RECORD_VERSION
   participantId: string
@@ -47,6 +54,8 @@ export interface Lsm0SessionRecord {
   somatic: SomaticCapture
   /** Optional derived signal/symbolic parameters. Missing values are not imputed. */
   signals?: Lsm0SignalParameters
+  /** Optional symbolic-space parameters captured alongside the somatic record. */
+  symbolic?: Lsm0SymbolicParameters
   /** True when the signal values are synthetic rather than recorded from a person. */
   simulatedSignals?: boolean
 }
@@ -64,6 +73,7 @@ export interface Lsm0FeatureVector {
   /** Unique associative fragments in code-unit order, used for set similarity. */
   fragmentSet: AssociativeFragmentId[]
   signals: Lsm0SignalParameters
+  symbolic: Lsm0SymbolicParameters | undefined
   simulatedSignals: boolean
 }
 
@@ -90,6 +100,7 @@ export type Lsm0IssueCode =
   | 'signal_value_invalid'
   | 'unknown_signal_key'
   | 'invalid_simulated_flag'
+  | 'invalid_symbolic'
 
 export interface Lsm0NormalizedRecord {
   record: Lsm0SessionRecord
@@ -137,6 +148,15 @@ export interface Lsm0AssociationResult {
   status: Lsm0AssociationStatus
 }
 
+export interface Lsm0SymbolicReport {
+  sessionCount: number
+  primaryMotif: Lsm0CategoricalStability | null
+  motifSetStability: number | null
+  figure: Lsm0CategoricalStability | null
+  /** Descriptive paired counts of somatic region/sensation and primary symbolic motif. */
+  somaticPairs: Array<{ region: string; sensation: string; primaryMotif: string; count: number }>
+}
+
 export interface Lsm0ParticipantReport {
   participantId: string
   sessionCount: number
@@ -155,6 +175,7 @@ export interface Lsm0ParticipantReport {
   intensityStability: number | null
   intensity: Lsm0NumericSummary
   signals: Record<Lsm0SignalKey, Lsm0SignalReport>
+  symbolic: Lsm0SymbolicReport
   associations: Lsm0AssociationResult[]
   missing: {
     sessionsWithoutAnySignal: number
@@ -184,6 +205,12 @@ export interface Lsm0AggregateReport {
   fragmentSetStabilityMedian: number | null
   intensityStabilityMedian: number | null
   signalCoverageMedian: Record<Lsm0SignalKey, number | null>
+  symbolic: {
+    sessionsWithSymbolic: number
+    primaryMotifStabilityMedian: number | null
+    motifSetStabilityMedian: number | null
+    figureStabilityMedian: number | null
+  }
   associations: Lsm0AssociationAggregate[]
 }
 
@@ -196,6 +223,12 @@ export interface Lsm0Prespecification {
   primaryAssociations: ReadonlyArray<{ report: 'intensity'; signal: Lsm0SignalKey }>
   intensityScale: { min: 1; max: 5 }
   signalKeys: readonly Lsm0SignalKey[]
+  symbolicMetrics: {
+    primaryMotif: 'mode_share'
+    motifSet: 'mean_pairwise_jaccard'
+    figure: 'mode_share'
+    somaticPairs: 'paired_counts'
+  }
 }
 
 /**
@@ -214,6 +247,12 @@ export const LSM0_PRESPECIFICATION: Lsm0Prespecification = {
   ],
   intensityScale: { min: 1, max: 5 },
   signalKeys: [...SIGNAL_KEYS],
+  symbolicMetrics: {
+    primaryMotif: 'mode_share',
+    motifSet: 'mean_pairwise_jaccard',
+    figure: 'mode_share',
+    somaticPairs: 'paired_counts',
+  },
 }
 
 /** Fixed association pairs. No additional pair is computed or reported. */
@@ -225,6 +264,7 @@ export const LSM0_LIMITATIONS: readonly string[] = [
   'Missing optional signals are never imputed; invalid optional signal values are dropped and reported as warnings.',
   'Per-participant values are reported separately; aggregate medians are descriptive and must not be used as group or individual conclusions.',
   'Sessions marked simulatedSignals: true contain synthetic signal values and are not physiological evidence.',
+  'Symbolic-space metrics are descriptive summaries of optional, system-produced parameters; they do not establish meaning, clinical validity, or causality.',
 ]
 
 export interface Lsm0EvaluationReport {
@@ -306,6 +346,30 @@ function isValidSignalValue(key: Lsm0SignalKey, value: number): boolean {
     case 'voicePauseRatio':
       return value >= 0 && value <= 1
   }
+}
+
+function parseSymbolic(
+  value: unknown,
+  rowIndex: number,
+  participantId: string,
+  sessionId: string,
+): { symbolic?: Lsm0SymbolicParameters; warning?: Lsm0Issue } {
+  if (value === undefined) return {}
+  if (!isPlainObject(value)) {
+    return { warning: makeIssue(rowIndex, 'invalid_symbolic', 'symbolic must be an object when present; the value was ignored', { participantId, sessionId }) }
+  }
+  const format = value.format
+  const motifs = value.motifs
+  const figure = value.figure
+  const cleanMotifs = Array.isArray(motifs)
+    ? motifs.map(item => typeof item === 'string' ? item.trim() : '').filter(item => item.length > 0 && item.length <= 120 && !hasControlCharacters(item))
+    : []
+  if ((format !== 'encounter' && format !== 'space')
+    || !Array.isArray(motifs) || motifs.length === 0 || motifs.length > 3 || cleanMotifs.length !== motifs.length
+    || typeof figure !== 'string' || !figure.trim() || figure.trim().length > 120 || hasControlCharacters(figure)) {
+    return { warning: makeIssue(rowIndex, 'invalid_symbolic', 'symbolic must contain format encounter|space, 1-3 printable motifs and a printable figure; the value was ignored', { participantId, sessionId }) }
+  }
+  return { symbolic: { format, motifs: cleanMotifs, figure: figure.trim() } }
 }
 
 interface ParseEntryOutcome {
@@ -392,6 +456,9 @@ function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
     else warnings.push(makeIssue(rowIndex, 'invalid_simulated_flag', 'simulatedSignals must be a boolean when present; the value was ignored', { participantId, sessionId }))
   }
 
+  const symbolicResult = parseSymbolic(value.symbolic, rowIndex, participantId, sessionId)
+  if (symbolicResult.warning) warnings.push(symbolicResult.warning)
+
   const capture = value.somatic
   const record: Lsm0SessionRecord = {
     version: LSM0_RECORD_VERSION,
@@ -406,6 +473,7 @@ function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
       fragments: [...capture.fragments],
     },
     ...(signals !== undefined ? { signals } : {}),
+    ...(symbolicResult.symbolic !== undefined ? { symbolic: symbolicResult.symbolic } : {}),
     ...(simulatedSignals !== undefined ? { simulatedSignals } : {}),
   }
   return { record, warnings }
@@ -517,6 +585,7 @@ export function flattenLsm0Session(record: Lsm0SessionRecord): Lsm0FeatureVector
     primaryFragment: capture.fragments[0],
     fragmentSet: [...new Set(capture.fragments)].sort(compareStrings),
     signals: copySignals(record.signals),
+    symbolic: record.symbolic === undefined ? undefined : { format: record.symbolic.format, motifs: [...record.symbolic.motifs], figure: record.symbolic.figure },
     simulatedSignals: record.simulatedSignals === true,
   }
 }
@@ -687,6 +756,36 @@ function associateIntensityWithSignal(
   return { report: 'intensity', signal, method: 'spearman', n, rho, status: 'computed' }
 }
 
+function evaluateSymbolic(sessions: readonly Lsm0FeatureVector[]): Lsm0SymbolicReport {
+  const withSymbolic = sessions.filter((session): session is Lsm0FeatureVector & { symbolic: Lsm0SymbolicParameters } => session.symbolic !== undefined)
+  const primaryMotifs = withSymbolic.map(session => session.symbolic.motifs[0])
+  const motifSets = withSymbolic.map(session => [...new Set(session.symbolic.motifs)].sort(compareStrings))
+  const figures = withSymbolic.map(session => session.symbolic.figure)
+  const pairCounts = new Map<string, { region: string; sensation: string; primaryMotif: string; count: number }>()
+  for (const session of withSymbolic) {
+    const primaryMotif = session.symbolic.motifs[0]
+    const key = `${session.region}\u0000${session.sensation}\u0000${primaryMotif}`
+    const existing = pairCounts.get(key)
+    if (existing) existing.count += 1
+    else pairCounts.set(key, { region: session.region, sensation: session.sensation, primaryMotif, count: 1 })
+  }
+  const somaticPairs = [...pairCounts.values()].sort((left, right) => {
+    if (left.count !== right.count) return right.count - left.count
+    const region = compareStrings(left.region, right.region)
+    if (region !== 0) return region
+    const sensation = compareStrings(left.sensation, right.sensation)
+    if (sensation !== 0) return sensation
+    return compareStrings(left.primaryMotif, right.primaryMotif)
+  })
+  return {
+    sessionCount: withSymbolic.length,
+    primaryMotif: categoricalStability(primaryMotifs),
+    motifSetStability: meanPairwiseJaccard(motifSets),
+    figure: categoricalStability(figures),
+    somaticPairs,
+  }
+}
+
 function evaluateParticipant(participantId: string, sessions: readonly Lsm0FeatureVector[]): Lsm0ParticipantReport {
   const sessionCount = sessions.length
   const intensityValues = sessions.map(session => session.intensity)
@@ -727,6 +826,7 @@ function evaluateParticipant(participantId: string, sessions: readonly Lsm0Featu
       : round6(1 - intensityRange / (LSM0_PRESPECIFICATION.intensityScale.max - LSM0_PRESPECIFICATION.intensityScale.min)),
     intensity: intensitySummary,
     signals,
+    symbolic: evaluateSymbolic(sessions),
     associations: PRIMARY_ASSOCIATIONS.map(pair => associateIntensityWithSignal(sessions, pair.signal)),
     missing: {
       sessionsWithoutAnySignal: sessions.filter(session => SIGNAL_KEYS.every(key => session.signals[key] === undefined)).length,
@@ -783,6 +883,12 @@ function buildAggregate(participants: readonly Lsm0ParticipantReport[]): Lsm0Agg
     fragmentSetStabilityMedian: medianOf(participants, participant => participant.fragmentSetStability),
     intensityStabilityMedian: medianOf(participants, participant => participant.intensityStability),
     signalCoverageMedian,
+    symbolic: {
+      sessionsWithSymbolic: participants.reduce((sum, participant) => sum + participant.symbolic.sessionCount, 0),
+      primaryMotifStabilityMedian: medianOf(participants, participant => participant.symbolic.primaryMotif?.modeShare ?? null),
+      motifSetStabilityMedian: medianOf(participants, participant => participant.symbolic.motifSetStability),
+      figureStabilityMedian: medianOf(participants, participant => participant.symbolic.figure?.modeShare ?? null),
+    },
     associations,
   }
 }
@@ -952,6 +1058,11 @@ export function formatLsm0Report(report: Lsm0EvaluationReport): string {
     lines.push(`  categorical stability: region ${formatStability(participant.categoricalStability.region)}; sensation ${formatStability(participant.categoricalStability.sensation)}; breath ${formatStability(participant.categoricalStability.breath)}; primary fragment ${formatStability(participant.categoricalStability.primaryFragment)}`)
     lines.push(`  fragment-set stability: ${formatMetric(participant.fragmentSetStability)}`)
     lines.push(`  intensity stability: ${formatMetric(participant.intensityStability)}; intensity summary: ${formatSignalSummary({ coverage: 1, summary: participant.intensity })}`)
+    lines.push(`  symbolic sessions: ${participant.symbolic.sessionCount}; primary motif stability: ${formatStability(participant.symbolic.primaryMotif)}; motif-set stability: ${formatMetric(participant.symbolic.motifSetStability)}; figure stability: ${formatStability(participant.symbolic.figure)}`)
+    if (participant.symbolic.somaticPairs.length > 0) {
+      const pairs = participant.symbolic.somaticPairs.slice(0, 5).map(pair => `${pair.region}/${pair.sensation}~${pair.primaryMotif} ${pair.count}`).join('; ')
+      lines.push(`  somatic~symbolic paired counts: ${pairs}`)
+    }
     for (const key of SIGNAL_KEYS) {
       lines.push(`  signal ${key}: ${formatSignalSummary(participant.signals[key])}`)
     }
@@ -967,6 +1078,7 @@ export function formatLsm0Report(report: Lsm0EvaluationReport): string {
   lines.push(`- median categorical stability: region ${formatMetric(report.aggregate.categoricalStabilityMedian.region)}; sensation ${formatMetric(report.aggregate.categoricalStabilityMedian.sensation)}; breath ${formatMetric(report.aggregate.categoricalStabilityMedian.breath)}; primary fragment ${formatMetric(report.aggregate.categoricalStabilityMedian.primaryFragment)}`)
   lines.push(`- median fragment-set stability: ${formatMetric(report.aggregate.fragmentSetStabilityMedian)}`)
   lines.push(`- median intensity stability: ${formatMetric(report.aggregate.intensityStabilityMedian)}`)
+  lines.push(`- symbolic sessions: ${report.aggregate.symbolic.sessionsWithSymbolic}; median primary-motif stability ${formatMetric(report.aggregate.symbolic.primaryMotifStabilityMedian)}; median motif-set stability ${formatMetric(report.aggregate.symbolic.motifSetStabilityMedian)}; median figure stability ${formatMetric(report.aggregate.symbolic.figureStabilityMedian)}`)
   const coverageParts = SIGNAL_KEYS.map(key => `${key} ${formatMetric(report.aggregate.signalCoverageMedian[key])}`).join('; ')
   lines.push(`- median signal coverage: ${coverageParts}`)
   for (const association of report.aggregate.associations) {
