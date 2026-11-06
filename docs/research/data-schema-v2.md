@@ -45,6 +45,7 @@ Tauri 宿主在 app data 的 `familiweave.db` 中写入 `local_state`：
 | `encrypted` | 启用应用锁后的 AES-GCM 密文；此时明文 key 被删除 |
 
 - 应用锁开启时，整个 snapshot 加密为一个 `encrypted-local-state-v1` 负载；PIN 经 PBKDF2 派生 AES-GCM key。没有 PIN 时应用只显示锁屏，不读取明文。
+- 如果锁记录丢失但 encrypted payload 仍存在，普通明文保存会被拒绝，避免用空/旧 Web 数据覆盖加密快照。
 - 关闭应用锁会解密并恢复 plaintext key；忘记 PIN 只能删除全部数据重置。
 - 桌面端 SQLite 是 canonical：若 SQLite 为空且 Web 回退有数据，执行一次性迁移；若 SQLite 有数据，则把同一 snapshot 镜像回 Web 回退，避免两边继续分叉。
 - `local_meta.schema_version` 当前写入 `2`；新数据库启动时补齐。
