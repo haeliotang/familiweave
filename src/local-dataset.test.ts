@@ -86,3 +86,30 @@ describe('local dataset captures', () => {
     expect(storage.getItem(captureStorageKey)).toBeNull()
   })
 })
+
+
+describe('local dataset symbolic sessions', () => {
+  const session = {
+    version: 'symbolic-session-v1' as const,
+    id: 'symbolic-1',
+    createdAt: '2026-11-01T00:00:00Z',
+    encounterId: 'encounter-1',
+    format: 'encounter' as const,
+    durationSec: 75,
+    completed: false,
+    leftEarly: true,
+    agency: [{ atSec: 10, action: 'approach' as const }, { atSec: 30, action: 'leave' as const }],
+  }
+
+  it('round-trips agency summaries without treating them as scores', () => {
+    const snapshot = parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], symbolicSessions: [session] }))
+    expect(snapshot.symbolicSessions).toEqual([session])
+    const json = JSON.stringify(localDatasetFromSnapshot(snapshot))
+    expect(json).toContain('symbolic-1')
+    expect(json).not.toMatch(/score|diagnos|interpretation/i)
+  })
+
+  it('rejects malformed symbolic sessions', () => {
+    expect(() => parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], symbolicSessions: [{ nope: true }] }))).toThrow()
+  })
+})

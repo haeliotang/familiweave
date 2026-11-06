@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import type { CaptureProvenance } from './capture'
 import type { RendererKind } from './encounter'
-import type { Encounter } from './encounter'
+import type { Encounter, SymbolicAgencyEvent } from './encounter'
 
 // Runtime seam for the symbolic-space direction. Symbolic and captured
 // renderers are available; Genie 4 / Marble can be registered without changing
@@ -12,6 +12,7 @@ export type RendererStatus = 'available' | 'requires_api_access' | 'not_configur
 export interface WorldRendererProps {
   encounter: Encounter
   replay: number
+  onAgency?: (event: SymbolicAgencyEvent) => void
 }
 
 export interface RendererCapabilities {

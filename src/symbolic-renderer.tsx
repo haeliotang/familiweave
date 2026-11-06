@@ -29,7 +29,7 @@ export function symbolicPhase(seconds: number, duration = 75, format: 'encounter
   return 'leave'
 }
 
-export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
+export function SymbolicRenderer({ encounter, replay, onAgency }: WorldRendererProps) {
   const { t } = useLanguage()
   const plan = encounter.innerPlan
   const [seconds, setSeconds] = useState(0)
@@ -60,7 +60,7 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
       <div className="symbolic-episode symbolic-left">
         <div className="symbolic-left-copy">
           <p>{t('你离开了这个空间。')}</p>
-          <button className="quiet" onClick={() => setLeft(false)}>{t('重新进入')}</button>
+          <button className="quiet" onClick={() => { onAgency?.({ atSec: Math.round(seconds), action: 'reenter' }); setLeft(false) }}>{t('重新进入')}</button>
         </div>
       </div>
     )
@@ -80,11 +80,11 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
       {!isSpace && <div className="symbolic-progress" role="progressbar" aria-label={t('空间进度')} aria-valuemin={0} aria-valuemax={plan.durationSec} aria-valuenow={Math.floor(seconds)}><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>}
       {!isSpace && <span className="symbolic-time" aria-live="off">{formatClock(seconds)} / {formatClock(plan.durationSec)}</span>}
       <div className="symbolic-controls">
-        <button className="quiet" onClick={() => setSeconds(value => Math.min(plan.durationSec, value + 8))}>{t('靠近一点')}</button>
-        <button className="quiet" onClick={() => setPaused(value => !value)}>{paused ? t('继续停留') : t('停留')}</button>
-        <button className="quiet" onClick={() => setLeft(true)}>{t('离开')}</button>
+        <button className="quiet" onClick={() => { onAgency?.({ atSec: Math.round(seconds), action: 'approach' }); setSeconds(value => Math.min(plan.durationSec, value + 8)) }}>{t('靠近一点')}</button>
+        <button className="quiet" onClick={() => { onAgency?.({ atSec: Math.round(seconds), action: paused ? 'resume' : 'stay' }); setPaused(value => !value) }}>{paused ? t('继续停留') : t('停留')}</button>
+        <button className="quiet" onClick={() => { onAgency?.({ atSec: Math.round(seconds), action: 'leave' }); setLeft(true) }}>{t('离开')}</button>
       </div>
-      {done && <div className="symbolic-end" role="status"><p>{t('这段空间结束了。')}</p><button className="quiet" onClick={() => { setSeconds(0); setPaused(false) }}>{t('再进入一次')}</button></div>}
+      {done && <div className="symbolic-end" role="status"><p>{t('这段空间结束了。')}</p><button className="quiet" onClick={() => { onAgency?.({ atSec: 0, action: 'reenter' }); setSeconds(0); setPaused(false) }}>{t('再进入一次')}</button></div>}
     </div>
   )
 }

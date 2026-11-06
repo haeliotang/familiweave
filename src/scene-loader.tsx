@@ -1,5 +1,5 @@
 import { Component, Suspense, type ReactNode } from 'react'
-import type { Encounter } from './encounter'
+import type { Encounter, SymbolicAgencyEvent } from './encounter'
 import { worldRenderers } from './world-renderer'
 import './world-renderers'
 
@@ -12,7 +12,7 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
   }
 }
 
-export function SceneView({ encounter, replay }: { encounter: Encounter; replay: number }) {
+export function SceneView({ encounter, replay, onAgency }: { encounter: Encounter; replay: number; onAgency?: (event: SymbolicAgencyEvent) => void }) {
   const renderer = worldRenderers.resolve(encounter.rendererKind)
   if (!renderer) return <div className="scene-placeholder" role="alert">{`这次相遇使用了未知的渲染器（${encounter.rendererKind}），请更新后再打开。`}</div>
   if (renderer.status !== 'available' || !renderer.Component) return <div className="scene-placeholder" role="alert">{`${renderer.label} 尚未就绪：${renderer.reason ?? '当前版本不支持该渲染器。'}`}</div>
@@ -21,6 +21,6 @@ export function SceneView({ encounter, replay }: { encounter: Encounter; replay:
   if (invalid) return <div className="scene-placeholder" role="alert">{invalid}</div>
   const Renderer = renderer.Component
   return <SceneBoundary key={encounter.id}><Suspense fallback={<div className="scene-placeholder" role="status">正在打开场景…</div>}>
-    <Renderer key={`${encounter.id}-${replay}`} encounter={encounter} replay={replay} />
+    <Renderer key={`${encounter.id}-${replay}`} encounter={encounter} replay={replay} onAgency={onAgency} />
   </Suspense></SceneBoundary>
 }

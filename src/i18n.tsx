@@ -356,6 +356,10 @@ const en: Record<string, string> = {
   '有些矛盾': 'Mixed',
   '说不清': 'Not sure',
 
+  '象征空间会话': 'Symbolic space sessions',
+  '次选择': 'choices',
+  '提前离开': 'left early',
+
 }
 
 type LanguageContextValue = {

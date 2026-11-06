@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { Encounter } from './encounter'
+import type { Encounter, SymbolicAgencyEvent } from './encounter'
 import { createInnerCaptureEncounter } from './inner-encounter'
 import { innerPlanFromCapture } from './inner'
 import { SceneView } from './scene-loader'
@@ -17,6 +17,7 @@ import { addFieldLink, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFi
 import { createSignalSession, loadSignalSessions, removeSignalSession, type SignalSession } from './signal-session'
 import type { CaptureProvenance } from './capture'
 import { addCaptureProvenance, removeCaptureProvenance } from './capture-ledger'
+import { createSymbolicSession, loadSymbolicSessions, removeSymbolicSession, type SymbolicSession } from './symbolic-session'
 
 const FieldView = lazy(() => import('./field-view').then(module => ({ default: module.FieldView })))
 const TimelineRail = lazy(() => import('./field-view').then(module => ({ default: module.TimelineRail })))
@@ -184,6 +185,7 @@ export function DesktopShell() {
   const [fieldLayout, setFieldLayout] = useState<FieldLayout>(() => typeof window === 'undefined' ? emptyFieldLayout() : loadFieldLayout(window.localStorage))
   const [signalSessions, setSignalSessions] = useState<SignalSession[]>(() => typeof window === 'undefined' ? [] : loadSignalSessions(window.localStorage))
   const [captures, setCaptures] = useState<CaptureProvenance[]>([])
+  const [symbolicSessions, setSymbolicSessions] = useState<SymbolicSession[]>([])
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
   const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000))
@@ -217,6 +219,7 @@ export function DesktopShell() {
       setFieldLayout(snapshot.field ?? emptyFieldLayout())
       setSignalSessions(snapshot.signals ?? [])
       setCaptures(snapshot.captures ?? [])
+      setSymbolicSessions(snapshot.symbolicSessions ?? [])
       setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
     })
     return () => { active = false }
@@ -231,19 +234,32 @@ export function DesktopShell() {
 
   const openNew = () => { setEncounter(null); setSelectedId(null); setView('new'); setDetailTab('overview') }
   const openMotif = (id: string) => { setSelectedId(id); setEncounter(null); setView('field'); setDetailTab('overview') }
+  const recordAgency = (event: SymbolicAgencyEvent) => {
+    setEncounter(current => current ? { ...current, agency: [...(current.agency ?? []), event] } : current)
+  }
+
   const start = (next: Encounter) => {
     setEncounter(next)
     setView('space')
     if (next.capture) {
       const nextCaptures = addCaptureProvenance(captures, next.capture)
       setCaptures(nextCaptures)
-      void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures: nextCaptures })
+      void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures: nextCaptures, symbolicSessions })
     }
   }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
-  const backFromSpace = () => { setEncounter(null); setView(selected ? 'field' : 'new') }
-  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[], nextField = fieldLayout, nextSignals = signalSessions, nextCaptures = captures) => {
-    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals, captures: nextCaptures })
+  const backFromSpace = () => {
+    if (encounter) {
+      const session = createSymbolicSession(encounter)
+      const next = [session, ...symbolicSessions].slice(0, 100)
+      setSymbolicSessions(next)
+      void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions: next })
+    }
+    setEncounter(null)
+    setView(selected ? 'field' : 'new')
+  }
+  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[], nextField = fieldLayout, nextSignals = signalSessions, nextCaptures = captures, nextSymbolicSessions = symbolicSessions) => {
+    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals, captures: nextCaptures, symbolicSessions: nextSymbolicSessions })
   }
   const remember = (capture: Parameters<typeof createMotif>[0]['capture'], name: string, signals?: Parameters<typeof createMotif>[0]['signals']) => {
     const plan = innerPlanFromCapture(capture)
@@ -279,8 +295,9 @@ export function DesktopShell() {
     setFieldLayout(snapshot.field ?? emptyFieldLayout())
     setSignalSessions(snapshot.signals ?? [])
     setCaptures(snapshot.captures ?? [])
+    setSymbolicSessions(snapshot.symbolicSessions ?? [])
     setSelectedId(null)
-    void saveLocalSnapshot({ ...snapshot, field: snapshot.field ?? emptyFieldLayout(), signals: snapshot.signals ?? [], captures: snapshot.captures ?? [] })
+    void saveLocalSnapshot({ ...snapshot, field: snapshot.field ?? emptyFieldLayout(), signals: snapshot.signals ?? [], captures: snapshot.captures ?? [], symbolicSessions: snapshot.symbolicSessions ?? [] })
   }
   const clearAll = () => {
     setMotifs([])
@@ -288,6 +305,7 @@ export function DesktopShell() {
     setFieldLayout(emptyFieldLayout())
     setSignalSessions([])
     setCaptures([])
+    setSymbolicSessions([])
     setSelectedId(null)
     clearActiveEncryption()
     void clearLocalSnapshot()
@@ -299,10 +317,11 @@ export function DesktopShell() {
     setFieldLayout(snapshot.field ?? emptyFieldLayout())
     setSignalSessions(snapshot.signals ?? [])
     setCaptures(snapshot.captures ?? [])
+    setSymbolicSessions(snapshot.symbolicSessions ?? [])
     setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
   }
 
-  const currentSnapshot = (): LocalSnapshot => ({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures })
+  const currentSnapshot = (): LocalSnapshot => ({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions })
 
   const enableAppLock = async (pin: string) => {
     const record = await createAppLockRecord(pin)
@@ -378,13 +397,13 @@ export function DesktopShell() {
 
   const updateFieldLayout = (next: FieldLayout) => {
     setFieldLayout(next)
-    void saveLocalSnapshot({ motifs, relationships, field: next, signals: signalSessions, captures })
+    void saveLocalSnapshot({ motifs, relationships, field: next, signals: signalSessions, captures, symbolicSessions })
   }
 
   const recordSignalSession = (session: SignalSession) => {
     const next = [session, ...signalSessions].slice(0, 100)
     setSignalSessions(next)
-    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures, symbolicSessions })
   }
 
   const retractCapture = (captureId: string) => {
@@ -393,10 +412,16 @@ export function DesktopShell() {
     void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures: next })
   }
 
+  const retractSymbolicSession = (id: string) => {
+    const next = removeSymbolicSession(symbolicSessions, id)
+    setSymbolicSessions(next)
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions: next })
+  }
+
   const retractSignalSession = (id: string) => {
     const next = removeSignalSession(signalSessions, id)
     setSignalSessions(next)
-    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures, symbolicSessions })
   }
 
   const loadDemo = () => {
@@ -479,7 +504,7 @@ export function DesktopShell() {
           {view === 'space' && encounter
             ? <div className="scene-workspace">
               <div className="scene-toolbar"><button className="text-button" onClick={backFromSpace}>← 返回工作台</button><span>{encounter.innerPlan?.format === 'space' ? `${t('内在景观')} · ${t('空间')}` : `${t('内在景观')} · ${t('相遇')}`}</span><span className="local-badge">{t('无声 · 本地')}</span></div>
-              <SceneView encounter={encounter} replay={replay} />
+              <SceneView encounter={encounter} replay={replay} onAgency={recordAgency} />
               <div className="scene-footer"><span>{t('不解释、不诊断；离开随时可用。')}</span><button className="quiet-button" onClick={() => setReplay(value => value + 1)}>{t('重新进入')}</button></div>
             </div>
             : <>
@@ -514,7 +539,7 @@ export function DesktopShell() {
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.2'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
-                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} onRetractCapture={retractCapture} /></Suspense>
+                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} onRetractCapture={retractCapture} onRetractSymbolic={retractSymbolicSession} /></Suspense>
               </>}
             </>}
         </div>

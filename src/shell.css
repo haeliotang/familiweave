@@ -461,3 +461,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .capture-list h3 { margin: 0 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5f6165; }
 [data-theme='dark'] .capture-list { border-color: #3a3c41 }
 [data-theme='dark'] .capture-list h3 { color: #b8babc }
+/* Keep symbolic "left/ended" overlays inside the scene column, not the viewport. */
+.scene-workspace { position: relative }
+.scene-toolbar, .scene-footer { position: relative; z-index: 3 }

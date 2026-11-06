@@ -4,6 +4,13 @@ import type { EpisodePlan } from './episode-plan'
 
 export type RendererKind = 'genie4' | 'marble' | 'captured' | 'symbolic'
 
+export type SymbolicAgencyAction = 'approach' | 'stay' | 'resume' | 'leave' | 'reenter'
+
+export interface SymbolicAgencyEvent {
+  atSec: number
+  action: SymbolicAgencyAction
+}
+
 export interface Encounter {
   id: string
   seed: number
@@ -15,4 +22,6 @@ export interface Encounter {
   capture?: CaptureProvenance
   innerPlan?: InnerPlan
   plan?: EpisodePlan
+  /** User-authored agency events from the symbolic renderer. */
+  agency?: SymbolicAgencyEvent[]
 }

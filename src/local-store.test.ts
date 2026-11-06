@@ -36,7 +36,10 @@ describe('snapshot normalization', () => {
     createdAt: '2026-11-01T00:00:00Z',
   }
 
-  it('preserves validated captures and rejects malformed ones', () => {
+  it('preserves validated captures and symbolic sessions and rejects malformed ones', () => {
+    const symbolic = { version: 'symbolic-session-v1' as const, id: 's1', createdAt: '2026-11-01T00:00:00Z', encounterId: 'e1', format: 'encounter' as const, durationSec: 75, completed: false, leftEarly: true, agency: [{ atSec: 12, action: 'leave' as const }] }
+    expect(normalizeSnapshot({ motifs: [], relationships: [], symbolicSessions: [symbolic] }).symbolicSessions).toEqual([symbolic])
+    expect(() => normalizeSnapshot({ motifs: [], relationships: [], symbolicSessions: [{ nope: true }] })).toThrow()
     expect(normalizeSnapshot({ motifs: [], relationships: [], captures: [capture] }).captures).toEqual([capture])
     expect(() => normalizeSnapshot({ motifs: [], relationships: [], captures: [{ nope: true }] })).toThrow()
     expect(snapshotHasData({ ...empty(), captures: [capture] })).toBe(true)

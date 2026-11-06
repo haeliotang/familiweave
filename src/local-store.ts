@@ -7,6 +7,7 @@ import type { LocalSnapshot } from './local-dataset'
 import { clearFieldLayout, emptyFieldLayout, fieldStorageKey, isFieldLayout, loadFieldLayout, saveFieldLayout } from './field'
 import { clearSignalSessions, isSignalSession, loadSignalSessions, saveSignalSessions, signalSessionStorageKey } from './signal-session'
 import { captureStorageKey, isCaptureLedger, loadCaptureProvenance, saveCaptureProvenance } from './capture-ledger'
+import { isSymbolicSession, loadSymbolicSessions, saveSymbolicSessions, symbolicSessionStorageKey } from './symbolic-session'
 import type { AppLockRecord } from './app-lock'
 import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState, type EncryptedLocalState } from './encrypted-store'
 
@@ -31,6 +32,7 @@ function clearWebPlaintext(storage: Storage) {
   storage.removeItem(fieldStorageKey)
   storage.removeItem(signalSessionStorageKey)
   storage.removeItem(captureStorageKey)
+  storage.removeItem(symbolicSessionStorageKey)
 }
 
 export function readWebSnapshot(): LocalSnapshot {
@@ -42,23 +44,26 @@ export function readWebSnapshot(): LocalSnapshot {
     field: loadFieldLayout(storage),
     signals: loadSignalSessions(storage),
     captures: loadCaptureProvenance(storage),
+    symbolicSessions: loadSymbolicSessions(storage),
   }
 }
 
 export function normalizeSnapshot(value: unknown): LocalSnapshot {
   if (!value || typeof value !== 'object') throw new Error('invalid_local_state')
-  const snapshot = value as { motifs?: unknown; relationships?: unknown; field?: unknown; signals?: unknown; captures?: unknown }
+  const snapshot = value as { motifs?: unknown; relationships?: unknown; field?: unknown; signals?: unknown; captures?: unknown; symbolicSessions?: unknown }
   if (!Array.isArray(snapshot.motifs) || !Array.isArray(snapshot.relationships)) throw new Error('invalid_local_state')
   if (!snapshot.motifs.every(isMotifEntry) || !snapshot.relationships.every(isRelationshipTrigger)) throw new Error('invalid_local_state')
   if (snapshot.field !== undefined && !isFieldLayout(snapshot.field)) throw new Error('invalid_local_state')
   if (snapshot.signals !== undefined && (!Array.isArray(snapshot.signals) || !snapshot.signals.every(isSignalSession))) throw new Error('invalid_local_state')
   if (snapshot.captures !== undefined && !isCaptureLedger(snapshot.captures)) throw new Error('invalid_local_state')
+  if (snapshot.symbolicSessions !== undefined && (!Array.isArray(snapshot.symbolicSessions) || !snapshot.symbolicSessions.every(isSymbolicSession))) throw new Error('invalid_local_state')
   return {
     motifs: snapshot.motifs as LocalSnapshot['motifs'],
     relationships: snapshot.relationships as LocalSnapshot['relationships'],
     field: (snapshot.field as LocalSnapshot['field']) ?? emptyFieldLayout(),
     signals: (snapshot.signals as LocalSnapshot['signals']) ?? [],
     captures: (snapshot.captures as LocalSnapshot['captures']) ?? [],
+    symbolicSessions: (snapshot.symbolicSessions as LocalSnapshot['symbolicSessions']) ?? [],
   }
 }
 
@@ -115,7 +120,7 @@ export async function hasEncryptedLocalState(): Promise<boolean> {
 }
 
 export function snapshotHasData(snapshot: LocalSnapshot) {
-  return Boolean(snapshot.motifs.length || snapshot.relationships.length || snapshot.signals?.length || snapshot.captures?.length
+  return Boolean(snapshot.motifs.length || snapshot.relationships.length || snapshot.signals?.length || snapshot.captures?.length || snapshot.symbolicSessions?.length
     || Object.keys(snapshot.field?.positions ?? {}).length || snapshot.field?.links.length)
 }
 
@@ -125,6 +130,7 @@ function mirrorWebSnapshot(storage: Storage, snapshot: LocalSnapshot) {
   saveFieldLayout(storage, snapshot.field ?? emptyFieldLayout())
   saveSignalSessions(storage, snapshot.signals ?? [])
   saveCaptureProvenance(storage, snapshot.captures ?? [])
+  saveSymbolicSessions(storage, snapshot.symbolicSessions ?? [])
 }
 
 export type SnapshotReconciliation = { snapshot: LocalSnapshot; source: 'host' | 'fallback'; action: 'none' | 'migrate' | 'mirror' }
@@ -175,6 +181,7 @@ export async function saveLocalSnapshot(snapshot: LocalSnapshot): Promise<void> 
     saveFieldLayout(storage, snapshot.field ?? emptyFieldLayout())
     saveSignalSessions(storage, snapshot.signals ?? [])
     saveCaptureProvenance(storage, snapshot.captures ?? [])
+    saveSymbolicSessions(storage, snapshot.symbolicSessions ?? [])
   }
   if (!isTauriRuntime()) return
   try { await invoke('save_local_state', { snapshot }) } catch { /* keep the local web copy */ }

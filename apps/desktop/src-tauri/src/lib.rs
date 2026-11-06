@@ -15,7 +15,7 @@ const DATABASE_SCHEMA_VERSION: i64 = 2;
 fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut statement = connection
         .prepare(
-            "SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures')",
+            "SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures', 'symbolic_sessions')",
         )
         .map_err(|error| error.to_string())?;
     let rows = statement
@@ -28,6 +28,7 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut field = json!({ "version": "field-layout-v1", "positions": {}, "links": [] });
     let mut signals = Value::Array(Vec::new());
     let mut captures = Value::Array(Vec::new());
+    let mut symbolic_sessions = Value::Array(Vec::new());
     for row in rows {
         let (key, value) = row.map_err(|error| error.to_string())?;
         let parsed: Value = serde_json::from_str(&value).map_err(|error| error.to_string())?;
@@ -41,10 +42,12 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
             signals = parsed;
         } else if key == "captures" {
             captures = parsed;
+        } else if key == "symbolic_sessions" {
+            symbolic_sessions = parsed;
         }
     }
     Ok(
-        json!({ "motifs": motifs, "relationships": relationships, "field": field, "signals": signals, "captures": captures }),
+        json!({ "motifs": motifs, "relationships": relationships, "field": field, "signals": signals, "captures": captures, "symbolicSessions": symbolic_sessions }),
     )
 }
 
@@ -69,6 +72,10 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         .get("captures")
         .cloned()
         .unwrap_or_else(|| Value::Array(Vec::new()));
+    let symbolic_sessions = snapshot
+        .get("symbolicSessions")
+        .cloned()
+        .unwrap_or_else(|| Value::Array(Vec::new()));
     if field.get("version").and_then(Value::as_str) != Some("field-layout-v1")
         || !field
             .get("positions")
@@ -84,6 +91,9 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
     if !captures.is_array() {
         return Err("invalid_captures".into());
     }
+    if !symbolic_sessions.is_array() {
+        return Err("invalid_symbolic_sessions".into());
+    }
     let statement = "INSERT INTO local_state (key, value) VALUES (?1, ?2) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP";
     connection
         .execute("DELETE FROM local_state WHERE key = 'encrypted'", [])
@@ -94,6 +104,7 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         ("field", field),
         ("signals", signals),
         ("captures", captures),
+        ("symbolic_sessions", symbolic_sessions),
     ] {
         connection
             .execute(
@@ -256,7 +267,7 @@ fn write_encrypted_state(connection: &Connection, payload: &str) -> Result<(), S
         .map_err(|error| error.to_string())?;
     connection
         .execute(
-            "DELETE FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures')",
+            "DELETE FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures', 'symbolic_sessions')",
             [],
         )
         .map_err(|error| error.to_string())?;
@@ -485,7 +496,7 @@ mod tests {
             super::read_encrypted_state(&connection).unwrap(),
             Some("ciphertext".into())
         );
-        let plaintext: i64 = connection.query_row("SELECT count(*) FROM local_state WHERE key IN ('motifs','relationships','field','signals','captures')", [], |row| row.get(0)).unwrap();
+        let plaintext: i64 = connection.query_row("SELECT count(*) FROM local_state WHERE key IN ('motifs','relationships','field','signals','captures','symbolic_sessions')", [], |row| row.get(0)).unwrap();
         assert_eq!(plaintext, 0);
         super::remove_encrypted_state(&connection).unwrap();
         assert_eq!(super::read_encrypted_state(&connection).unwrap(), None);
