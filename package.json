@@ -27,7 +27,8 @@
     "package:macos": "sh scripts/package-macos.sh",
     "updater:manifest": "node scripts/make-updater-manifest.mjs",
     "lsm0:baseline": "tsx scripts/lsm0-baseline.ts",
-    "lsm0:export": "tsx scripts/lsm0-export.ts"
+    "lsm0:export": "tsx scripts/lsm0-export.ts",
+    "bci:replay": "tsx scripts/bci3-replay.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

@@ -47,6 +47,19 @@ pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
 
 `/health` 返回 `clients`、`received`、`forwarded`、`rejected`、`lastSampleAt`，可用于真实 daemon 的断线与丢包排查。
 
+## 无硬件的故障回放
+
+`scripts/bci3-replay.ts` 可将本地 JSONL 样本录制按原时间轴回放到 bridge，并注入确定性抖动/丢包：
+
+```sh
+pnpm bci:replay --in recording.jsonl --jitter-ms 20 --drop-every 50 \
+  | pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
+```
+
+- 录制行格式：`{"tMs":100,"kind":"heart_rate","value":66}`
+- `--jitter-ms`、`--drop-every`、`--speed`、`--seed` 都是确定性的
+- 这是回放/容错测试工具，**不是真实硬件采集**；真实设备仍需要 LSL/OpenBCI/BrainFlow 验收
+
 ## 真实设备参考适配器
 
 - `scripts/lsl_bridge.example.py`：pylsl → WebSocket 的参考实现。

@@ -251,6 +251,7 @@ pnpm build
 pnpm e2e:install            # first-time Chromium install
 pnpm e2e                    # Playwright browser E2E
 pnpm bci:bridge              # local BCI-3 WebSocket bridge
+pnpm bci:replay --in sample.jsonl  # replay samples with jitter/drop for testing
 pnpm check:symbolic-path
 pnpm rust:test
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
