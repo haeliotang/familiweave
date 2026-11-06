@@ -52,7 +52,7 @@ function localizedLabel(items: ReadonlyArray<{ value: string; label: string; lab
 
 function hostLabel(host: HostInfo | null, db: DbStatus | null, lang: Language) {
   if (!host) return lang === 'en' ? 'Web preview · localStorage' : 'Web 预览 · localStorage'
-  const database = db?.ready ? (lang === 'en' ? `SQLite ${db.tables} tables` : `SQLite ${db.tables} 表`) : (lang === 'en' ? 'SQLite ready' : 'SQLite 已就绪')
+  const database = db?.ready ? (lang === 'en' ? `SQLite ${db.tables} tables · schema v${db.schema_version}` : `SQLite ${db.tables} 表 · schema v${db.schema_version}`) : (lang === 'en' ? 'SQLite ready' : 'SQLite 已就绪')
   return `${host.platform} · Tauri 2 · ${database}`
 }
 
@@ -502,7 +502,7 @@ export function DesktopShell() {
                 <div className="paper-card host-card">
                   <p className="card-label">{t('宿主')}</p>
                   <p>{host ? `Tauri 2 · ${host.platform} · ${t('沙箱')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
-                  <p className="muted">{host ? `SQLite: ${host.database_path}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
+                  <p className="muted">{host ? `SQLite: ${host.database_path}${db ? ` · schema v${db.schema_version}` : ''}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.1'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>

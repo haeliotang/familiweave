@@ -127,6 +127,7 @@ struct DbStatus {
     path: String,
     ready: bool,
     tables: i64,
+    schema_version: i64,
 }
 
 fn app_data_dir(app: &tauri::AppHandle) -> Result<PathBuf, String> {
@@ -300,10 +301,18 @@ fn db_status(state: State<'_, DbState>) -> Result<DbStatus, String> {
             |row| row.get(0),
         )
         .map_err(|error| error.to_string())?;
+    let schema_version: i64 = connection
+        .query_row(
+            "SELECT CAST(value AS INTEGER) FROM local_meta WHERE key = 'schema_version'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap_or(0);
     Ok(DbStatus {
         path: state.path.to_string_lossy().into_owned(),
         ready: true,
         tables,
+        schema_version,
     })
 }
 

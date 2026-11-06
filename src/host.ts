@@ -13,6 +13,7 @@ export interface DbStatus {
   path: string
   ready: boolean
   tables: number
+  schema_version: number
 }
 
 export function isTauriRuntime() {

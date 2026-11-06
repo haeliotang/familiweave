@@ -6,20 +6,20 @@
 
 | 文件 | 字节 | 说明 |
 | --- | ---: | --- |
-| `index-C92GNxzI.js` | 299,493 | 主入口（storage + BCI + topology lazy split） |
+| `index-BJrwZEuX.js` | 299,596 | 主入口（storage + BCI + topology lazy split） |
 | `index-Ceu6Nhkf.css` | 54,944 | 主样式（场域 + 应用锁 + 可访问性 + 明暗主题） |
-| `relationship-map-B4lldjk6.js` | 17,408 | 关系触发点 + 纵向比较组件 |
+| `relationship-map-DAM-MWuT.js` | 17,408 | 关系触发点 + 纵向比较组件 |
 | `relationship-map-CJmGmEzr.css` | 7,423 | 纵向比较组件样式 |
-| `field-view-BaJ26h4U.js` | 8,450 | 懒加载场域组件 |
-| `device-signal-panel-BCDAGABA.js` | 7,539 | BCI 设备桥接面板 |
-| `somatic-entry-CTR5Miwr.js` | 7,460 | 身体捕获 |
-| `local-data-panel-D7-JZD2w.js` | 7,203 | 本机数据与加密备份 |
-| `app-lock-view-ItPr_nhc.js` | 4,416 | 应用锁 |
-| `signal-simulator-cysbbjnu.js` | 2,648 | LSL 模拟器 |
-| `motif-journal-view-fhKAAIcb.js` | 2,073 | 母题日记 |
-| `update-panel-C9Rci-jD.js` | 1,989 | 更新检查 |
-| `inner-entry-BlvL7GX-.js` | 1,704 | 文字捕获 |
-| 合计 | 422,750 | 多个懒加载产物；无 scene 分包 |
+| `field-view-B8yLZdxI.js` | 8,450 | 懒加载场域组件 |
+| `device-signal-panel-D2ajP-F9.js` | 7,539 | BCI 设备桥接面板 |
+| `somatic-entry-D1hbiqjM.js` | 7,460 | 身体捕获 |
+| `local-data-panel-BXRYmA27.js` | 7,203 | 本机数据与加密备份 |
+| `app-lock-view-C3GRt_87.js` | 4,416 | 应用锁 |
+| `signal-simulator-B0FCWv_l.js` | 2,648 | LSL 模拟器 |
+| `motif-journal-view-C8AUuDZD.js` | 2,073 | 母题日记 |
+| `update-panel-Ib1Ig_tq.js` | 1,989 | 更新检查 |
+| `inner-entry-BnAYQlzh.js` | 1,704 | 文字捕获 |
+| 合计 | 422,853 | 多个懒加载产物；无 scene 分包 |
 
 - `sceneChunk = null`：symbolic 构建不再产生 Three.js 场景分包。
 - 文件名带 hash，会随构建变化；以本次字节数为基线，不把文件名当稳定契约。程序渲染器已移除，旧 scene 模块不再进入构建。
