@@ -4,7 +4,7 @@ test('app lock locks again after the inactivity timeout', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('tacitweave.autolock-ms', '1200'))
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   await page.getByLabel('PIN (at least 4 digits)').fill('2468')
   await page.getByLabel('Repeat PIN').fill('2468')
   await page.getByRole('button', { name: 'Enable app lock' }).click()

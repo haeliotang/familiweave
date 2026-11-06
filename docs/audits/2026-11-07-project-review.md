@@ -9,7 +9,7 @@ This is an engineering/security/release review, not a clinical or legal audit. T
 - Playwright: 24 passed (after remediation)
 - Rust ops: 10 passed
 - Rust desktop: 8 passed (after remediation)
-- Production build after remediation: passes; main bundle 308,610 B (budget 320,000 B)
+- Production build after remediation: passes; main bundle 310,807 B (budget 320,000 B)
 - `pnpm audit`: no known vulnerabilities after remediation
 - `v0.1.3`: no tag, no release (intentional)
 - Git working tree: clean at review start

@@ -17,13 +17,15 @@ test('all main views pass WCAG A/AA in the light theme', async ({ page }) => {
   await audit()
 
   for (const [button, heading] of [
-    ['Motif journal', 'Local motif journal'],
-    ['Relationship triggers', 'Relationship triggers'],
-    ['Signal lab', 'BCI-1 signal lab'],
-    ['Local & settings', 'Local data'],
+    ['Fragment', 'Local fragment journal'],
+    ['Relationship', 'Relationship moments'],
+    ['Settings', 'Local data'],
   ] as const) {
-    await page.getByRole('button', { name: button }).click()
+    await page.getByRole('button', { name: new RegExp(`${button}$`) }).click()
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
     await audit()
   }
+  await page.getByRole('button', { name: 'Open research tools' }).click()
+  await expect(page.getByRole('heading', { name: 'Optional signals (simulation & device)' })).toBeVisible()
+  await audit()
 })

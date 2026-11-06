@@ -10,6 +10,13 @@
 
 ![Tacitweave inner field — dark](docs/assets/desktop-shell-dark-en.png)
 
+## UI terminology
+
+- **片段 / Fragment** — the user-facing name for a motif record. The data layer still uses `motif`.
+- **关系瞬间 / Relationship moment** — the user-facing name for a relationship trigger.
+- **并置 / Juxtaposition** — the old “constellation” field view; it merely places fragments and moments side by side.
+- **研究工具 / Research tools** — optional signals and device bridge, kept out of the primary navigation.
+
 ## Download
 
 The latest public tag is [v0.1.2](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.2), published under the former Familiweave name (Linux/Windows only, unsigned; macOS signing is still pending). The archived [v0.1.1 release](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.1) remains the most complete downloadable archive. The renamed main branch is version 0.1.3 and is **not released yet**.
@@ -57,7 +64,7 @@ As AI takes over explicit knowledge, logical reasoning, language and external ex
 
 LLMs are built on tokens. Implicit memory, attachment reactions and somatic states are more **pre-verbal, associative and affective**. Asking someone to “put it into words” often compresses it into a label like “I am anxious”.
 
-Tacitweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship triggers, optional physiological/audio signals, then a symbolic space.**
+Tacitweave does not replace language. It adds an entrance before language: **somatic location, image choice, relationship moments, optional physiological/audio signals, then a symbolic space.**
 
 ### 1.1 Terminology
 
@@ -68,8 +75,8 @@ We use these terms consistently:
 - **implicit memory** — automatic somatic and relational patterns; not a diagnosis.
 - **somatic capture** — body map, sensation, intensity, breath and image choice.
 - **symbolic space** — an enterable, exit-able 75s encounter or 180s space.
-- **motif** — a recurring body–imagery–relationship unit named by the user.
-- **relationship topology** — the user-authored map of relationship triggers; not inference about others or attachment typing.
+- **fragment** (internally `motif`) — a recurring body–imagery–relationship unit named by the user.
+- **relationship topology** — the user-authored map of relationship moments; not inference about others or attachment typing.
 - **BCI** — brain-computer interface. Today it means the local signal layer and device bridge, not an implant.
 - **LSM (Large Somatic & Symbolic Model)** — a cross-modal research model of somatic state, imagery and relationship context; not a trained model yet.
 
@@ -92,10 +99,10 @@ The capture becomes an `InnerPlan`, then a 75-second encounter or 180-second spa
 - approach, stay, leave
 - no interpretation, no score, no diagnosis
 
-### 2.3 Motifs and relationship topology
+### 2.3 Fragments and relationship topology
 
-- **Motif journal**: the user names it, saves it, deletes it
-- **Relationship triggers**: user-written situations, moments, body reactions and automatic responses
+- **Fragment journal**: the user names it, saves it, deletes it
+- **Relationship moments**: user-written situations, moments, body reactions and first body responses
 - Descriptive counts only; no partner inference, matching or attachment typing
 - Everything stays local by default
 
@@ -111,7 +118,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 ### 2.5 Local encryption, app lock and portable backups
 
 - Optional app lock: PBKDF2 PIN verifier + AES-GCM encrypted local snapshot.
-- When locked, plaintext motif/relationship/field/signal keys are removed from local storage; the lock screen decrypts only after a successful PIN.
+- When locked, plaintext fragment/relationship/field/signal keys are removed from local storage; the lock screen decrypts only after a successful PIN.
 - Encrypted portable backups use a separate passphrase and AES-GCM; passphrases are never stored and cannot be recovered.
 - These protect local/exported data, not a compromised OS account or a forgotten PIN. Forgotten PIN means deleting local data.
 
@@ -120,10 +127,10 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | Layer | Implemented |
 | --- | --- |
 | v0 somatic capture | Body map + sensation/intensity/breath + image fragments |
-| v1 motif journal | Local naming, save, delete, export |
-| v2 relationship triggers | Self-authored moments/reactions, map, descriptive counts |
+| v1 fragment journal | Local naming, save, delete, export |
+| v2 relationship moments | Self-authored moments/reactions, map, descriptive counts |
 | v3 voice summary | 8s volume/pause; explicit consent; no raw audio; session summary in SQLite |
-| Field | Motif constellation, relationship nodes, lens switch, timeline, drag/zoom, user links, time filter, demo field |
+| Field | Fragment juxtaposition, relationship nodes, perspective switch, timeline, drag/zoom, user links, time filter, demo field |
 | BCI-1 | Signal source contract, simulator, local event timeline |
 | BCI-2 | Local WebSocket device bridge contract + token auth |
 | Desktop shell | Tauri 2 + Rust; SQLite; app-data-only file API (not an OS sandbox) |
@@ -131,7 +138,7 @@ See [BCI open-source landscape](docs/vision/bci-open-source-landscape.md), [BCI-
 | App lock | Local PIN + AES-GCM encrypted snapshot; configurable idle auto-lock (5 min default), 5-attempt/30s PIN lockout; not system lock |
 | Cross-platform | Windows NSIS / Linux AppImage+DEB builds; current-main CI startup smoke passing |
 | Bilingual | Chinese / English UI switch |
-| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete; capture provenance and signal-session summaries. Deletion includes legacy keys, local-files and old app-data dirs; SQLite uses secure_delete + VACUUM (not a forensic full-disk guarantee) |
+| Data | Local SQLite or browser localStorage; plaintext/encrypted backup export, import, delete; record provenance and signal-session summaries. Deletion includes legacy keys, local-files and old app-data dirs; SQLite uses secure_delete + VACUUM (not a forensic full-disk guarantee) |
 | Update check | Explicit GitHub Releases check; no auto-download |
 | Accessibility | WCAG A/AA in light/dark themes (structure + contrast) via E2E |
 | Relationship topology | 30/90-day longitudinal comparison of user-authored triggers; no partner inference |
@@ -154,7 +161,7 @@ As of the latest `main`:
 - 21 Playwright browser E2E scenarios
 - 6 Rust host tests
 - WCAG A/AA structural and contrast checks in light/dark themes
-- main JS bundle about 309 KB, with heavy views lazy-loaded
+- main JS bundle about 311 KB, with heavy views lazy-loaded
 - macOS app bundle about 10.45 MiB before packaging; `pnpm package:macos` strips to about 8.4 MiB / ~3.4 MB zip, ad-hoc signed
 - Linux/Windows release builds plus startup smoke in CI
 - GitHub Actions checks: Symbolic space, Rust operational and Browser E2E
@@ -171,7 +178,7 @@ SomaticCapture + SignalTrace
         │
         ▼
 InnerPlan
-motifs · pacing · figure · space/sound/light prompts · safety
+fragments · pacing · figure · space/sound/light prompts · safety
         │
         ▼
 EpisodePlan (kind: inner)
@@ -217,7 +224,7 @@ BCI is therefore not an optional accessory. It is the long-term core research sp
 | BCI-2 | Local WebSocket device bridge | Contract/UI; no hardware validation |
 | BCI-3 | Local bridge protocol + token auth implemented; real OpenBCI/BrainFlow/LSL capture not validated |
 | LSM-0 | Cross-modal alignment: predict symbolic parameters from somatic/signal data, without emotion diagnosis | Not started; next research target |
-| LSM-1 | Longitudinal motif + relationship-topology personal model | Not started |
+| LSM-1 | Longitudinal fragment + relationship-topology personal model | Not started |
 | LSM-2 | Closed-loop adaptive symbolic space, always overridable and exit-able | Not started |
 
 ### 5.3 We refuse to stop at prototype
@@ -240,14 +247,14 @@ Therefore:
 - no diagnosis: not a test, therapy or medical device
 - no memory recovery: no repressed-memory suggestions, no false memories
 - no scoring: no deep-subconscious health score, no relationship match score
-- no inference about others: relationship triggers only map what the user wrote
+- no inference about others: relationship moments only map what the user wrote
 - no dependency loops: no streaks, no “someone is waiting for you”
 - meaning stays with the user: the system offers form and open questions only
 
 ## 7. Privacy and boundaries
 
 - Local by default: no server, no account, no sync
-- Tauri stores motifs/relationship triggers in SQLite; web preview falls back to localStorage
+- Tauri stores fragments/relationship moments in SQLite; web preview falls back to localStorage
 - App lock encrypts the local snapshot; encrypted portable backups use a separate passphrase
 - Voice stores summaries only, not recoverable audio
 - All data can be exported, imported and deleted
@@ -326,7 +333,7 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [`src/inner.ts`](src/inner.ts) — `InnerPlan`, encounter/space/capture plans.
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx) — 75s encounter / 180s space.
 - [`src/motif-journal.ts`](src/motif-journal.ts) — local motif storage.
-- [`src/relationship.ts`](src/relationship.ts) — user-authored relationship triggers.
+- [`src/relationship.ts`](src/relationship.ts) — user-authored relationship moments.
 - [`src/field.ts`](src/field.ts) — field positions, user links and validation.
 - [`src/signal-session.ts`](src/signal-session.ts) — signal sessions with summaries only.
 - [`src/signal-source.ts`](src/signal-source.ts) — BCI signal layer and LSL simulator.

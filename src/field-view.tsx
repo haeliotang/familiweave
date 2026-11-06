@@ -37,7 +37,7 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
   const relationNodes = relationLimit.map((entry, index) => ({ entry, key: fieldNodeKey('relationship', entry.id), position: positionOf(fieldNodeKey('relationship', entry.id), fallback(index, relationLimit.length, true)) }))
   const nodeMap = new Map<string, { x: number; y: number; kind: 'motif' | 'relationship'; id: string; label: string }>()
   motifNodes.forEach(node => nodeMap.set(node.key, { x: node.position.x * 760, y: node.position.y * 536, kind: 'motif', id: node.motif.id, label: node.motif.name || t('未命名') }))
-  relationNodes.forEach(node => nodeMap.set(node.key, { x: node.position.x * 760, y: node.position.y * 536, kind: 'relationship', id: node.entry.id, label: node.entry.role || t('关系触发点') }))
+  relationNodes.forEach(node => nodeMap.set(node.key, { x: node.position.x * 760, y: node.position.y * 536, kind: 'relationship', id: node.entry.id, label: node.entry.role || t('关系瞬间') }))
   const visibleLinks = layout.links.filter(link => nodeMap.has(link.from) && nodeMap.has(link.to) && (showRelations || (!link.from.startsWith('relationship:') && !link.to.startsWith('relationship:'))))
 
   const pointToField = (clientX: number, clientY: number) => {
@@ -100,11 +100,11 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
 
   return <div className={`field-view lens-${lens}`}>
     <div className="field-heading">
-      <div><p className="eyebrow">{t('场域')}</p><h1>{t('你的内在地形')}</h1><p className="workspace-meta">{t('母题、意象与关系触发点并列在这里；没有解释，只有你写下的结构。')}</p></div>
+      <div><p className="eyebrow">{t('场域')}</p><h1>{t('你的内在地形')}</h1><p className="workspace-meta">{t('片段、意象与关系瞬间并列在这里；没有解释，只有你写下的结构。')}</p></div>
       <button className="primary-button" onClick={onNew}>{t('新建片段')}</button>
     </div>
     {motifs.length === 0 && relationships.length === 0
-      ? <div className="field-empty"><p>{t('场域还是空的。先从一个身体位置开始。')}</p><div className="field-empty-actions"><button className="primary-button" onClick={onNew}>{t('开始捕获')}</button><button className="quiet-button" onClick={onDemo}>{t('载入示例场域')}</button></div></div>
+      ? <div className="field-empty"><p>{t('场域还是空的。先从一个身体位置开始。')}</p><div className="field-empty-actions"><button className="primary-button" onClick={onNew}>{t('开始记录')}</button><button className="quiet-button" onClick={onDemo}>{t('载入示例场域')}</button></div></div>
       : <>
         <div className="field-tools" role="toolbar" aria-label={t('场域工具')}>
           <select value={range} onChange={event => onRangeChange(event.target.value as FieldRange)} aria-label={t('时间范围')}>
@@ -142,17 +142,17 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
                 <text x={node.position.x * 760} y={node.position.y * 536 + 34} textAnchor="middle" className="field-node-label">{node.motif.name ? node.motif.name.slice(0, 14) : t('未命名')}</text>
                 {lens === 'body' && <text x={node.position.x * 760} y={node.position.y * 536 + 48} textAnchor="middle" className="field-node-sub">{localizedLabel(regions, node.motif.capture.region, lang)}</text>}
               </g>)}
-              {showRelations && relationNodes.map(node => <g key={node.key} role="button" tabIndex={0} aria-label={node.entry.role || t('关系触发点')} className={`field-relation-node ${linkSource === node.key ? 'link-source' : ''}`} transform={`translate(${node.position.x * 760},${node.position.y * 536}) rotate(45)`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
+              {showRelations && relationNodes.map(node => <g key={node.key} role="button" tabIndex={0} aria-label={node.entry.role || t('关系瞬间')} className={`field-relation-node ${linkSource === node.key ? 'link-source' : ''}`} transform={`translate(${node.position.x * 760},${node.position.y * 536}) rotate(45)`} onPointerDown={event => startDrag(node.key, event)} onClick={() => activateNode(node.key)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activateNode(node.key) } }}>
                 <rect x="-9" y="-9" width="18" height="18" rx="3" />
               </g>)}
             </g>
           </svg>
         </div>
         <div className="field-legend">
-          <span><i className="legend-dot motif" />{t('母题')} · {motifs.length}</span>
-          <span><i className="legend-dot relation" />{t('关系触发点')} · {relationships.length}</span>
-          <span className="field-signal"><i className="signal-pulse" />{t('信号')}{lang === 'en' ? ': ' : '：'}{t('本机信号层')} · BCI-1/2</span>
-          <span className="field-lens-note">{t('镜头')}：{t(lens === 'constellation' ? '星座' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系')}</span>
+          <span><i className="legend-dot motif" />{t('片段')} · {motifs.length}</span>
+          <span><i className="legend-dot relation" />{t('关系瞬间')} · {relationships.length}</span>
+          <span className="field-signal"><i className="signal-pulse" />{t('信号')}{lang === 'en' ? ': ' : '：'}{t('本机信号层 · 可选')}</span>
+          <span className="field-lens-note">{t('视角')}：{t(lens === 'juxtaposition' ? '并置' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系')}</span>
         </div>
       </>}
   </div>
@@ -160,7 +160,7 @@ function FieldView({ motifs, relationships, selectedId, lens, range, layout, onC
 
 function TimelineRail({ motifs, relationships, onSelect }: { motifs: MotifEntry[]; relationships: RelationshipTrigger[]; onSelect: (id: string) => void }) {
   const { lang, t } = useLanguage()
-  const items = [...motifs.map(entry => ({ kind: 'motif' as const, id: entry.id, at: entry.createdAt, name: entry.name || t('未命名') })), ...relationships.map(entry => ({ kind: 'relation' as const, id: entry.id, at: entry.createdAt, name: entry.role || t('关系触发点') }))]
+  const items = [...motifs.map(entry => ({ kind: 'motif' as const, id: entry.id, at: entry.createdAt, name: entry.name || t('未命名') })), ...relationships.map(entry => ({ kind: 'relation' as const, id: entry.id, at: entry.createdAt, name: entry.role || t('关系瞬间') }))]
     .sort((left, right) => Date.parse(left.at) - Date.parse(right.at)).slice(-12)
   return <div className="timeline-rail">
     <span className="timeline-label">{t('时间轴')}</span>

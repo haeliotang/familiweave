@@ -138,7 +138,7 @@ function DetailWindow({
     {group
       ? <>
         <dl className="relationship-topology-detail-facets">
-          <div><dt>{t('自动反应')}</dt><dd>{facetText(group.facets.responses, responses, lang)}</dd></div>
+          <div><dt>{t('身体的第一反应')}</dt><dd>{facetText(group.facets.responses, responses, lang)}</dd></div>
           <div><dt>{t('身体位置')}</dt><dd>{facetText(group.facets.regions, regions, lang)}</dd></div>
           <div><dt>{t('感觉')}</dt><dd>{facetText(group.facets.sensations, sensations, lang)}</dd></div>
         </dl>
@@ -240,7 +240,7 @@ export function RelationshipTopologyView({
   return <section className="relationship-topology" aria-labelledby={`${titleId}-title`}>
     <div className="relationship-topology-header">
       <div>
-        <p className="relationship-topology-eyebrow">{t('关系触发点')}</p>
+        <p className="relationship-topology-eyebrow">{t('关系瞬间')}</p>
         <h2 id={`${titleId}-title`}>{t('纵向比较')}</h2>
       </div>
       <span className="relationship-topology-pill">{t('本机保存')}</span>
@@ -287,7 +287,7 @@ export function RelationshipTopologyView({
       : comparisonState.value.empty
         ? <p className="relationship-topology-empty">
           {entries.length === 0
-            ? t('还没有关系触发点。你可以记录一个让你身体先反应的瞬间。')
+            ? t('还没有关系瞬间。你可以记录一个让你身体先反应的瞬间。')
             : t('这两段时间里没有已写日期的记录。')}
         </p>
         : <>

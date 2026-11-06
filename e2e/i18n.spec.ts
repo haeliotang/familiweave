@@ -4,7 +4,7 @@ function chineseTokens(text: string) {
   return [...new Set(text.match(/[\u4e00-\u9fff]+/g) ?? [])].filter(token => token !== '中文')
 }
 
-test('English UI has no untranslated shell/capture/lab strings', async ({ page }) => {
+test('English UI has no untranslated shell/capture/research strings', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('tacitweave.lang', 'en'))
   await page.goto('/')
 
@@ -17,15 +17,17 @@ test('English UI has no untranslated shell/capture/lab strings', async ({ page }
   expect(chineseTokens(await page.locator('.workspace-scroll').innerText())).toEqual([])
 
   for (const [label, heading] of [
-    ['Motif journal', 'Local motif journal'],
-    ['Relationship triggers', 'Relationship triggers'],
-    ['Signal lab', 'BCI-1 signal lab'],
-    ['Local & settings', 'Local data'],
+    ['Fragment', 'Local fragment journal'],
+    ['Relationship', 'Relationship moments'],
+    ['Settings', 'Local data'],
   ] as const) {
-    await page.getByRole('button', { name: label }).click()
+    await page.getByRole('button', { name: new RegExp(`${label}$`) }).click()
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
     expect(chineseTokens(await page.locator('.workspace-scroll').innerText()), label).toEqual([])
   }
+  await page.getByRole('button', { name: 'Open research tools' }).click()
+  await expect(page.getByRole('heading', { name: 'Optional signals (simulation & device)' })).toBeVisible()
+  expect(chineseTokens(await page.locator('.workspace-scroll').innerText())).toEqual([])
 })
 
 test('English scene toolbar has no untranslated fallback', async ({ page }) => {

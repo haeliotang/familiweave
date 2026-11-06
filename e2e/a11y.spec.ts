@@ -6,7 +6,7 @@ test('field and settings have no WCAG A/AA violations in light and dark themes',
   await page.getByRole('button', { name: 'Load demo field' }).click()
   const field = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
 
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   const settings = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
   expect([...field.violations, ...settings.violations]).toEqual([])
 

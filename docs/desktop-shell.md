@@ -36,15 +36,15 @@ src/
 | `db_status` | SQLite 是否就绪、表数量 |
 | `read_local_text` | 只读 app data/local-files 下的文本，限制 1 MB |
 | `write_local_text` | 只写 app data/local-files，文件名禁止路径分隔符/`..`，限制 1 MB |
-| `load_local_state` | 从 SQLite `local_state` 读取母题/关系触发点快照 |
-| `save_local_state` | 写入/更新母题与关系触发点快照 |
+| `load_local_state` | 从 SQLite `local_state` 读取片段/关系瞬间快照 |
+| `save_local_state` | 写入/更新片段与关系瞬间快照 |
 | `clear_local_state` | 删除本机快照 |
 | `export_local_state` | 把当前快照写到 app data/local-files/tacitweave-export-*.json |
 | `import_local_state` | 从 app data/local-files 导入命名 JSON 快照 |
 
 - SQLite 位于 app data：`tacitweave.db`；`local_state` 保存 `motifs`、`relationships`、`field`、`signals`；启用应用锁后保存 `encrypted` 密文并删除明文 key。
 - bundle id 已修正为 `com.inceptless.tacitweave`；启动时会把旧拼写目录（由新标识将 `in` 替换成 `i` 推导）下的 `tacitweave.db` 与 `local-files/` 复制到新目录（不覆盖已有新数据，旧目录保留）。
-- 已建 `local_meta` 与 `local_state` 表；界面中的母题、关系触发点、场域节点位置/用户连线与信号 session 摘要通过 `local_state` 持久化。
+- 已建 `local_meta` 与 `local_state` 表；界面中的片段、关系瞬间、场域节点位置/用户连线与信号 session 摘要通过 `local_state` 持久化。
 - 没有暴露任意文件系统路径；没有网络权限；没有 shell 插件。
 
 ## 3. 主题与语言
@@ -58,16 +58,16 @@ src/
 
 Tacitweave 自己的默认布局不是文档编辑器，而是 **场域（Field）**：
 
-- 中间：母题星座 + 关系节点；顶部镜头切换 Constellation / Body / Imagery / Relationship；底部时间轴。
+- 中间：片段并置 + 关系节点；顶部视角切换 Juxtaposition / Body / Imagery / Relationship；底部时间轴。
 - 节点可拖拽、缩放、重置；用户可主动连接节点，连接与位置写入 SQLite。
 - 支持全部/近 30 天/近 90 天过滤，以及可删除的示例场域。
-- 右侧：所选母题将送入空间的内容、事件流、下一步。
-- 左侧：模式导航、最近母题、宿主状态。
+- 右侧：所选片段将送入空间的内容、事件流、下一步。
+- 左侧：模式导航、最近片段、宿主状态。
 
 视觉参考 inceptless 的中性纸面/墨色：
 
-- **左侧**：新建、搜索、导航、最近母题、宿主状态。
-- **中间**：新建捕获（身体地图/文字）或母题详情（总览/身体/意象/关系）。
+- **左侧**：新建、搜索、导航、最近片段、宿主状态。
+- **中间**：新建捕获（身体地图/文字）或片段详情（总览/身体/意象/关系）。
 - **右侧**：空间将收到的内容、隐私边界、进入空间按钮、事件流占位。
 - 进入空间后，中间变成 symbolic 场景；右侧显示“当前空间”。
 

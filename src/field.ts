@@ -1,5 +1,5 @@
 export type FieldNodeKind = 'motif' | 'relationship'
-export type FieldLens = 'constellation' | 'body' | 'imagery' | 'relations'
+export type FieldLens = 'juxtaposition' | 'body' | 'imagery' | 'relations'
 export type FieldRange = 'all' | '30d' | '90d'
 
 export interface FieldPosition {

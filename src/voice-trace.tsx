@@ -79,7 +79,7 @@ export function VoiceTraceRecorder({ onTrace }: { onTrace: (signals: MotifSignal
   return <div className="voice-trace">
     <h3>{t('可选：本机声音测量')}</h3>
     <p className="step-note">{t('测量 8 秒内的音量与停顿；不保存原始音频，不上传。麦克风只在按下按钮后开启。')}</p>
-    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('允许本机麦克风测量，并只把摘要存进母题')}</label>
+    <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('允许本机麦克风测量，并只把摘要存进片段')}</label>
     <div className="actions">
       <button type="button" disabled={!consent || status === 'requesting' || status === 'recording'} onClick={() => void start()}>{status === 'recording' ? t('测量中…') : t('测量 8 秒')}</button>
       {trace && <span className="selection-summary">{t('音量均值')} {trace.rmsMean.toFixed(3)} · {t('停顿比例')} {trace.pauseRatio.toFixed(2)}</span>}

@@ -81,7 +81,7 @@ body { overflow: hidden; background: #f3f0e7; color: #2b2d29 }
 .context-note { margin-top: 18px; padding: 12px; border: 1px solid #e1dccf; border-radius: 9px; background: #fbf9f3; color: #6c7368; font-size: 11px; line-height: 1.65 }
 .context-note p { margin: 0 }
 .context-note p + p { margin-top: 5px }
-.context-lead { color: #70776b; font-size: 12px; line-height: 1.7 }
+.context-lead { color: #5f665c; font-size: 12px; line-height: 1.7 }
 .context-privacy { margin-top: 22px; color: #9a9e94; font-size: 10px; line-height: 1.6 }
 .scene-workspace { padding: 0 34px 28px }
 .scene-toolbar { display: flex; align-items: center; gap: 14px; padding: 20px 0 14px; color: #6e756a; font-size: 12px }
@@ -304,7 +304,7 @@ body, .desktop-shell { background: #f3f3f0; color: #252825 }
 [data-theme='dark'] .motif-item .small, [data-theme='dark'] .quiet.small { border-color: #3a3c41; color: #b8babc }
 [data-theme='dark'] .host-dot { background: #6a6c70 }
 [data-theme='dark'] .host-dot.native { background: #7f9d83 }
-/* Tacitweave field: a spatial constellation, not a document editor. */
+/* Tacitweave field: a spatial field, not a document editor. */
 .field-view { min-height: calc(100vh - 48px - 64px); padding: 26px 34px 10px; display: flex; flex-direction: column; gap: 10px }
 .field-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px }
 .field-heading .eyebrow { margin-bottom: 7px; color: #8b8c90; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase }

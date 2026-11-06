@@ -209,7 +209,7 @@ export function innerStoryboardMarkdown(plan: InnerPlan): string {
     `- 版本：${plan.version}`,
     `- 形式：${plan.format}`,
     `- 时长：${plan.durationSec} 秒`,
-    `- 母题：${plan.motifs.join(' / ')}`,
+    `- 片段：${plan.motifs.join(' / ')}`,
     `- 影子：${plan.figure}`,
     ...(plan.somatic ? [
       `- 身体部位：${plan.somatic.region}`,

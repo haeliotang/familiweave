@@ -9,11 +9,18 @@ test('three-pane shell and symbolic space fit the minimum desktop window', async
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow).toBeLessThanOrEqual(0)
 
-  await page.getByRole('button', { name: 'Relationship triggers' }).click()
+  await page.getByRole('button', { name: /Relationship$/ }).click()
   await expect(page.locator('.relationship-topology')).toBeVisible()
   const topologyOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(topologyOverflow).toBeLessThanOrEqual(0)
-  await page.getByRole('button', { name: 'Field' }).click()
+
+  await page.getByRole('button', { name: /Settings$/ }).click()
+  await page.getByRole('button', { name: 'Open research tools' }).click()
+  await expect(page.getByRole('heading', { name: 'Optional signals (simulation & device)' })).toBeVisible()
+  const researchOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(researchOverflow).toBeLessThanOrEqual(0)
+
+  await page.getByRole('button', { name: /Field$/ }).click()
 
   const node = page.locator('.field-node').first()
   await node.focus()

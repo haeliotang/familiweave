@@ -9,7 +9,7 @@ function TriggerSummary({ summary, lang, t }: { summary: RelationshipSummary; la
   const groups = [
     { title: t('身体位置'), items: summary.regions },
     { title: t('感觉'), items: summary.sensations },
-    { title: t('自动反应'), items: summary.responses },
+    { title: t('身体的第一反应'), items: summary.responses },
   ]
   return <div className="trigger-summary">
     <p className="note">{t('共')} {summary.total} {t('条。下面只是按你选过的字段计数，不是解释，也不代表因果。')}</p>
@@ -24,7 +24,7 @@ function TriggerSummary({ summary, lang, t }: { summary: RelationshipSummary; la
 
 function TriggerMap({ entries, lang, t }: { entries: RelationshipTrigger[]; lang: Language; t: (zh: string) => string }) {
   const shown = entries.slice(0, 8)
-  return <svg className="trigger-map" viewBox="0 0 360 300" role="img" aria-label={t('关系触发点地图，节点由用户自己命名')}>
+  return <svg className="trigger-map" viewBox="0 0 360 300" role="img" aria-label={t('关系瞬间地图，节点由用户自己命名')}>
     <circle cx="180" cy="150" r="118" className="trigger-orbit" />
     <circle cx="180" cy="150" r="30" className="trigger-self" />
     <text x="180" y="155" textAnchor="middle" className="trigger-self-label">{t('我')}</text>
@@ -76,13 +76,13 @@ export function RelationshipJournal({ entries, onAdd, onRemove, onClear }: { ent
   return <section className="relationship-journal" aria-labelledby="relationship-title">
     <div className="journal-header">
       <div>
-        <h2 id="relationship-title">{t('关系触发点')}</h2>
+        <h2 id="relationship-title">{t('关系瞬间')}</h2>
         <p className="note">{t('只记录你自己写下的瞬间；不分析对方，不做匹配，不推断“依恋类型”。')}</p>
       </div>
       <div className="actions">
         <button type="button" className="quiet" onClick={() => setOpen(value => !value)}>{open ? t('收起') : t('添加触发点')}</button>
         {entries.length > 0 && <button type="button" className="quiet" onClick={exportAll}>{t('导出 JSON')}</button>}
-        {entries.length > 0 && <button type="button" className="quiet" onClick={() => { if (confirm(t('删除本机全部关系触发点？此操作不可撤销。'))) onClear() }}>{t('全部删除')}</button>}
+        {entries.length > 0 && <button type="button" className="quiet" onClick={() => { if (confirm(t('删除本机全部关系瞬间？此操作不可撤销。'))) onClear() }}>{t('全部删除')}</button>}
       </div>
     </div>
 
@@ -97,14 +97,14 @@ export function RelationshipJournal({ entries, onAdd, onRemove, onClear }: { ent
         <label>{t('强度')}<select value={intensity} onChange={event => setIntensity(Number(event.target.value) as 1 | 2 | 3 | 4 | 5)}>{[1, 2, 3, 4, 5].map(value => <option key={value} value={value}>{value}</option>)}</select></label>
         <label>{t('呼吸')}<select value={breath} onChange={event => setBreath(event.target.value as BreathState)}>{breaths.map(item => <option key={item.value} value={item.value}>{item[lang === 'en' ? 'labelEn' : 'label']}</option>)}</select></label>
       </div>
-      <div className="chip-row" role="group" aria-label={t('自动反应')}>
+      <div className="chip-row" role="group" aria-label={t('身体的第一反应')}>
         {responses.map(item => <button type="button" key={item.value} className={`chip ${response === item.value ? 'selected' : ''}`} aria-pressed={response === item.value} onClick={() => setResponse(item.value)}>{item[lang === 'en' ? 'labelEn' : 'label']}</button>)}
       </div>
       <div className="actions"><button type="button" disabled={!canSave} onClick={save}>{t('保存到本机')}</button><span className="note">{t('不解释、不评分、不推断。')}</span></div>
     </div>}
 
     {entries.length === 0
-      ? <p className="note">{t('还没有关系触发点。你可以记录一个让你身体先反应的瞬间。')}</p>
+      ? <p className="note">{t('还没有关系瞬间。你可以记录一个让你身体先反应的瞬间。')}</p>
       : <>
         <TriggerMap entries={entries} lang={lang} t={t} />
         <TriggerSummary summary={summary} lang={lang} t={t} />

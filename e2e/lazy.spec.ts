@@ -4,7 +4,7 @@ async function resources(page: import('@playwright/test').Page) {
   return page.evaluate(() => performance.getEntriesByType('resource').map(entry => entry.name))
 }
 
-test('lab chunks load only after entering the lab', async ({ page }) => {
+test('optional-signal chunks load only after entering research tools', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
   await page.waitForTimeout(500)
@@ -12,9 +12,10 @@ test('lab chunks load only after entering the lab', async ({ page }) => {
   expect(initial.some(name => name.includes('signal-simulator'))).toBe(false)
   expect(initial.some(name => name.includes('device-signal-panel'))).toBe(false)
 
-  await page.getByRole('button', { name: 'Signal lab' }).click()
-  await expect(page.getByRole('heading', { name: 'BCI-1 signal lab' })).toBeVisible()
-  const lab = await resources(page)
-  expect(lab.some(name => name.includes('signal-simulator'))).toBe(true)
-  expect(lab.some(name => name.includes('device-signal-panel'))).toBe(true)
+  await page.getByRole('button', { name: /Settings$/ }).click()
+  await page.getByRole('button', { name: 'Open research tools' }).click()
+  await expect(page.getByRole('heading', { name: 'Optional signals (simulation & device)' })).toBeVisible()
+  const research = await resources(page)
+  expect(research.some(name => name.includes('signal-simulator'))).toBe(true)
+  expect(research.some(name => name.includes('device-signal-panel'))).toBe(true)
 })

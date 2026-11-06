@@ -81,7 +81,7 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
   }
   const stateLabel = state === 'reconnecting' ? t('重连中…') : state
   return <section className="device-lab" aria-labelledby="device-lab-title">
-    <h2 id="device-lab-title">{t('BCI-2 设备桥接（实验）')}</h2>
+    <h2 id="device-lab-title">{t('设备桥接（可选，实验）')}</h2>
     <p className="note">{t('连接')}<strong>{t('本机')}</strong>{t(' WebSocket 桥接，接收 JSON 样本。浏览器不直接读 LSL，也不上传数据；原始信号默认不保存。')}</p>
     <label className="device-url">{t('本机桥接地址')}
       <input value={url} onChange={event => setUrl(event.target.value)} placeholder="ws://127.0.0.1:8765" />

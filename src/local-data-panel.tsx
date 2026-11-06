@@ -52,7 +52,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
         next = parseLocalDataset(text)
       }
       onImport(next)
-      setStatus(`${t('已导入')} ${next.motifs.length} ${t('个母题')}、${next.relationships.length} ${t('条关系触发点')}。`)
+      setStatus(`${t('已导入')} ${next.motifs.length} ${t('个片段')}、${next.relationships.length} ${t('条关系瞬间')}。`)
     } catch {
       setStatus(t('导入失败：需要 tacitweave 导出的 local-dataset-v1/v2 或加密备份 JSON。'))
     } finally {
@@ -62,8 +62,8 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
 
   return <section className="local-data-panel" aria-labelledby="local-data-title">
     <h2 id="local-data-title">{t('本机数据')}</h2>
-    <p className="note">{t('母题、关系触发点与可选声音摘要都保存在本机；不会上传。可以整体导出、导入或删除。')}</p>
-    <p className="note">{t('捕获出处')}：{snapshot.captures?.length ?? 0} · {t('信号会话')}：{snapshot.signals?.length ?? 0}</p>
+    <p className="note">{t('片段、关系瞬间与可选声音摘要都保存在本机；不会上传。可以整体导出、导入或删除。')}</p>
+    <p className="note">{t('记录出处')}：{snapshot.captures?.length ?? 0} · {t('信号会话')}：{snapshot.signals?.length ?? 0}</p>
     {Boolean(snapshot.symbolicSessions?.length) && <div className="signal-session-list">
       <h3>{t('象征空间会话')}</h3>
       {snapshot.symbolicSessions!.slice(0, 5).map(session => <div className="signal-session-row" key={session.id}>
@@ -72,7 +72,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
       </div>)}
     </div>}
     {Boolean(snapshot.captures?.length) && <div className="capture-list">
-      <h3>{t('捕获出处')}</h3>
+      <h3>{t('记录出处')}</h3>
       {snapshot.captures!.slice(0, 5).map(capture => <div className="signal-session-row" key={capture.captureId}>
         <span>{new Date(capture.createdAt).toLocaleString()} · {capture.rendererKind} · {capture.sha256.slice(0, 12)}…</span>
         {onRetractCapture && <button type="button" className="quiet small" onClick={() => onRetractCapture(capture.captureId)}>{t('撤回')}</button>}

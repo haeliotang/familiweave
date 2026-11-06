@@ -71,7 +71,7 @@ export function SignalSimulator({ onSession, onRetract }: { onSession?: (session
   }
 
   return <section className="signal-lab" aria-labelledby="signal-lab-title">
-    <h2 id="signal-lab-title">{t('BCI-1 信号实验台')}</h2>
+    <h2 id="signal-lab-title">{t('可选信号（模拟与设备）')}</h2>
     <p className="note">{t('这里产生的是')}<strong>{t('模拟数据')}</strong>{t('，不是你的身体信号，也不是医疗数据。用于验证时间轴、采样与导出管线。')}</p>
     <label className="remember-line"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} /> {t('我理解这是模拟信号，不是真实采集')}</label>
     <div className="actions">

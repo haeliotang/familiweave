@@ -32,15 +32,14 @@ const DeviceSignalPanel = lazy(() => import('./device-signal-panel').then(module
 const LocalDataPanel = lazy(() => import('./local-data-panel').then(module => ({ default: module.LocalDataPanel })))
 const UpdatePanel = lazy(() => import('./update-panel').then(module => ({ default: module.UpdatePanel })))
 
-type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'lab' | 'settings' | 'space'
+type View = 'field' | 'new' | 'motif' | 'journal' | 'relationship' | 'settings' | 'research' | 'space'
 type DetailTab = 'overview' | 'body' | 'imagery' | 'relationship'
 
-const navItems: Array<{ id: Exclude<View, 'motif' | 'space'>; label: string; icon: string }> = [
+const navItems: Array<{ id: Exclude<View, 'motif' | 'space' | 'research'>; label: string; icon: string }> = [
   { id: 'field', label: '场域', icon: '◌' },
-  { id: 'journal', label: '母题日记', icon: '◫' },
-  { id: 'relationship', label: '关系触发点', icon: '◇' },
-  { id: 'lab', label: '信号实验台', icon: '◉' },
-  { id: 'settings', label: '本机与设置', icon: '⚙' },
+  { id: 'journal', label: '片段', icon: '◫' },
+  { id: 'relationship', label: '关系', icon: '◇' },
+  { id: 'settings', label: '设置', icon: '⚙' },
 ]
 
 function dateLabel(iso: string, lang: Language) {
@@ -81,7 +80,7 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
   const voice = motif.signals?.voice
   return <>
     <WorkspaceHeader
-      eyebrow={t('母题')}
+      eyebrow={t('片段')}
       title={motif.name || t('未命名')}
       meta={`${dateLabel(motif.createdAt, lang)} · ${t('本机保存')} · ${motif.capture.fragments.length} ${t('块意象')}`}
       action={<button className="primary-button" onClick={onEnter}>{t('进入空间')}</button>}
@@ -101,13 +100,13 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
         <p>{voice ? `${t('音量均值')} ${voice.rmsMean.toFixed(3)} · ${t('停顿比例')} ${voice.pauseRatio.toFixed(2)}` : t('这次没有声音摘要')}</p>
       </section>
       {motif.symbolic && <section className="paper-card">
-        <p className="card-label">{t('符号空间参数')}</p>
+        <p className="card-label">{t('空间形式')}</p>
         <p>{motif.symbolic.motifs.join(' / ')} · {motif.symbolic.figure}</p>
         <p className="muted">{t('由捕获生成，仅用于本机回看与研究导出；不是解释。')}</p>
       </section>}
       <section className="paper-card span-2">
         <p className="card-label">{t('可以做什么')}</p>
-        <p className="muted">{t('进入一段 75 秒象征空间；系统不解释这个母题，也不替它命名。离开随时可用。')}</p>
+        <p className="muted">{t('进入一段 75 秒象征空间；系统不解释这个片段，也不替它命名。离开随时可用。')}</p>
       </section>
     </div>}
     {tab === 'body' && <section className="paper-card">
@@ -129,7 +128,7 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
     </section>}
     {tab === 'relationship' && <section className="paper-card">
       <p className="card-label">{t('关系')}</p>
-      <p>{t('关系触发点单独保存在「关系触发点」里；这里不推断它们与当前母题的因果关系。')}</p>
+      <p>{t('关系瞬间单独保存在「关系瞬间」里；这里不推断它们与当前片段的因果关系。')}</p>
       <p className="muted">{t('这是有意的边界：并列可以，解释不行。')}</p>
     </section>}
   </>
@@ -156,23 +155,23 @@ function ContextPanel({ motif, encounter, onEnter, onBack, onDetail }: { motif: 
   return <aside className="context-panel">
     <div className="context-heading"><span>{t('空间将收到的内容')}</span><span className="local-badge">{t('不上传')}</span></div>
     <ul className="check-list">
-      {checkItem(t('身体位置'), Boolean(motif), motif ? localizedLabel(regions, motif.capture.region, lang) : t('先选择一个母题'))}
+      {checkItem(t('身体位置'), Boolean(motif), motif ? localizedLabel(regions, motif.capture.region, lang) : t('先选择一个片段'))}
       {checkItem(t('感觉与强度'), Boolean(motif), motif ? `${localizedLabel(sensations, motif.capture.sensation, lang)} · ${motif.capture.intensity}/5` : undefined)}
       {checkItem(t('意象碎片'), Boolean(motif), motif ? `${motif.capture.fragments.length} ${t('块')}` : undefined)}
       {checkItem(t('可选声音摘要'), Boolean(voice), voice ? t('仅摘要，不含原始音频') : t('这次没有'))}
-      {checkItem(t('关系触发点'), false, t('不进入空间；保持独立'))}
+      {checkItem(t('关系瞬间'), false, t('不进入空间；保持独立'))}
     </ul>
     <button className="primary-button wide" disabled={!motif} onClick={onEnter}>{t('进入 75 秒空间')}</button>
-    {motif && <button className="quiet-button wide" onClick={onDetail}>{t('打开母题详情')}</button>}
+    {motif && <button className="quiet-button wide" onClick={onDetail}>{t('打开片段详情')}</button>}
     <div className="context-section">
       <p className="card-label">{t('事件流')}</p>
       <p className="muted">{t('还没有活动。进入空间后，这里会显示当前会话。')}</p>
     </div>
     <div className="context-note">
       <p className="card-label">{t('下一步')}</p>
-      <p>{motif ? t('进入空间，看看它如何变化；也可以回到母题日记继续记录。') : t('先从身体开始，选一个最明显的位置。')}</p>
+      <p>{motif ? t('进入空间，看看它如何变化；也可以回到片段日记继续记录。') : t('先从身体开始，选一个最明显的位置。')}</p>
     </div>
-    <p className="context-privacy">{t('不解释、不诊断、默认不上传。所有母题与关系记录只在本机。')}</p>
+    <p className="context-privacy">{t('不解释、不诊断、默认不上传。所有片段与关系记录只在本机。')}</p>
   </aside>
 }
 
@@ -180,7 +179,7 @@ export function DesktopShell() {
   const { lang, setLang, t } = useLanguage()
   const { theme, toggleTheme } = useTheme()
   const [view, setView] = useState<View>('field')
-  const [fieldLens, setFieldLens] = useState<FieldLens>('constellation')
+  const [fieldLens, setFieldLens] = useState<FieldLens>('juxtaposition')
   const [fieldRange, setFieldRange] = useState<FieldRange>('all')
   const [fieldLayout, setFieldLayout] = useState<FieldLayout>(() => typeof window === 'undefined' ? emptyFieldLayout() : loadFieldLayout(window.localStorage))
   const [signalSessions, setSignalSessions] = useState<SignalSession[]>(() => typeof window === 'undefined' ? [] : loadSignalSessions(window.localStorage))
@@ -477,10 +476,10 @@ export function DesktopShell() {
     persist(demoMotifs, [demoRelationship], linked, signalSessions)
   }
 
-  const navView = view === 'motif' || view === 'space' ? 'field' : view
+  const navView = view === 'motif' || view === 'space' ? 'field' : view === 'research' ? 'settings' : view
 
   const topTabs = view === 'field'
-    ? (['constellation', 'body', 'imagery', 'relations'] as FieldLens[]).map(lens => ({ id: lens, label: t(lens === 'constellation' ? '星座' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系'), active: fieldLens === lens, onClick: () => setFieldLens(lens) }))
+    ? (['juxtaposition', 'body', 'imagery', 'relations'] as FieldLens[]).map(lens => ({ id: lens, label: t(lens === 'juxtaposition' ? '并置' : lens === 'body' ? '身体' : lens === 'imagery' ? '意象' : '关系'), active: fieldLens === lens, onClick: () => setFieldLens(lens) }))
     : view === 'new'
     ? [
         { id: 'somatic', label: t('从身体开始'), active: !textMode, onClick: () => setTextMode(false) },
@@ -496,7 +495,7 @@ export function DesktopShell() {
         <div className="sidebar-top" data-tauri-drag-region>
           {!isTauriRuntime() && <div className="traffic-lights" aria-hidden="true"><span /><span /><span /></div>}
           <div className="sidebar-brand">Tacitweave</div>
-          <label className="search-box"><span>⌕</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索母题')} /></label>
+          <label className="search-box"><span>⌕</span><input value={search} onChange={event => setSearch(event.target.value)} placeholder={t('搜索片段')} /></label>
           <button className="new-button" onClick={openNew}><span>＋</span> {t('新建内在片段')}</button>
         </div>
         <nav className="sidebar-nav">
@@ -505,9 +504,9 @@ export function DesktopShell() {
           </button>)}
         </nav>
         <div className="sidebar-recent">
-          <p className="section-label">{t('最近母题')}</p>
+          <p className="section-label">{t('最近片段')}</p>
           {filtered.length === 0
-            ? <p className="empty-copy">{t('还没有母题。从身体开始，留下第一个名字。')}</p>
+            ? <p className="empty-copy">{t('还没有片段。从身体开始，留下第一个名字。')}</p>
             : filtered.map(motif => <button key={motif.id} className={`recent-item ${selectedId === motif.id && view === 'motif' ? 'active' : ''}`} onClick={() => openMotif(motif.id)}>
               <span className="recent-title">{motif.name || t('未命名')}</span>
               <span className="recent-meta">{dateLabel(motif.createdAt, lang)} · {localizedLabel(regions, motif.capture.region, lang)}</span>
@@ -524,7 +523,7 @@ export function DesktopShell() {
           <div className="workspace-tabs" {...(topTabs.length ? { role: 'tablist' } : {})}>
             {topTabs.length
               ? topTabs.map(tab => <button key={tab.id} role="tab" aria-selected={tab.active} className={tab.active ? 'active' : ''} onClick={tab.onClick}>{tab.label}</button>)
-              : <span className="top-label">{view === 'space' ? (encounter?.innerPlan?.format === 'space' ? '空间' : '相遇') : t(navItems.find(item => item.id === navView)?.label ?? '')}</span>}
+              : <span className="top-label">{view === 'space' ? (encounter?.innerPlan?.format === 'space' ? '空间' : '相遇') : view === 'research' ? t('研究工具') : t(navItems.find(item => item.id === navView)?.label ?? '')}</span>}
           </div>
           <div className="ui-controls">
             {lockRecord && <button className="ui-toggle" onClick={lockNow} aria-label={t('立即锁定')} title={t('立即锁定')}>🔒</button>}
@@ -548,18 +547,18 @@ export function DesktopShell() {
                   ? <div className="capture-wrap"><Suspense fallback={null}><InnerEntry onStart={start} /></Suspense></div>
                   : <div className="capture-wrap"><Suspense fallback={null}><SomaticEntry onStart={start} onRemember={remember} /></Suspense></div>)}
                 {view === 'motif' && selected && <MotifDetail motif={selected} tab={detailTab} setTab={setDetailTab} onEnter={enterSelected} />}
-                {view === 'motif' && !selected && <div className="empty-state"><h2>{t('这个母题不在了')}</h2><p>{t('它可能已被删除。可以从左侧新建一个片段。')}</p><button className="primary-button" onClick={openNew}>新建片段</button></div>}
+                {view === 'motif' && !selected && <div className="empty-state"><h2>{t('这个片段不在了')}</h2><p>{t('它可能已被删除。可以从左侧新建一个片段。')}</p><button className="primary-button" onClick={openNew}>新建片段</button></div>}
               </>}
               {view === 'journal' && <>
-                <WorkspaceHeader eyebrow={t('本机母题日记')} title={t('反复出现的东西，先放在一起。')} meta={t('不推断因果，只做并列、回看与导出。')} />
+                <WorkspaceHeader eyebrow={t('本机片段日记')} title={t('反复出现的东西，先放在一起。')} meta={t('不推断因果，只做并列、回看与导出。')} />
                 <Suspense fallback={null}><MotifJournal entries={motifs} onRemove={remove} onClear={() => { setMotifs([]); setSelectedId(null); persist([], relationships) }} /></Suspense>
               </>}
               {view === 'relationship' && <>
-                <WorkspaceHeader eyebrow={t('关系触发点')} title={t('只画你自己的地图。')} meta={t('不推断对方，不做匹配，也不把关系变成评分。')} />
+                <WorkspaceHeader eyebrow={t('关系瞬间')} title={t('只画你自己的地图。')} meta={t('不推断对方，不做匹配，也不把关系变成评分。')} />
                 <Suspense fallback={null}><RelationshipJournal entries={relationships} onAdd={addRelationship} onRemove={removeRelationship} onClear={() => { setRelationships([]); persist(motifs, []) }} /></Suspense>
               </>}
-              {view === 'lab' && <>
-                <WorkspaceHeader eyebrow={t('实验台')} title={t('先把信号管线立住。')} meta={t('模拟数据和设备桥接都明确标注；没有真实神经数据。')} />
+              {view === 'research' && <>
+                <WorkspaceHeader eyebrow={t('研究工具')} title={t('可选信号')} meta={t('模拟数据和设备桥接都明确标注；没有真实神经数据。')} action={<button type="button" className="quiet-button" onClick={() => setView('settings')}>← {t('返回设置')}</button>} />
                 <Suspense fallback={null}><SignalSimulator onSession={recordSignalSession} onRetract={retractSignalSession} /></Suspense>
                 <Suspense fallback={null}><DeviceSignalPanel onSession={recordSignalSession} onRetract={retractSignalSession} /></Suspense>
               </>}
@@ -570,16 +569,27 @@ export function DesktopShell() {
                   <p>{host ? `Tauri 2 · ${host.platform} · ${t('文件 API')} ${host.sandbox}` : t('Web 预览 · 没有 Tauri 宿主')}</p>
                   <p className="muted">{host ? `SQLite: ${host.database_path}${db ? ` · schema v${db.schema_version}` : ''}` : t('启动 Tauri 外壳后，文件与数据库句柄由 Rust 宿主管理。')}</p>
                 </div>
+                <div className="paper-card host-card">
+                  <p className="card-label">{t('研究工具')}</p>
+                  <p className="muted">{t('可选信号与设备桥接；研究导出在本机数据中。')}</p>
+                  <div className="actions"><button type="button" className="quiet" onClick={() => setView('research')}>{t('打开研究工具')}</button></div>
+                </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.3'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
                 <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures, symbolicSessions }} onImport={importSnapshot} onClear={clearAll} onRetractSignal={retractSignalSession} onRetractCapture={retractCapture} onRetractSymbolic={retractSymbolicSession} /></Suspense>
               </>}
             </>}
         </div>
-        {view !== 'space' && <Suspense fallback={null}><TimelineRail motifs={visibleMotifs} relationships={visibleRelationships} onSelect={openMotif} /></Suspense>}
+        {view !== 'space' && view !== 'settings' && view !== 'research' && <Suspense fallback={null}><TimelineRail motifs={visibleMotifs} relationships={visibleRelationships} onSelect={openMotif} /></Suspense>}
       </main>
 
-      <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />
+      {view === 'settings' || view === 'research'
+        ? <aside className="context-panel">
+          <div className="context-heading"><span>{t(view === 'research' ? '研究工具' : '本机设置')}</span><span className="local-badge">{t('本地')}</span></div>
+          <p className="context-lead">{view === 'research' ? t('可选信号与设备桥接是研究工具，不会进入象征空间。') : t('数据、应用锁与研究工具都在这里；所有记录默认留在本机。')}</p>
+          <div className="paper-card context-note"><p className="card-label">{t('下一步')}</p><p>{view === 'research' ? t('模拟信号或连接设备；数据仍只留在本机。') : t('需要可选信号时，打开研究工具。')}</p></div>
+        </aside>
+        : <ContextPanel motif={selected} encounter={encounter} onEnter={enterSelected} onBack={backFromSpace} onDetail={() => setView('motif')} />}
     </div>
     {(locked && lockRecord) || recoveryNeeded ? <Suspense fallback={<div className="lock-overlay" />}><LockScreen onUnlock={unlockApp} onForgot={resetAppLock} blockedUntil={lockout.blockedUntil} /></Suspense> : null}
   </div>

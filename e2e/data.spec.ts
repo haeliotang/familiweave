@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 test('exports a v2 dataset and imports it back', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
 
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export all local data' }).click()
@@ -36,7 +36,7 @@ test('exports a v2 dataset and imports it back', async ({ page }) => {
 
 test('imports a legacy v1 dataset', async ({ page }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   await page.locator('input[type="file"]').setInputFiles({
     name: 'legacy-v1.json',
     mimeType: 'application/json',
@@ -53,14 +53,14 @@ test('imports a legacy v1 dataset', async ({ page }) => {
     })),
   })
   await expect(page.getByText(/Imported 1/)).toBeVisible()
-  await page.getByRole('button', { name: 'Field' }).click()
+  await page.getByRole('button', { name: /Field$/ }).click()
   await expect(page.locator('.field-node')).toHaveCount(1)
 })
 
 test('exports and imports an encrypted backup', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   page.on('dialog', dialog => dialog.accept('correct horse battery'))
 
   const downloadPromise = page.waitForEvent('download')
@@ -89,7 +89,7 @@ test('exports persisted capture provenance from the web fallback', async ({ page
   }
   await page.addInitScript(value => localStorage.setItem('tacitweave.captures.v1', JSON.stringify([value])), capture)
   await page.goto('/')
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export all local data' }).click()
   const download = await downloadPromise
@@ -102,7 +102,7 @@ test('exports persisted capture provenance from the web fallback', async ({ page
 test('exports an LSM-0 fixture from local motifs', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   page.once('dialog', dialog => dialog.accept('P01'))
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export LSM-0 sessions' }).click()

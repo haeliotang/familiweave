@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('five wrong PINs trigger a temporary lockout', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Load demo field' }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   await page.getByLabel('PIN (at least 4 digits)').fill('2468')
   await page.getByLabel('Repeat PIN').fill('2468')
   await page.getByRole('button', { name: 'Enable app lock' }).click()

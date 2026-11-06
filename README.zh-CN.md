@@ -10,6 +10,13 @@
 
 ![Tacitweave 内在场域（深色，英文界面）](docs/assets/desktop-shell-dark-en.png)
 
+## 界面术语
+
+- **片段 / Fragment**：用户界面对母题记录的称呼；数据层仍使用 `motif`。
+- **关系瞬间 / Relationship moment**：用户界面对关系触发点的称呼。
+- **并置 / Juxtaposition**：原“星座”场域视角；只表示片段与关系瞬间的并列，不暗示解释或命运。
+- **研究工具 / Research tools**：可选信号与设备桥接，已移出主导航。
+
 ## 下载
 
 最新公开 tag 为 [v0.1.2](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.2)，以旧名 Familiweave 发布（仅 Linux/Windows，未签名；macOS 签名仍待完成）。已归档的 [v0.1.1 Release](https://github.com/haeliotang/tacitweave/releases/tag/v0.1.1) 仍是下载资产最完整的版本。改名后的 main 版本为 0.1.3，**尚未发布**。
@@ -67,8 +74,8 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 - **内隐记忆**：自动化的躯体与关系模式；这里不是临床诊断。
 - **躯体捕获**：身体地图、感觉、强度、呼吸与意象选择。
 - **象征空间**：可以被进入、停留、离开的 75 秒相遇 / 180 秒空间。
-- **母题**：用户自己命名、反复出现的身体—意象—关系单元。
-- **关系拓扑**：用户自述的关系触发点地图；不是系统对他人或依恋类型的推断。
+- **片段**（内部仍为 `motif`）：用户自己命名、反复出现的身体—意象—关系单元。
+- **关系拓扑**：用户自述的关系瞬间地图；不是系统对他人或依恋类型的推断。
 - **BCI**：脑机接口。当前指本机信号层与设备桥接，不是植入体。
 - **LSM（Large Somatic & Symbolic Model）**：躯体—意象—关系的跨模态研究模型；当前不是已训练模型。
 
@@ -91,10 +98,10 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 - 可以靠近、停留、离开
 - 不解释、不评分、不诊断
 
-### 2.3 深层母题与关系
+### 2.3 深层片段与关系
 
-- **母题日记**：用户自己命名、自己保存、自己删除
-- **关系触发点**：用户自己写下场景、瞬间、身体反应与自动反应
+- **片段日记**：用户自己命名、自己保存、自己删除
+- **关系瞬间**：用户自己写下场景、瞬间、身体反应与身体的第一反应
 - 只做描述性计数，不推断对方、不做匹配、不做依恋分类
 - 所有记录默认只在本机
 
@@ -110,7 +117,7 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 ### 2.5 本机加密、应用锁与可携带备份
 
 - 可选应用锁：PBKDF2 PIN 校验 + AES-GCM 加密本机快照。
-- 锁定后明文母题/关系/场域/信号 key 会被删除；只有 PIN 成功后才解密。
+- 锁定后明文片段/关系/场域/信号 key 会被删除；只有 PIN 成功后才解密。
 - 加密备份使用独立口令和 AES-GCM；口令不保存、无法找回。
 - 这保护本机与导出数据，但不保护已被攻破的系统账号；忘记 PIN 只能删除本机数据。
 
@@ -119,10 +126,10 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 | 层 | 已实现 |
 | --- | --- |
 | v0 躯体捕获 | 身体地图 + 感觉/强度/呼吸 + 意象碎片 |
-| v1 母题日记 | 本机命名、保存、删除、导出 |
-| v2 关系触发点 | 自述场景/反应、地图、描述性计数 |
+| v1 片段日记 | 本机命名、保存、删除、导出 |
+| v2 关系瞬间 | 自述场景/反应、地图、描述性计数 |
 | v3 声音摘要 | 8 秒音量/停顿；显式同意；不保存原始音频；session 摘要写入 SQLite |
-| 场域 | 母题星座、关系节点、镜头切换、时间轴、拖拽/缩放、用户连线、时间过滤、示例场域 |
+| 场域 | 片段并置、关系节点、视角切换、时间轴、拖拽/缩放、用户连线、时间过滤、示例场域 |
 | BCI-1 | 信号源接口、模拟器、本机事件时间轴 |
 | BCI-2 | 本机 WebSocket 设备桥接契约 + token 鉴权 |
 | 桌面外壳 | Tauri 2 + Rust；SQLite 持久化；app data 文件 API 边界（不是 OS 沙箱） |
@@ -130,7 +137,7 @@ Tacitweave 的方向不是替代语言，而是补上语言之前的入口：**�
 | 应用锁 | 本机 PIN + AES-GCM 加密快照；可配置无操作自动锁定（默认 5 分钟）、5 次错误 PIN 锁定 30 秒；不是系统锁屏 |
 | 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
 | 双语 | 中文 / English 界面切换 |
-| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除；捕获出处与信号摘要。删除包含旧 key、local-files 与旧 app data 目录；SQLite 使用 secure_delete + VACUUM（不是整盘取证级擦除保证） |
+| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除；记录出处与信号摘要。删除包含旧 key、local-files 与旧 app data 目录；SQLite 使用 secure_delete + VACUUM（不是整盘取证级擦除保证） |
 | 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
 | 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
 | 关系拓扑 | 30/90 天纵向对比用户自述触发点；不推断对方 |
@@ -170,7 +177,7 @@ SomaticCapture + SignalTrace
         │
         ▼
 InnerPlan
-母题 · 节拍 · 影子 · 空间/声音/光/镜头提示词 · 安全边界
+片段 · 节拍 · 影子 · 空间/声音/光/镜头提示词 · 安全边界
         │
         ▼
 EpisodePlan (kind: inner)
@@ -216,7 +223,7 @@ Tacitweave 不是“给聊天机器人加几个生理传感器”。我们的长
 | BCI-2 | 本机 WebSocket 设备桥接 | 契约/UI 已实现；真实硬件未验收 |
 | BCI-3 | 本机 bridge 协议与 token 鉴权已实现；真实 OpenBCI/BrainFlow/LSL 采集未验收 | 协议完成，硬件未验收 |
 | LSM-0 | 跨模态对齐：从躯体/信号预测象征参数，不做情绪诊断 | 未开始；下一研究目标 |
-| LSM-1 | 纵向母题 + 关系拓扑的个人模型 | 未开始 |
+| LSM-1 | 纵向片段 + 关系拓扑的个人模型 | 未开始 |
 | LSM-2 | 闭环自适应象征空间，用户始终可退出/覆盖 | 未开始 |
 
 ### 5.3 我们不接受“永远停在原型”
@@ -239,14 +246,14 @@ Tacitweave 不是“给聊天机器人加几个生理传感器”。我们的长
 - 不诊断：不是心理测试、治疗或医疗设备
 - 不恢复记忆：不暗示压抑记忆，不制造虚假记忆
 - 不评分：没有深层潜意识健康分、关系匹配分
-- 不推断他人：关系触发点只画用户自己写下的部分
+- 不推断他人：关系瞬间只画用户自己写下的部分
 - 不制造依赖：没有 streak、没有“对方在等你”
 - 意义归用户：系统只提供形式与开放问题
 
 ## 7. 隐私与边界
 
 - 默认本地：没有服务端、没有账号、没有同步
-- Tauri 下母题/关系触发点写入 SQLite；Web 预览回退 localStorage
+- Tauri 下片段/关系瞬间写入 SQLite；Web 预览回退 localStorage
 - 应用锁会加密本机快照；加密备份使用独立口令
 - 声音只保存摘要，不保存可还原音频
 - 数据可整体导出、导入、删除
@@ -324,8 +331,8 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [`src/somatic-entry.tsx`](src/somatic-entry.tsx)：v0 身体地图入口。
 - [`src/inner.ts`](src/inner.ts)：`InnerPlan`、相遇/空间/捕获计划。
 - [`src/symbolic-renderer.tsx`](src/symbolic-renderer.tsx)：75 秒相遇 / 180 秒空间。
-- [`src/motif-journal.ts`](src/motif-journal.ts)：本机母题存储。
-- [`src/relationship.ts`](src/relationship.ts)：用户自述关系触发点。
+- [`src/motif-journal.ts`](src/motif-journal.ts)：本机片段存储。
+- [`src/relationship.ts`](src/relationship.ts)：用户自述关系瞬间。
 - [`src/field.ts`](src/field.ts)：场域位置、用户连线与校验。
 - [`src/signal-session.ts`](src/signal-session.ts)：只含摘要的信号 session。
 - [`src/signal-source.ts`](src/signal-source.ts)：BCI 信号层与 LSL 模拟器。

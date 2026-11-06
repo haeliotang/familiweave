@@ -114,7 +114,7 @@ export function SomaticEntry({ onStart, onRemember }: { onStart: (encounter: Enc
     <div className="somatic-name">
       <label htmlFor="motif-name">{t('给这次感觉一个名字（可留空）')}</label>
       <input id="motif-name" value={name} maxLength={60} onChange={event => setName(event.target.value)} placeholder={t('比如：胸口的旧门')} />
-      <label className="remember-line"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> {t('保存到本机母题日记（可删除）')}</label>
+      <label className="remember-line"><input type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} /> {t('保存到本机片段日记（可删除）')}</label>
     </div>
     <VoiceTraceRecorder onTrace={setSignals} />
 

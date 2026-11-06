@@ -8,6 +8,6 @@ test('field nodes are keyboard-selectable and controls expose focus styles', asy
   await page.keyboard.press('Enter')
   await expect(page.locator('.context-panel')).toContainText('Stomach / belly')
 
-  await page.getByRole('button', { name: 'Local & settings' }).focus()
-  await expect(page.getByRole('button', { name: 'Local & settings' })).toBeFocused()
+  await page.getByRole('button', { name: /Settings$/ }).focus()
+  await expect(page.getByRole('button', { name: /Settings$/ })).toBeFocused()
 })

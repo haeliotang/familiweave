@@ -10,7 +10,7 @@ test('records symbolic agency choices and allows explicit retraction', async ({ 
   await page.getByRole('button', { name: 'Stay' }).click()
   await page.getByRole('button', { name: 'Leave' }).click()
   await page.locator('.context-panel').getByRole('button', { name: /Back to workspace|返回工作台/ }).click()
-  await page.getByRole('button', { name: 'Local & settings' }).click()
+  await page.getByRole('button', { name: /Settings$/ }).click()
   await expect(page.getByText('Symbolic space sessions')).toBeVisible()
   await expect(page.locator('.signal-session-list').getByText(/choices/)).toBeVisible()
   await page.locator('.signal-session-list').getByRole('button', { name: 'Retract' }).last().click()
