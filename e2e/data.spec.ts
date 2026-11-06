@@ -81,3 +81,18 @@ test('exports and imports an encrypted backup', async ({ page }) => {
   })
   await expect(page.getByText(/Imported 2/)).toBeVisible()
 })
+
+test('exports persisted capture provenance from the web fallback', async ({ page }) => {
+  const capture = {
+    version: 'capture-v1', captureId: 'capture-e2e', rendererKind: 'captured', mimeType: 'video/mp4',
+    durationSec: 75, sha256: 'b'.repeat(64), synthId: false, createdAt: '2026-11-01T00:00:00.000Z',
+  }
+  await page.addInitScript(value => localStorage.setItem('familiweave.captures.v1', JSON.stringify([value])), capture)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export all local data' }).click()
+  const download = await downloadPromise
+  const text = await readFile((await download.path())!, 'utf8')
+  expect(JSON.parse(text).captures).toEqual([capture])
+})

@@ -47,6 +47,13 @@ pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
 
 `/health` 返回 `clients`、`received`、`forwarded`、`rejected`、`lastSampleAt`，可用于真实 daemon 的断线与丢包排查。
 
+## 真实设备参考适配器
+
+- `scripts/lsl_bridge.example.py`：pylsl → WebSocket 的参考实现。
+- `scripts/brainflow_bridge.example.py`：BrainFlow / OpenBCI → JSONL stdin 的参考实现，需 `pip install brainflow`，通过 `| pnpm bci:bridge` 管道送入。
+
+两者都**未在真实硬件上验收**；适配器只发送派生样本，不能代替设备 SDK 的错误处理、采样率核对、同意与撤回流程。真实采集前必须记录设备型号、固件、通道映射和失败处理。
+
 ## 安全边界
 
 - 仅监听 `127.0.0.1`
