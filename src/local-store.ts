@@ -144,6 +144,8 @@ export async function loadLocalSnapshot(): Promise<LocalSnapshot> {
     const storage = webStorage()
     const reconciled = reconcileSnapshots(host, fallback)
     if (reconciled.action === 'migrate') {
+      // Never overwrite a locked/encrypted snapshot with an empty or stale web copy.
+      if (await hasEncryptedLocalState()) return host
       // One-time migration from the browser fallback into the desktop store.
       await saveLocalSnapshot(reconciled.snapshot)
     } else if (storage && reconciled.action === 'mirror') {
@@ -163,6 +165,8 @@ export async function saveLocalSnapshot(snapshot: LocalSnapshot): Promise<void> 
     await writeEncryptedPayload(payload)
     return
   }
+  // A missing lock record must not cause plaintext writes over encrypted data.
+  if (await hasEncryptedLocalState()) return
   const storage = webStorage()
   storage?.removeItem(encryptedStorageKey)
   if (storage) {
