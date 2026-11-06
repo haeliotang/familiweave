@@ -1,0 +1,44 @@
+import { describe, expect, it } from 'vitest'
+import { normalizeSnapshot, reconcileSnapshots, snapshotHasData } from './local-store'
+import type { LocalSnapshot } from './local-dataset'
+
+const empty = (): LocalSnapshot => ({ motifs: [], relationships: [], field: { version: 'field-layout-v1', positions: {}, links: [] }, signals: [], captures: [] })
+const withMotif = (): LocalSnapshot => ({
+  ...empty(),
+  motifs: [{ version: 'motif-v1', id: 'm', createdAt: '2026-11-01T00:00:00Z', name: 'x', capture: { region: 'chest', sensation: 'pressure', intensity: 2, breath: 'even', fragments: ['wet-corridor'] } }],
+})
+
+describe('desktop/web snapshot reconciliation', () => {
+  it('treats an empty SQLite store as needing one-way migration from the web fallback', () => {
+    expect(snapshotHasData(empty())).toBe(false)
+    expect(reconcileSnapshots(empty(), withMotif())).toMatchObject({ source: 'fallback', action: 'migrate' })
+  })
+
+  it('treats a populated SQLite store as canonical and mirrors it over stale web data', () => {
+    expect(reconcileSnapshots(withMotif(), empty())).toMatchObject({ source: 'host', action: 'mirror' })
+  })
+
+  it('does not invent data when both stores are empty', () => {
+    expect(reconcileSnapshots(empty(), empty())).toMatchObject({ source: 'host', action: 'none' })
+  })
+})
+
+
+describe('snapshot normalization', () => {
+  const capture = {
+    version: 'capture-v1' as const,
+    captureId: 'capture-1',
+    rendererKind: 'captured' as const,
+    mimeType: 'video/mp4',
+    durationSec: 75,
+    sha256: 'a'.repeat(64),
+    synthId: false,
+    createdAt: '2026-11-01T00:00:00Z',
+  }
+
+  it('preserves validated captures and rejects malformed ones', () => {
+    expect(normalizeSnapshot({ motifs: [], relationships: [], captures: [capture] }).captures).toEqual([capture])
+    expect(() => normalizeSnapshot({ motifs: [], relationships: [], captures: [{ nope: true }] })).toThrow()
+    expect(snapshotHasData({ ...empty(), captures: [capture] })).toBe(true)
+  })
+})

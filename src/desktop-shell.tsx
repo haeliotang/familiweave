@@ -14,6 +14,8 @@ import { getDbStatus, getHostInfo, isTauriRuntime, type DbStatus, type HostInfo 
 import { fragments, regions, sensations, breaths } from './somatic'
 import { addFieldLink, emptyFieldLayout, fieldNodeKey, loadFieldLayout, removeFieldNode, type FieldLayout, type FieldLens, type FieldRange } from './field'
 import { createSignalSession, loadSignalSessions, type SignalSession } from './signal-session'
+import type { CaptureProvenance } from './capture'
+import { addCaptureProvenance } from './capture-ledger'
 
 const FieldView = lazy(() => import('./field-view').then(module => ({ default: module.FieldView })))
 const TimelineRail = lazy(() => import('./field-view').then(module => ({ default: module.TimelineRail })))
@@ -174,6 +176,7 @@ export function DesktopShell() {
   const [fieldRange, setFieldRange] = useState<FieldRange>('all')
   const [fieldLayout, setFieldLayout] = useState<FieldLayout>(() => typeof window === 'undefined' ? emptyFieldLayout() : loadFieldLayout(window.localStorage))
   const [signalSessions, setSignalSessions] = useState<SignalSession[]>(() => typeof window === 'undefined' ? [] : loadSignalSessions(window.localStorage))
+  const [captures, setCaptures] = useState<CaptureProvenance[]>([])
   const [lockRecord, setLockRecord] = useState<AppLockRecord | null>(() => typeof window === 'undefined' ? null : loadAppLockRecord(window.localStorage))
   const [locked, setLocked] = useState<boolean>(() => typeof window !== 'undefined' && Boolean(loadAppLockRecord(window.localStorage)))
   const [autoLockMs, setAutoLockMs] = useState<number>(() => typeof window === 'undefined' ? 300_000 : Number(window.localStorage.getItem('familiweave.autolock-ms') ?? 300_000))
@@ -206,6 +209,7 @@ export function DesktopShell() {
       setRelationships(snapshot.relationships)
       setFieldLayout(snapshot.field ?? emptyFieldLayout())
       setSignalSessions(snapshot.signals ?? [])
+      setCaptures(snapshot.captures ?? [])
       setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
     })
     return () => { active = false }
@@ -220,11 +224,19 @@ export function DesktopShell() {
 
   const openNew = () => { setEncounter(null); setSelectedId(null); setView('new'); setDetailTab('overview') }
   const openMotif = (id: string) => { setSelectedId(id); setEncounter(null); setView('field'); setDetailTab('overview') }
-  const start = (next: Encounter) => { setEncounter(next); setView('space') }
+  const start = (next: Encounter) => {
+    setEncounter(next)
+    setView('space')
+    if (next.capture) {
+      const nextCaptures = addCaptureProvenance(captures, next.capture)
+      setCaptures(nextCaptures)
+      void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures: nextCaptures })
+    }
+  }
   const enterSelected = () => { if (selected) start(createInnerCaptureEncounter(selected.capture)) }
   const backFromSpace = () => { setEncounter(null); setView(selected ? 'field' : 'new') }
-  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[], nextField = fieldLayout, nextSignals = signalSessions) => {
-    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals })
+  const persist = (nextMotifs: MotifEntry[], nextRelationships: RelationshipTrigger[], nextField = fieldLayout, nextSignals = signalSessions, nextCaptures = captures) => {
+    void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals, captures: nextCaptures })
   }
   const remember = (capture: Parameters<typeof createMotif>[0]['capture'], name: string, signals?: Parameters<typeof createMotif>[0]['signals']) => {
     const entry = createMotif({ capture, name, signals })
@@ -258,14 +270,16 @@ export function DesktopShell() {
     setRelationships(snapshot.relationships)
     setFieldLayout(snapshot.field ?? emptyFieldLayout())
     setSignalSessions(snapshot.signals ?? [])
+    setCaptures(snapshot.captures ?? [])
     setSelectedId(null)
-    void saveLocalSnapshot({ ...snapshot, field: snapshot.field ?? emptyFieldLayout(), signals: snapshot.signals ?? [] })
+    void saveLocalSnapshot({ ...snapshot, field: snapshot.field ?? emptyFieldLayout(), signals: snapshot.signals ?? [], captures: snapshot.captures ?? [] })
   }
   const clearAll = () => {
     setMotifs([])
     setRelationships([])
     setFieldLayout(emptyFieldLayout())
     setSignalSessions([])
+    setCaptures([])
     setSelectedId(null)
     clearActiveEncryption()
     void clearLocalSnapshot()
@@ -276,10 +290,11 @@ export function DesktopShell() {
     setRelationships(snapshot.relationships)
     setFieldLayout(snapshot.field ?? emptyFieldLayout())
     setSignalSessions(snapshot.signals ?? [])
+    setCaptures(snapshot.captures ?? [])
     setSelectedId(current => current && snapshot.motifs.some(motif => motif.id === current) ? current : null)
   }
 
-  const currentSnapshot = (): LocalSnapshot => ({ motifs, relationships, field: fieldLayout, signals: signalSessions })
+  const currentSnapshot = (): LocalSnapshot => ({ motifs, relationships, field: fieldLayout, signals: signalSessions, captures })
 
   const enableAppLock = async (pin: string) => {
     const record = await createAppLockRecord(pin)
@@ -355,13 +370,13 @@ export function DesktopShell() {
 
   const updateFieldLayout = (next: FieldLayout) => {
     setFieldLayout(next)
-    void saveLocalSnapshot({ motifs, relationships, field: next, signals: signalSessions })
+    void saveLocalSnapshot({ motifs, relationships, field: next, signals: signalSessions, captures })
   }
 
   const recordSignalSession = (session: SignalSession) => {
     const next = [session, ...signalSessions].slice(0, 100)
     setSignalSessions(next)
-    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next })
+    void saveLocalSnapshot({ motifs, relationships, field: fieldLayout, signals: next, captures })
   }
 
   const loadDemo = () => {
@@ -479,7 +494,7 @@ export function DesktopShell() {
                 </div>
                 <Suspense fallback={null}><UpdatePanel currentVersion={host?.app_version ?? '0.1.1'} /></Suspense>
                 <Suspense fallback={null}><AppLockSettings enabled={Boolean(lockRecord)} autoLockMs={autoLockMs} onAutoLockChange={updateAutoLock} onEnable={enableAppLock} onDisable={disableAppLock} onLock={lockNow} /></Suspense>
-                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
+                <Suspense fallback={null}><LocalDataPanel snapshot={{ motifs, relationships, field: fieldLayout, signals: signalSessions, captures }} onImport={importSnapshot} onClear={clearAll} /></Suspense>
               </>}
             </>}
         </div>

@@ -10,11 +10,12 @@ use tauri::{Manager, State};
 
 #[cfg(test)]
 const LOCAL_STATE_SCHEMA: &str = "CREATE TABLE IF NOT EXISTS local_state (\n  key TEXT PRIMARY KEY,\n  value TEXT NOT NULL,\n  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP\n);";
+const DATABASE_SCHEMA_VERSION: i64 = 2;
 
 fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut statement = connection
         .prepare(
-            "SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals')",
+            "SELECT key, value FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures')",
         )
         .map_err(|error| error.to_string())?;
     let rows = statement
@@ -26,6 +27,7 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
     let mut relationships = Value::Array(Vec::new());
     let mut field = json!({ "version": "field-layout-v1", "positions": {}, "links": [] });
     let mut signals = Value::Array(Vec::new());
+    let mut captures = Value::Array(Vec::new());
     for row in rows {
         let (key, value) = row.map_err(|error| error.to_string())?;
         let parsed: Value = serde_json::from_str(&value).map_err(|error| error.to_string())?;
@@ -37,10 +39,12 @@ fn read_snapshot(connection: &Connection) -> Result<Value, String> {
             field = parsed;
         } else if key == "signals" {
             signals = parsed;
+        } else if key == "captures" {
+            captures = parsed;
         }
     }
     Ok(
-        json!({ "motifs": motifs, "relationships": relationships, "field": field, "signals": signals }),
+        json!({ "motifs": motifs, "relationships": relationships, "field": field, "signals": signals, "captures": captures }),
     )
 }
 
@@ -61,6 +65,10 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         .get("signals")
         .cloned()
         .unwrap_or_else(|| Value::Array(Vec::new()));
+    let captures = snapshot
+        .get("captures")
+        .cloned()
+        .unwrap_or_else(|| Value::Array(Vec::new()));
     if field.get("version").and_then(Value::as_str) != Some("field-layout-v1")
         || !field
             .get("positions")
@@ -73,6 +81,9 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
     if !signals.is_array() {
         return Err("invalid_signals".into());
     }
+    if !captures.is_array() {
+        return Err("invalid_captures".into());
+    }
     let statement = "INSERT INTO local_state (key, value) VALUES (?1, ?2) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP";
     connection
         .execute("DELETE FROM local_state WHERE key = 'encrypted'", [])
@@ -82,6 +93,7 @@ fn write_snapshot(connection: &Connection, snapshot: &Value) -> Result<(), Strin
         ("relationships", Value::Array(relationships.clone())),
         ("field", field),
         ("signals", signals),
+        ("captures", captures),
     ] {
         connection
             .execute(
@@ -243,7 +255,7 @@ fn write_encrypted_state(connection: &Connection, payload: &str) -> Result<(), S
         .map_err(|error| error.to_string())?;
     connection
         .execute(
-            "DELETE FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals')",
+            "DELETE FROM local_state WHERE key IN ('motifs', 'relationships', 'field', 'signals', 'captures')",
             [],
         )
         .map_err(|error| error.to_string())?;
@@ -364,6 +376,10 @@ pub fn run() {
            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
          );",
             )?;
+            connection.execute(
+                "INSERT INTO local_meta (key, value) VALUES ('schema_version', ?1) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP",
+                [DATABASE_SCHEMA_VERSION.to_string()],
+            )?;
             app.manage(DbState {
                 path: database_path,
                 connection: Mutex::new(connection),
@@ -414,7 +430,7 @@ mod tests {
         connection.execute_batch(super::LOCAL_STATE_SCHEMA).unwrap();
         write_snapshot(
             &connection,
-            &json!({ "motifs": [{"name":"a"}], "relationships": [], "field": { "version": "field-layout-v1", "positions": { "motif:a": { "x": 0.2, "y": 0.4 } }, "links": [] } }),
+            &json!({ "motifs": [{"name":"a"}], "relationships": [], "field": { "version": "field-layout-v1", "positions": { "motif:a": { "x": 0.2, "y": 0.4 } }, "links": [] }, "captures": [{ "version": "capture-v1", "captureId": "capture-1", "rendererKind": "captured", "mimeType": "video/mp4", "durationSec": 75, "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "synthId": false, "createdAt": "2026-11-01T00:00:00.000Z" }] }),
         )
         .unwrap();
         let snapshot = read_snapshot(&connection).unwrap();
@@ -422,6 +438,7 @@ mod tests {
         assert_eq!(snapshot["relationships"].as_array().unwrap().len(), 0);
         assert_eq!(snapshot["field"]["positions"]["motif:a"]["x"], 0.2);
         assert_eq!(snapshot["signals"].as_array().unwrap().len(), 0);
+        assert_eq!(snapshot["captures"][0]["captureId"], "capture-1");
     }
 
     #[test]
@@ -459,7 +476,7 @@ mod tests {
             super::read_encrypted_state(&connection).unwrap(),
             Some("ciphertext".into())
         );
-        let plaintext: i64 = connection.query_row("SELECT count(*) FROM local_state WHERE key IN ('motifs','relationships','field','signals')", [], |row| row.get(0)).unwrap();
+        let plaintext: i64 = connection.query_row("SELECT count(*) FROM local_state WHERE key IN ('motifs','relationships','field','signals','captures')", [], |row| row.get(0)).unwrap();
         assert_eq!(plaintext, 0);
         super::remove_encrypted_state(&connection).unwrap();
         assert_eq!(super::read_encrypted_state(&connection).unwrap(), None);

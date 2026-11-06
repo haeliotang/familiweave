@@ -18,8 +18,11 @@ describe('signal sessions', () => {
   it('persists only a summary, not raw samples', () => {
     const session = createSignalSession(timeline, '2026-11-01T00:00:16.000Z', 'session-1')
     expect(session.summary).toMatchObject({ durationSec: 15, sampleCount: 2, byKind: [{ kind: 'heart_rate', count: 1 }, { kind: 'eda', count: 1 }] })
-    expect(JSON.stringify(session)).not.toMatch(/samples|raw/i)
+    expect(JSON.stringify(session)).not.toMatch(/rawSamples|rawAudio|"samples"\s*:/i)
     expect(isSignalSession(session)).toBe(true)
+    expect(session.version).toBe('signal-session-v2')
+    expect(session.summary.bySource?.[0]).toMatchObject({ sourceId: 'simulated', sampleCount: 2, maxGapMs: 1000 })
+    expect(session.summary.quality).toMatchObject({ maxGapMs: 1000, gapsOverOneSecond: 0 })
   })
 
   it('rejects malformed sessions', () => {

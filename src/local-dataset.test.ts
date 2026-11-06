@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildLocalDataset, clearLocalDataset, exportLocalDataset, localDatasetFromSnapshot, parseLocalDataset } from './local-dataset'
+import { captureStorageKey } from './capture-ledger'
 import { addMotif, motifStorageKey } from './motif-journal'
 import { addRelationshipTrigger, relationshipStorageKey } from './relationship'
 import type { SomaticCapture } from './somatic'
@@ -53,5 +54,35 @@ describe('local dataset export', () => {
     clearLocalDataset(storage)
     expect(storage.getItem(motifStorageKey)).toBeNull()
     expect(storage.getItem(relationshipStorageKey)).toBeNull()
+  })
+})
+
+
+describe('local dataset captures', () => {
+  const capture = {
+    version: 'capture-v1' as const,
+    captureId: 'capture-1',
+    rendererKind: 'captured' as const,
+    mimeType: 'video/mp4',
+    durationSec: 75,
+    sha256: 'a'.repeat(64),
+    synthId: false,
+    createdAt: '2026-11-01T00:00:00Z',
+  }
+
+  it('round-trips capture provenance without media bytes', () => {
+    const snapshot = parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], captures: [capture] }))
+    expect(snapshot.captures).toEqual([capture])
+    const json = JSON.stringify(localDatasetFromSnapshot(snapshot))
+    expect(json).toContain('capture-1')
+    expect(json).not.toMatch(/raw|audioData|videoBytes/i)
+  })
+
+  it('rejects malformed capture provenance and clears the capture key', () => {
+    expect(() => parseLocalDataset(JSON.stringify({ version: 'local-dataset-v2', motifs: [], relationships: [], captures: [{ nope: true }] }))).toThrow()
+    const storage = memoryStorage()
+    storage.setItem(captureStorageKey, JSON.stringify([capture]))
+    clearLocalDataset(storage)
+    expect(storage.getItem(captureStorageKey)).toBeNull()
   })
 })

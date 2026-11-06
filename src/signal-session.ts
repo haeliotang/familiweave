@@ -1,7 +1,23 @@
 import { summarizeTimeline, type SignalKind, type SignalTimeline } from './signal-source'
 
+export interface SignalSessionSourceSummary {
+  sourceId: string
+  sampleCount: number
+  firstMs: number
+  lastMs: number
+  maxGapMs: number | null
+}
+
+export interface SignalSessionQuality {
+  firstSampleMs: number
+  lastSampleMs: number
+  maxGapMs: number | null
+  gapsOverOneSecond: number
+  samplesPerSecond: number
+}
+
 export interface SignalSession {
-  version: 'signal-session-v1'
+  version: 'signal-session-v1' | 'signal-session-v2'
   id: string
   createdAt: string
   startedAt: string
@@ -12,27 +28,49 @@ export interface SignalSession {
     durationSec: number
     sampleCount: number
     byKind: Array<{ kind: SignalKind; count: number }>
+    bySource?: SignalSessionSourceSummary[]
+    quality?: SignalSessionQuality
   }
 }
 
 export function createSignalSession(timeline: SignalTimeline, now = new Date().toISOString(), id: string = crypto.randomUUID()): SignalSession {
   const summary = summarizeTimeline(timeline)
+  const ordered = [...timeline.samples].sort((left, right) => left.tMs - right.tMs)
+  const bySource = [...new Set(timeline.sources)].map(sourceId => {
+    const samples = ordered.filter(sample => sample.sourceId === sourceId)
+    const gaps = samples.slice(1).map((sample, index) => sample.tMs - samples[index].tMs)
+    return {
+      sourceId,
+      sampleCount: samples.length,
+      firstMs: samples[0]?.tMs ?? 0,
+      lastMs: samples[samples.length - 1]?.tMs ?? 0,
+      maxGapMs: gaps.length ? Math.max(...gaps) : null,
+    }
+  })
+  const gaps = ordered.slice(1).map((sample, index) => sample.tMs - ordered[index].tMs)
+  const quality = {
+    firstSampleMs: ordered[0]?.tMs ?? 0,
+    lastSampleMs: ordered[ordered.length - 1]?.tMs ?? 0,
+    maxGapMs: gaps.length ? Math.max(...gaps) : null,
+    gapsOverOneSecond: gaps.filter(gap => gap > 1000).length,
+    samplesPerSecond: summary.durationSec > 0 ? Number((summary.sampleCount / summary.durationSec).toFixed(3)) : 0,
+  }
   return {
-    version: 'signal-session-v1',
+    version: 'signal-session-v2',
     id,
     createdAt: now,
     startedAt: timeline.startedAt,
     endedAt: timeline.endedAt,
     sourceIds: [...timeline.sources],
     simulated: timeline.simulated,
-    summary: { durationSec: summary.durationSec, sampleCount: summary.sampleCount, byKind: summary.byKind },
+    summary: { durationSec: summary.durationSec, sampleCount: summary.sampleCount, byKind: summary.byKind, bySource, quality },
   }
 }
 
 export function isSignalSession(value: unknown): value is SignalSession {
   if (!value || typeof value !== 'object') return false
   const session = value as Partial<SignalSession>
-  return session.version === 'signal-session-v1'
+  return (session.version === 'signal-session-v1' || session.version === 'signal-session-v2')
     && typeof session.id === 'string' && session.id.length > 0
     && typeof session.createdAt === 'string' && !Number.isNaN(Date.parse(session.createdAt))
     && typeof session.startedAt === 'string' && !Number.isNaN(Date.parse(session.startedAt))
@@ -43,6 +81,8 @@ export function isSignalSession(value: unknown): value is SignalSession {
     && typeof session.summary?.durationSec === 'number'
     && typeof session.summary?.sampleCount === 'number'
     && Array.isArray(session.summary?.byKind)
+    && (session.version === 'signal-session-v1' || (Array.isArray(session.summary.bySource) && session.summary.bySource.every(source => typeof source.sourceId === 'string' && typeof source.sampleCount === 'number' && typeof source.firstMs === 'number' && typeof source.lastMs === 'number')))
+    && (session.version === 'signal-session-v1' || (Boolean(session.summary.quality) && typeof session.summary.quality?.firstSampleMs === 'number' && typeof session.summary.quality?.lastSampleMs === 'number' && typeof session.summary.quality?.gapsOverOneSecond === 'number' && typeof session.summary.quality?.samplesPerSecond === 'number'))
 }
 
 export interface SignalSessionStorageLike {

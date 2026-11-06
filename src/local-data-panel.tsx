@@ -55,6 +55,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear }: { snapshot: Loca
   return <section className="local-data-panel" aria-labelledby="local-data-title">
     <h2 id="local-data-title">{t('本机数据')}</h2>
     <p className="note">{t('母题、关系触发点与可选声音摘要都保存在本机；不会上传。可以整体导出、导入或删除。')}</p>
+    <p className="note">{t('捕获出处')}：{snapshot.captures?.length ?? 0} · {t('信号会话')}：{snapshot.signals?.length ?? 0}</p>
     <div className="actions">
       <button type="button" className="quiet" onClick={exportAll}>{t('导出全部本机数据')}</button>
       <button type="button" className="quiet" onClick={() => void exportEncrypted()}>{t('导出加密备份')}</button>

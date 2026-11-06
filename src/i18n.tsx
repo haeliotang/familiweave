@@ -307,6 +307,9 @@ const en: Record<string, string> = {
 
   '尝试次数过多，请稍后再试': 'Too many attempts. Try again shortly.',
 
+  '捕获出处': 'Capture provenance',
+  '信号会话': 'Signal sessions',
+
 }
 
 type LanguageContextValue = {

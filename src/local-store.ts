@@ -6,6 +6,7 @@ import { isRelationshipTrigger, loadRelationshipTriggers, relationshipStorageKey
 import type { LocalSnapshot } from './local-dataset'
 import { clearFieldLayout, emptyFieldLayout, fieldStorageKey, isFieldLayout, loadFieldLayout, saveFieldLayout } from './field'
 import { clearSignalSessions, isSignalSession, loadSignalSessions, saveSignalSessions, signalSessionStorageKey } from './signal-session'
+import { captureStorageKey, isCaptureLedger, loadCaptureProvenance, saveCaptureProvenance } from './capture-ledger'
 import type { AppLockRecord } from './app-lock'
 import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState, type EncryptedLocalState } from './encrypted-store'
 
@@ -29,37 +30,46 @@ function clearWebPlaintext(storage: Storage) {
   storage.removeItem(relationshipStorageKey)
   storage.removeItem(fieldStorageKey)
   storage.removeItem(signalSessionStorageKey)
+  storage.removeItem(captureStorageKey)
 }
 
 export function readWebSnapshot(): LocalSnapshot {
   const storage = webStorage()
-  if (!storage) return { motifs: [], relationships: [], field: emptyFieldLayout(), signals: [] }
+  if (!storage) return { motifs: [], relationships: [], field: emptyFieldLayout(), signals: [], captures: [] }
   return {
     motifs: loadMotifs(storage),
     relationships: loadRelationshipTriggers(storage),
     field: loadFieldLayout(storage),
     signals: loadSignalSessions(storage),
+    captures: loadCaptureProvenance(storage),
   }
 }
 
 export function normalizeSnapshot(value: unknown): LocalSnapshot {
   if (!value || typeof value !== 'object') throw new Error('invalid_local_state')
-  const snapshot = value as { motifs?: unknown; relationships?: unknown; field?: unknown; signals?: unknown }
+  const snapshot = value as { motifs?: unknown; relationships?: unknown; field?: unknown; signals?: unknown; captures?: unknown }
   if (!Array.isArray(snapshot.motifs) || !Array.isArray(snapshot.relationships)) throw new Error('invalid_local_state')
   if (!snapshot.motifs.every(isMotifEntry) || !snapshot.relationships.every(isRelationshipTrigger)) throw new Error('invalid_local_state')
   if (snapshot.field !== undefined && !isFieldLayout(snapshot.field)) throw new Error('invalid_local_state')
   if (snapshot.signals !== undefined && (!Array.isArray(snapshot.signals) || !snapshot.signals.every(isSignalSession))) throw new Error('invalid_local_state')
+  if (snapshot.captures !== undefined && !isCaptureLedger(snapshot.captures)) throw new Error('invalid_local_state')
   return {
     motifs: snapshot.motifs as LocalSnapshot['motifs'],
     relationships: snapshot.relationships as LocalSnapshot['relationships'],
     field: (snapshot.field as LocalSnapshot['field']) ?? emptyFieldLayout(),
     signals: (snapshot.signals as LocalSnapshot['signals']) ?? [],
+    captures: (snapshot.captures as LocalSnapshot['captures']) ?? [],
   }
 }
 
 async function readEncryptedPayload(): Promise<EncryptedLocalState | null> {
   const storage = webStorage()
-  const raw = storage?.getItem(encryptedStorageKey) ?? (isTauriRuntime() ? await loadEncryptedState() : null)
+  let raw: string | null = null
+  if (isTauriRuntime()) {
+    raw = await loadEncryptedState()
+    if (raw && storage) storage.setItem(encryptedStorageKey, raw)
+  }
+  raw ??= storage?.getItem(encryptedStorageKey) ?? null
   if (!raw) return null
   try {
     const parsed: unknown = JSON.parse(raw)
@@ -88,20 +98,43 @@ export async function hasEncryptedLocalState(): Promise<boolean> {
   return Boolean(await readEncryptedPayload())
 }
 
+export function snapshotHasData(snapshot: LocalSnapshot) {
+  return Boolean(snapshot.motifs.length || snapshot.relationships.length || snapshot.signals?.length || snapshot.captures?.length
+    || Object.keys(snapshot.field?.positions ?? {}).length || snapshot.field?.links.length)
+}
+
+function mirrorWebSnapshot(storage: Storage, snapshot: LocalSnapshot) {
+  saveMotifs(storage, snapshot.motifs)
+  saveRelationshipTriggers(storage, snapshot.relationships)
+  saveFieldLayout(storage, snapshot.field ?? emptyFieldLayout())
+  saveSignalSessions(storage, snapshot.signals ?? [])
+  saveCaptureProvenance(storage, snapshot.captures ?? [])
+}
+
+export type SnapshotReconciliation = { snapshot: LocalSnapshot; source: 'host' | 'fallback'; action: 'none' | 'migrate' | 'mirror' }
+
+/** SQLite is canonical on desktop; migrate an empty host, or heal a stale web mirror. */
+export function reconcileSnapshots(host: LocalSnapshot, fallback: LocalSnapshot): SnapshotReconciliation {
+  if (!snapshotHasData(host) && snapshotHasData(fallback)) return { snapshot: fallback, source: 'fallback', action: 'migrate' }
+  if (snapshotHasData(host)) return { snapshot: host, source: 'host', action: 'mirror' }
+  return { snapshot: host, source: 'host', action: 'none' }
+}
+
 export async function loadLocalSnapshot(): Promise<LocalSnapshot> {
   const fallback = readWebSnapshot()
   if (!isTauriRuntime()) return fallback
   try {
     const host = normalizeSnapshot(await invoke('load_local_state'))
-    const hostHasField = Boolean(host.field && (Object.keys(host.field.positions).length || host.field.links.length))
-    const fallbackHasField = Boolean(fallback.field && (Object.keys(fallback.field.positions).length || fallback.field.links.length))
-    const hostHasSignals = Boolean(host.signals?.length)
-    const fallbackHasSignals = Boolean(fallback.signals?.length)
-    if (host.motifs.length === 0 && host.relationships.length === 0 && !hostHasField && !hostHasSignals && (fallback.motifs.length || fallback.relationships.length || fallbackHasField || fallbackHasSignals)) {
-      await saveLocalSnapshot(fallback)
-      return fallback
+    const storage = webStorage()
+    const reconciled = reconcileSnapshots(host, fallback)
+    if (reconciled.action === 'migrate') {
+      // One-time migration from the browser fallback into the desktop store.
+      await saveLocalSnapshot(reconciled.snapshot)
+    } else if (storage && reconciled.action === 'mirror') {
+      // SQLite is canonical on desktop; heal any stale or partial web mirror.
+      mirrorWebSnapshot(storage, reconciled.snapshot)
     }
-    return host
+    return reconciled.snapshot
   } catch {
     return fallback
   }
@@ -120,6 +153,7 @@ export async function saveLocalSnapshot(snapshot: LocalSnapshot): Promise<void> 
     saveRelationshipTriggers(storage, snapshot.relationships)
     saveFieldLayout(storage, snapshot.field ?? emptyFieldLayout())
     saveSignalSessions(storage, snapshot.signals ?? [])
+    saveCaptureProvenance(storage, snapshot.captures ?? [])
   }
   if (!isTauriRuntime()) return
   try { await invoke('save_local_state', { snapshot }) } catch { /* keep the local web copy */ }
