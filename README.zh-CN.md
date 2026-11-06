@@ -111,10 +111,12 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 | 应用锁 | 本机 PIN + AES-GCM 加密快照；可配置无操作自动锁定（默认 5 分钟）、5 次错误 PIN 锁定 30 秒；不是系统锁屏 |
 | 跨平台 | Windows NSIS / Linux AppImage+DEB 构建；当前 main CI 启动 smoke 通过 |
 | 双语 | 中文 / English 界面切换 |
-| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除 |
+| 数据 | 本机 SQLite 或浏览器 localStorage；明文/加密备份导出、导入、删除；捕获出处与信号摘要 |
 | 更新检查 | 点击后检查 GitHub Releases；不自动下载 |
 | 可访问性 | 明暗主题 WCAG A/AA（结构 + 对比度）E2E |
 | 关系拓扑 | 30/90 天纵向对比用户自述触发点；不推断对方 |
+| 信号容错 | 本机 bridge 重连/退避、抖动/间隔健康、确定性回放与显式撤回 |
+| LSM-0 基线 | 离线确定性评估 CLI 与本机数据导出；不作临床结论 |
 
 当前**没有**：
 
@@ -128,11 +130,11 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 
 当前 `main`：
 
-- 72 项 Vitest 单元/集成测试
+- 141 项 Vitest 单元/集成测试
 - 21 项 Playwright 浏览器 E2E
 - 6 项 Rust 宿主测试
 - 明暗主题 WCAG A/AA（结构 + 对比度）
-- 主 JS 约 293 KB，重组件 lazy load
+- 主 JS 约 302 KB，重组件 lazy load
 - macOS app 原始约 10.45 MiB；`pnpm package:macos` 可 strip 到约 8.4 MiB / 3.4 MB zip，ad-hoc 签名
 - Linux/Windows Release 构建 + 启动 smoke
 - CI：Symbolic space / Rust operational / Browser E2E
