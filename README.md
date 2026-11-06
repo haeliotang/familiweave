@@ -288,7 +288,7 @@ The current artifact is ad-hoc signed for local validation; Developer ID signing
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
-- [LSM-0 offline baseline](docs/research/lsm-0-evaluation.md): `pnpm lsm0:baseline --in <fixture.jsonl>`
+- [LSM-0 offline baseline](docs/research/lsm-0-evaluation.md): `pnpm lsm0:baseline --in <fixture.jsonl>`; local export via `pnpm lsm0:export`
 - [Auto-update plan](docs/updater-plan.md): updater key/endpoint plan and manifest generator
 - [Release signing](docs/release-signing.md)
 - [Release process](docs/release-process.md): tag builds, checksums and GitHub build provenance

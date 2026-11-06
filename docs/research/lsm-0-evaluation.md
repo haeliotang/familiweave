@@ -112,3 +112,18 @@ pnpm tsx scripts/lsm0-baseline.ts --help
 ### 与“已验证临床结果”的区别
 
 本基线的通过项只说明代码可运行、指标定义可复现、缺失与排序行为确定；它**不**说明 LSM 假设成立，也不构成信度、效度、疗效或临床有效性证据。只有在伦理批准、预注册、足够样本与独立复现之后，且仍按本节的阴性结果与个体差异报告规则执行时，才可能讨论研究结论；任何结果都不得用于诊断、保险、雇佣或对他人的判断。
+
+
+### 本地数据导出器（2026-11-06）
+
+`scripts/lsm0-export.ts` 把 `local-dataset-v2` 中的母题转换为 LSM-0 输入，避免手工拼接 fixture：
+
+```bash
+pnpm lsm0:export --dataset familiweave-local-dataset.json --participant P01 --out /tmp/lsm0-fixture.json
+pnpm lsm0:baseline --in /tmp/lsm0-fixture.json
+```
+
+- 一个母题对应一个 session；`sessionId` 使用母题 id，`capturedAt` 使用母题创建时间。
+- 只映射母题中已有的语音摘要（`voiceRmsMean`、`voicePauseRatio`）；不伪造心率/EDA。
+- 独立 signal sessions、关系触发点和捕获出处没有可靠的母题 join key，导出器会明确警告并跳过。
+- 导出器只做格式转换，不推断参与者身份、同意或临床有效性；`participantId` 由调用者显式提供。

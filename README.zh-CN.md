@@ -287,6 +287,7 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [Local data schema v2](docs/research/data-schema-v2.md)
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
+- LSM-0 离线基线：`pnpm lsm0:baseline --in <fixture.jsonl>`；本机导出 `pnpm lsm0:export`
 - [自动更新方案](docs/updater-plan.md)：updater key/endpoint 方案与清单生成器
 - [Release signing](docs/release-signing.md)
 - [发布流程](docs/release-process.md)：tag 构建、校验和与 GitHub 构建出处证明
