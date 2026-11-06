@@ -74,7 +74,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
     {Boolean(snapshot.signals?.length) && <div className="signal-session-list">
       <h3>{t('信号摘要')}</h3>
       {snapshot.signals!.slice(0, 5).map(session => <div className="signal-session-row" key={session.id}>
-        <span>{new Date(session.createdAt).toLocaleString()} · {session.sourceIds.join(', ') || t('本机')}</span>
+        <span>{new Date(session.createdAt).toLocaleString()} · {session.sourceIds.join(', ') || t('本机')} · {session.summary.sampleCount} {t('样本')}{session.summary.quality ? ` · ${t('最大间隔')} ${session.summary.quality.maxGapMs ?? '—'} ms` : ''}</span>
         {onRetractSignal && <button type="button" className="quiet small" onClick={() => onRetractSignal(session.id)}>{t('撤回')}</button>}
       </div>)}
     </div>}

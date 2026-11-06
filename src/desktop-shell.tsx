@@ -99,6 +99,11 @@ function MotifDetail({ motif, tab, setTab, onEnter }: { motif: MotifEntry; tab: 
         <p className="card-label">{t('可选声音摘要')}</p>
         <p>{voice ? `${t('音量均值')} ${voice.rmsMean.toFixed(3)} · ${t('停顿比例')} ${voice.pauseRatio.toFixed(2)}` : t('这次没有声音摘要')}</p>
       </section>
+      {motif.symbolic && <section className="paper-card">
+        <p className="card-label">{t('符号空间参数')}</p>
+        <p>{motif.symbolic.motifs.join(' / ')} · {motif.symbolic.figure}</p>
+        <p className="muted">{t('由捕获生成，仅用于本机回看与研究导出；不是解释。')}</p>
+      </section>}
       <section className="paper-card span-2">
         <p className="card-label">{t('可以做什么')}</p>
         <p className="muted">{t('进入一段 75 秒象征空间；系统不解释这个母题，也不替它命名。离开随时可用。')}</p>

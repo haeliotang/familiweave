@@ -347,6 +347,9 @@ const en: Record<string, string> = {
   '警告': 'warnings',
   '导出 LSM-0 会话': 'Export LSM-0 sessions',
 
+  '符号空间参数': 'Symbolic parameters',
+  '由捕获生成，仅用于本机回看与研究导出；不是解释。': 'Generated from the capture for local review and research export only; not an interpretation.',
+
 }
 
 type LanguageContextValue = {
