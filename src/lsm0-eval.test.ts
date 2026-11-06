@@ -196,6 +196,23 @@ describe('LSM-0 negative control', () => {
   })
 })
 
+describe('LSM-0 agency', () => {
+  it('summarizes optional agency without treating it as a score', () => {
+    const report = evaluateLsm0Values([
+      session({ sessionId: 'A1', capturedAt: day(1), agency: { approach: 2, stay: 1, resume: 1, leave: 1, reenter: 0, leftEarly: true, durationSec: 75 } }),
+      session({ sessionId: 'A2', capturedAt: day(2), agency: { approach: 0, stay: 0, resume: 0, leave: 0, reenter: 0, leftEarly: false, durationSec: 75 } }),
+      session({ sessionId: 'A3', capturedAt: day(3) }),
+    ])
+    expect(report.participants[0].agency).toMatchObject({ sessionsWithAgency: 2, approach: 2, stay: 1, resume: 1, leave: 1, reenter: 0, leftEarlySessions: 1 })
+  })
+
+  it('ignores malformed agency with a warning', () => {
+    const report = evaluateLsm0Values([session({ agency: { approach: -1, stay: 0, resume: 0, leave: 0, reenter: 0, leftEarly: false, durationSec: 75 } })])
+    expect(report.participants[0].agency.sessionsWithAgency).toBe(0)
+    expect(report.warnings.some(warning => warning.code === 'invalid_agency')).toBe(true)
+  })
+})
+
 describe('LSM-0 certainty', () => {
   it('reports optional certainty counts without imputing missing values', () => {
     const report = evaluateLsm0Values([

@@ -47,6 +47,16 @@ export interface Lsm0SymbolicParameters {
   figure: string
 }
 
+export interface Lsm0AgencyParameters {
+  approach: number
+  stay: number
+  resume: number
+  leave: number
+  reenter: number
+  leftEarly: boolean
+  durationSec: number
+}
+
 export interface Lsm0SessionRecord {
   version: typeof LSM0_RECORD_VERSION
   participantId: string
@@ -57,6 +67,8 @@ export interface Lsm0SessionRecord {
   signals?: Lsm0SignalParameters
   /** Optional symbolic-space parameters captured alongside the somatic record. */
   symbolic?: Lsm0SymbolicParameters
+  /** Optional user-authored agency summary; absent means not recorded. */
+  agency?: Lsm0AgencyParameters
   /** True when the signal values are synthetic rather than recorded from a person. */
   simulatedSignals?: boolean
 }
@@ -76,6 +88,7 @@ export interface Lsm0FeatureVector {
   fragmentSet: AssociativeFragmentId[]
   signals: Lsm0SignalParameters
   symbolic: Lsm0SymbolicParameters | undefined
+  agency: Lsm0AgencyParameters | undefined
   simulatedSignals: boolean
 }
 
@@ -103,6 +116,7 @@ export type Lsm0IssueCode =
   | 'unknown_signal_key'
   | 'invalid_simulated_flag'
   | 'invalid_symbolic'
+  | 'invalid_agency'
 
 export interface Lsm0NormalizedRecord {
   record: Lsm0SessionRecord
@@ -150,6 +164,16 @@ export interface Lsm0AssociationResult {
   status: Lsm0AssociationStatus
 }
 
+export interface Lsm0AgencyReport {
+  sessionsWithAgency: number
+  approach: number
+  stay: number
+  resume: number
+  leave: number
+  reenter: number
+  leftEarlySessions: number
+}
+
 export interface Lsm0CertaintyReport {
   sessionsWithValue: number
   counts: Record<SomaticCertainty, number>
@@ -183,6 +207,7 @@ export interface Lsm0ParticipantReport {
   intensityStability: number | null
   intensity: Lsm0NumericSummary
   certainty: Lsm0CertaintyReport
+  agency: Lsm0AgencyReport
   signals: Record<Lsm0SignalKey, Lsm0SignalReport>
   symbolic: Lsm0SymbolicReport
   associations: Lsm0AssociationResult[]
@@ -395,6 +420,37 @@ interface ParseEntryOutcome {
   warnings: Lsm0Issue[]
 }
 
+function parseAgency(value: unknown, rowIndex: number, participantId: string, sessionId: string): { agency?: Lsm0AgencyParameters; warning?: Lsm0Issue } {
+  if (value === undefined) return {}
+  if (!isPlainObject(value)) {
+    return { warning: makeIssue(rowIndex, 'invalid_agency', 'agency must be an object when present; the value was ignored', { participantId, sessionId }) }
+  }
+  const counts = ['approach', 'stay', 'resume', 'leave', 'reenter'] as const
+  for (const key of counts) {
+    const count = value[key]
+    if (typeof count !== 'number' || !Number.isInteger(count) || count < 0 || count > 10_000) {
+      return { warning: makeIssue(rowIndex, 'invalid_agency', `agency.${key} must be a nonnegative integer; the value was ignored`, { participantId, sessionId }) }
+    }
+  }
+  if (typeof value.leftEarly !== 'boolean') {
+    return { warning: makeIssue(rowIndex, 'invalid_agency', 'agency.leftEarly must be a boolean; the value was ignored', { participantId, sessionId }) }
+  }
+  if (typeof value.durationSec !== 'number' || !Number.isFinite(value.durationSec) || value.durationSec <= 0) {
+    return { warning: makeIssue(rowIndex, 'invalid_agency', 'agency.durationSec must be a positive number; the value was ignored', { participantId, sessionId }) }
+  }
+  return {
+    agency: {
+      approach: value.approach as number,
+      stay: value.stay as number,
+      resume: value.resume as number,
+      leave: value.leave as number,
+      reenter: value.reenter as number,
+      leftEarly: value.leftEarly,
+      durationSec: value.durationSec,
+    },
+  }
+}
+
 function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
   const warnings: Lsm0Issue[] = []
   if (!isPlainObject(value)) {
@@ -475,6 +531,8 @@ function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
 
   const symbolicResult = parseSymbolic(value.symbolic, rowIndex, participantId, sessionId)
   if (symbolicResult.warning) warnings.push(symbolicResult.warning)
+  const agencyResult = parseAgency(value.agency, rowIndex, participantId, sessionId)
+  if (agencyResult.warning) warnings.push(agencyResult.warning)
 
   const capture = value.somatic
   const record: Lsm0SessionRecord = {
@@ -492,6 +550,7 @@ function parseOne(value: unknown, rowIndex: number): ParseEntryOutcome {
     },
     ...(signals !== undefined ? { signals } : {}),
     ...(symbolicResult.symbolic !== undefined ? { symbolic: symbolicResult.symbolic } : {}),
+    ...(agencyResult.agency !== undefined ? { agency: agencyResult.agency } : {}),
     ...(simulatedSignals !== undefined ? { simulatedSignals } : {}),
   }
   return { record, warnings }
@@ -605,6 +664,7 @@ export function flattenLsm0Session(record: Lsm0SessionRecord): Lsm0FeatureVector
     fragmentSet: [...new Set(capture.fragments)].sort(compareStrings),
     signals: copySignals(record.signals),
     symbolic: record.symbolic === undefined ? undefined : { format: record.symbolic.format, motifs: [...record.symbolic.motifs], figure: record.symbolic.figure },
+    agency: record.agency === undefined ? undefined : { ...record.agency },
     simulatedSignals: record.simulatedSignals === true,
   }
 }
@@ -828,6 +888,18 @@ function evaluateParticipant(participantId: string, sessions: readonly Lsm0Featu
     modeShare: certaintySessions > 0 ? round6(certaintyMode[1] / certaintySessions) : null,
   }
 
+  const agencyReport: Lsm0AgencyReport = { sessionsWithAgency: 0, approach: 0, stay: 0, resume: 0, leave: 0, reenter: 0, leftEarlySessions: 0 }
+  for (const session of sessions) {
+    if (!session.agency) continue
+    agencyReport.sessionsWithAgency += 1
+    agencyReport.approach += session.agency.approach
+    agencyReport.stay += session.agency.stay
+    agencyReport.resume += session.agency.resume
+    agencyReport.leave += session.agency.leave
+    agencyReport.reenter += session.agency.reenter
+    if (session.agency.leftEarly) agencyReport.leftEarlySessions += 1
+  }
+
   const signals = {} as Record<Lsm0SignalKey, Lsm0SignalReport>
   const missingSessionsBySignal = {} as Record<Lsm0SignalKey, number>
   for (const key of SIGNAL_KEYS) {
@@ -860,6 +932,7 @@ function evaluateParticipant(participantId: string, sessions: readonly Lsm0Featu
       : round6(1 - intensityRange / (LSM0_PRESPECIFICATION.intensityScale.max - LSM0_PRESPECIFICATION.intensityScale.min)),
     intensity: intensitySummary,
     certainty,
+    agency: agencyReport,
     signals,
     symbolic: evaluateSymbolic(sessions),
     associations: PRIMARY_ASSOCIATIONS.map(pair => associateIntensityWithSignal(sessions, pair.signal)),
@@ -1133,6 +1206,7 @@ export function formatLsm0Report(report: Lsm0EvaluationReport): string {
     lines.push(`  categorical stability: region ${formatStability(participant.categoricalStability.region)}; sensation ${formatStability(participant.categoricalStability.sensation)}; breath ${formatStability(participant.categoricalStability.breath)}; primary fragment ${formatStability(participant.categoricalStability.primaryFragment)}`)
     lines.push(`  fragment-set stability: ${formatMetric(participant.fragmentSetStability)}`)
     lines.push(`  intensity stability: ${formatMetric(participant.intensityStability)}; intensity summary: ${formatSignalSummary({ coverage: 1, summary: participant.intensity })}`)
+    lines.push(`  agency: sessions ${participant.agency.sessionsWithAgency}; approach ${participant.agency.approach}; stay ${participant.agency.stay}; resume ${participant.agency.resume}; leave ${participant.agency.leave}; reenter ${participant.agency.reenter}; left early ${participant.agency.leftEarlySessions}`)
     lines.push(`  certainty: sessions ${participant.certainty.sessionsWithValue}; clear ${participant.certainty.counts.clear}; mixed ${participant.certainty.counts.mixed}; unsure ${participant.certainty.counts.unsure}; mode share ${formatMetric(participant.certainty.modeShare)}`)
     lines.push(`  symbolic sessions: ${participant.symbolic.sessionCount}; primary motif stability: ${formatStability(participant.symbolic.primaryMotif)}; motif-set stability: ${formatMetric(participant.symbolic.motifSetStability)}; figure stability: ${formatStability(participant.symbolic.figure)}`)
     if (participant.symbolic.somaticPairs.length > 0) {

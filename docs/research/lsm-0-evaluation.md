@@ -122,6 +122,7 @@ pnpm tsx scripts/lsm0-baseline.ts --help
 
 ### 不确定性与阴性对照（2026-11-06）
 
+- 每个 session 可选 `agency`：approach/stay/resume/leave/reenter 次数、leftEarly 与 durationSec；只做描述性汇总。
 - 每个 session 的 `somatic.certainty` 可选为 `clear` / `mixed` / `unsure`；报告只做描述性计数与 mode share，缺失不插补。
 - CLI 可加入确定性阴性对照：
 
