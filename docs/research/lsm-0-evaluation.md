@@ -37,3 +37,78 @@
 - 机构审查、知情同意、退出机制、不良事件流程先于采集。
 - 不承诺记忆再巩固、创伤改写或临床疗效。
 - 不把任何结果用于诊断、保险、雇佣或对他人的判断。
+
+## 已实现的离线基线（2026-11-06）
+
+状态：**仅代码与合成夹具验证**；仍未招募参与者、未获伦理批准、未采集真实数据、未形成任何临床结论。本节固定 `src/lsm0-eval.ts` 中**实际实现**的指标定义，先于任何真实数据，避免事后挑选指标；`src/lsm0-eval.test.ts` 覆盖定义边界，`scripts/lsm0-baseline.ts` 提供无网络的离线 CLI。协议正文与伦理边界不变；若需改动下列指标，必须先修订本节并注明日期。
+
+### 输入记录
+
+支持四种本地形式（自动识别）：JSON 数组、`{"records": [...]}` 包装对象、单个记录对象、JSONL（每行一个非空 JSON 记录）。单行 JSON 解析错误记为 rejected row，不终止整批；`records` 不是数组属于 fixture 结构错误。
+
+```jsonl
+{"version":"lsm0-session-v1","participantId":"P01","sessionId":"S01","capturedAt":"2026-01-01T09:00:00Z","somatic":{"region":"chest","sensation":"pressure","intensity":3,"breath":"held","fragments":["wet-corridor"]},"signals":{"heartRateBpm":70,"edaMicroSiemens":2.1},"simulatedSignals":true}
+```
+
+- `version` 必须为 `lsm0-session-v1`；`participantId` / `sessionId` 为 1–200 字符、去首尾空白、不含控制字符；`capturedAt` 必须可解析并归一化为 UTC ISO 字符串。
+- `somatic` 复用 `src/somatic.ts` 的 `SomaticCapture` 校验；`fragments` 为 1–3 个已知意象碎片。
+- `signals` 全部可选，仅接受固定键：`heartRateBpm`、`edaMicroSiemens`、`breathRatePerMin`、`voiceRmsMean`、`voicePauseRatio`。
+- 数值合理性边界只用于剔除明显损坏的值，**不是**临床阈值：`heartRateBpm` ∈ (0, 300]；`edaMicroSiemens` ≥ 0；`breathRatePerMin` ∈ (0, 120]；`voiceRmsMean` ≥ 0；`voicePauseRatio` ∈ [0, 1]。
+- 缺失信号不插补：该 session 不参与相应指标。可选信号值非法（非数字、非有限、越界）时**丢弃该值并记 warning**，session 仍保留；未知信号键记 warning 并忽略。
+- 重复的 `(participantId, sessionId)` 只保留一条：按 `capturedAt`、`sessionId`、输入行号排序后的第一条，其余记为 `duplicate_session` 并计数。
+- `simulatedSignals: true` 表示信号为合成/模拟数据；报告中单列计数并标注非生理证据。`false`/缺失按非合成处理。
+
+### 特征展平
+
+每个 session 展平为：`participantId`、`sessionId`、`capturedAt`、`region`、`sensation`、`breath`、`intensity`（1–5）、`primaryFragment`（`fragments[0]`，保留用户选择顺序）、`fragmentSet`（去重后按 UTF-16 码元排序）、固定键的 `signals`、`simulatedSignals`。
+
+### 个体内稳定性（每参与者）
+
+- **分类众数占比**：对 `region`、`sensation`、`breath`、`primaryFragment` 分别计算 `modeShare = 众数出现次数 / session 数`，并报告 `distinctValues` 与众数值 `modalValue`。众数并列时取字符串码元序最小者；占比不受影响。有效 session 数 < 2 时为 `null`（不猜测）。
+- **强度稳定性**：`intensityStability = 1 - (max(intensity) - min(intensity)) / 4`；1–5 量程的极差上限为 4，故取值在 [0, 1]。有效 session 数 < 2 时为 `null`。
+- **意象集合稳定性**：同参与者所有 session 两两的 Jaccard 相似度 `|A ∩ B| / |A ∪ B|` 的算术平均（只对非空并集计数）；有效 session 数 < 2 时为 `null`。
+- **信号描述量**：对每个信号分别报告有效值数 `n`、均值、样本标准差（分母 `n - 1`，`n < 2` 时 `null`）、变异系数 `cv = sd / mean`（`mean = 0` 时 `null`）、最小值、最大值。**不**把 CV 命名为稳定性，也不做阈值判定。
+- **覆盖率**：`coverage = 有效信号值数 / 该参与者 session 数`。同时报告缺少该信号的 session 数，以及完全没有任何信号的 session 数。
+
+### 个体内关联（预注册、仅两个固定配对）
+
+- 固定配对只有两个：`intensity ~ heartRateBpm` 与 `intensity ~ edaMicroSiemens`。其他配对、亚组、阈值或滞后分析不在本基线内；新增即协议修订。
+- 方法：Spearman 秩相关。并列值取平均秩，在秩上计算 Pearson 相关，结果保留 6 位小数。
+- 仅使用同一 session 同时具有自报强度与该信号值的配对；最少 `4` 对，否则状态为 `insufficient_pairs`、`rho = null`。
+- 任一序列秩方差为 0 时状态为 `zero_variance`、`rho = null`（例如强度始终相同）。
+- 不计算 p 值、不报告显著性、不做事后指标/配对/阈值挑选。缺失值不插补，也不因结果剔除参与者。
+
+### 汇总（跨参与者）
+
+- 每个参与者指标单独报告，包括 session 不足者（对应指标为 `null`），不做按结果筛选。
+- 跨参与者只取已定义值的**中位数**（偶数个取中间两个均值，保留 6 位小数），并同时给出有值参与者数；关联汇总额外给出正/负/零符号计数。
+- 中位数是描述性汇总，**不是**群体推断，也不能替代个体结论；不做组间显著性检验。
+
+### 确定性与缺失处理约束
+
+- 参与者按 `participantId` 码元序排序；session 按 `capturedAt`、`sessionId` 排序；issues 按行号、代码、detail 以及参与者/信号上下文排序。
+- 指标在内部保留 6 位小数；文本报告显示时四舍五入到 3 位小数。JSON 报告包含 6 位小数。
+- 报告不含当前时间、随机数或环境信息；同一输入总是产生相同 JSON。
+- 所有缺失都显式暴露为 `null` / `insufficient_pairs` / `zero_variance` / warning / rejected row，不做静默填补。
+
+### CLI 用法
+
+```bash
+# 打印文本报告
+pnpm tsx scripts/lsm0-baseline.ts --in /tmp/lsm0-fixture.jsonl
+
+# 同时写出确定性 JSON 报告
+pnpm tsx scripts/lsm0-baseline.ts --in /tmp/lsm0-fixture.json --out /tmp/lsm0-report.json
+
+# 查看帮助
+pnpm tsx scripts/lsm0-baseline.ts --help
+```
+
+- `--in <path>` 必填；`--out <path>` 可选。不新增依赖，只读本地文件，无网络。
+- 退出码：`0` 成功；`1` 读取/评估失败；`2` 用法错误。
+- CLI 文本与 JSON 字段使用英文；基线不产生任何诊断或风险分值。
+- 仓库内不提交真实或可识别的参与者数据；测试与演示只用合成夹具（见测试文件），CLI 演示夹具放在仓库外。
+
+### 与“已验证临床结果”的区别
+
+本基线的通过项只说明代码可运行、指标定义可复现、缺失与排序行为确定；它**不**说明 LSM 假设成立，也不构成信度、效度、疗效或临床有效性证据。只有在伦理批准、预注册、足够样本与独立复现之后，且仍按本节的阴性结果与个体差异报告规则执行时，才可能讨论研究结论；任何结果都不得用于诊断、保险、雇佣或对他人的判断。
