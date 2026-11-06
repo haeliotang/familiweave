@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { grantLocalSignalConsent } from './somatic-signal'
-import { mergeSignalTraces, SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalTrace } from './signal-source'
+import { dedupeSignalSamples, mergeSignalTraces, SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalTrace } from './signal-source'
 
 const consent = grantLocalSignalConsent('2026-11-01T00:00:00Z')
 
@@ -28,5 +28,17 @@ describe('signal source layer', () => {
     expect(timeline.sources).toEqual(['a', 'b'])
     expect(timeline.simulated).toBe(true)
     expect(summarizeTimeline(traceToTimeline(trace('a', '2026-11-01T00:00:00Z', '2026-11-01T00:00:02Z', [0, 1000, 2000])))).toMatchObject({ sampleCount: 3, durationSec: 2, simulated: true })
+  })
+})
+
+
+describe('signal timeline deduplication', () => {
+  it('drops exact replay/reconnect duplicates while preserving distinct samples', () => {
+    const samples = [
+      { tMs: 100, kind: 'heart_rate' as const, value: 60, sourceId: 'a' },
+      { tMs: 100, kind: 'heart_rate' as const, value: 60, sourceId: 'a' },
+      { tMs: 100, kind: 'heart_rate' as const, value: 61, sourceId: 'a' },
+    ]
+    expect(dedupeSignalSamples(samples)).toEqual([samples[0], samples[2]])
   })
 })

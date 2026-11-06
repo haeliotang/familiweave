@@ -31,7 +31,7 @@ describe('WebSocketSignalSource reconnect', () => {
         const packet = JSON.parse(String(raw)) as { type?: string }
         if (packet.type !== 'hello') return
         socket.send(JSON.stringify({ type: 'hello', sourceId: 'test-bridge', kinds: ['heart_rate'], sampleRateHz: 2 }))
-        socket.send(JSON.stringify({ type: 'sample', kind: 'heart_rate', value: 60 + connections, tMs: 100 }))
+        socket.send(JSON.stringify({ type: 'sample', kind: 'heart_rate', value: 60 + connections, tMs: 100 + (connections - 1) * 800 }))
         if (connections === 1) setTimeout(() => socket.close(), 20)
       })
     })
@@ -48,6 +48,7 @@ describe('WebSocketSignalSource reconnect', () => {
       expect(trace.samples).toHaveLength(2)
       expect(source.health().reconnects).toBeGreaterThan(0)
       expect(source.health().samples).toBe(2)
+      expect(source.health().maxGapMs).toBe(800)
     } finally {
       try { source.stop() } catch { /* already stopped */ }
     }

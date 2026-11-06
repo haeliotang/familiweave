@@ -2,7 +2,32 @@ import { describe, expect, it } from 'vitest'
 import { createAppLockRecord } from './app-lock'
 import { decryptLocalSnapshot, deriveDataKey, encryptLocalSnapshot, isEncryptedLocalState } from './encrypted-store'
 
-const snapshot = { motifs: [], relationships: [], field: { version: 'field-layout-v1' as const, positions: {}, links: [] }, signals: [] }
+const capture = {
+  version: 'capture-v1' as const,
+  captureId: 'capture-1',
+  rendererKind: 'captured' as const,
+  mimeType: 'video/mp4',
+  durationSec: 75,
+  sha256: 'a'.repeat(64),
+  synthId: false,
+  createdAt: '2026-11-01T00:00:00Z',
+}
+const snapshot = {
+  motifs: [],
+  relationships: [],
+  field: { version: 'field-layout-v1' as const, positions: {}, links: [] },
+  signals: [{
+    version: 'signal-session-v2' as const,
+    id: 'session-1',
+    createdAt: '2026-11-01T00:00:16Z',
+    startedAt: '2026-11-01T00:00:00Z',
+    endedAt: '2026-11-01T00:00:15Z',
+    sourceIds: ['bridge'],
+    simulated: false,
+    summary: { durationSec: 15, sampleCount: 1, byKind: [{ kind: 'heart_rate' as const, count: 1 }], bySource: [{ sourceId: 'bridge', sampleCount: 1, firstMs: 100, lastMs: 100, maxGapMs: null }], quality: { firstSampleMs: 100, lastSampleMs: 100, maxGapMs: null, gapsOverOneSecond: 0, samplesPerSecond: 0.067 } },
+  }],
+  captures: [capture],
+}
 
 describe('encrypted local state', () => {
   it('encrypts and decrypts with the lock pin', async () => {

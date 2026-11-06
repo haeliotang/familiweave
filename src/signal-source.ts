@@ -53,12 +53,29 @@ function assertLocalConsent(consent: SignalConsent) {
   if (!isSignalConsent(consent)) throw new Error('local_signal_consent_required')
 }
 
+function sampleKey(sample: SignalSample) {
+  return `${sample.sourceId}\u0000${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
+}
+
+/** Sort and remove exact duplicate samples, which can occur after a bridge replay/reconnect. */
+export function dedupeSignalSamples(samples: readonly SignalSample[]): SignalSample[] {
+  const seen = new Set<string>()
+  return [...samples]
+    .sort((left, right) => left.tMs - right.tMs || left.sourceId.localeCompare(right.sourceId) || left.kind.localeCompare(right.kind))
+    .filter(sample => {
+      const key = sampleKey(sample)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+}
+
 export function traceToTimeline(trace: SignalTrace): SignalTimeline {
   return {
     version: 'signal-timeline-v1',
     startedAt: trace.startedAt,
     endedAt: trace.endedAt,
-    samples: [...trace.samples].sort((left, right) => left.tMs - right.tMs),
+    samples: dedupeSignalSamples(trace.samples),
     sources: [trace.sourceId],
     simulated: trace.simulated,
   }
@@ -71,12 +88,12 @@ export function mergeSignalTraces(traces: SignalTrace[]): SignalTimeline {
   const samples = traces.flatMap(trace => {
     const offset = Date.parse(trace.startedAt) - start
     return trace.samples.map(sample => ({ ...sample, tMs: sample.tMs + offset }))
-  }).sort((left, right) => left.tMs - right.tMs)
+  })
   return {
     version: 'signal-timeline-v1',
     startedAt: new Date(start).toISOString(),
     endedAt: new Date(end).toISOString(),
-    samples,
+    samples: dedupeSignalSamples(samples),
     sources: [...new Set(traces.map(trace => trace.sourceId))],
     simulated: traces.some(trace => trace.simulated),
   }
