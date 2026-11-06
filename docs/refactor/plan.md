@@ -31,7 +31,7 @@
 
 ### R0：构建与浏览器基线（完成）
 
-- 主包 299,141 B，主 CSS 54,805 B；lazy chunks（含关系拓扑 CSS）合计 68,313 B；合计 422,259 B，无 scene 分包。v0–v3 增加了躯体地图、意象库、本机母题日记、关系触发点/计数、本机声音摘要与整体数据导出；BCI-1/2 增加了信号源接口、LSL 模拟器、本机事件时间轴与本机设备桥接契约；桌面壳层增加了 Tauri 2 三栏工作台与 Rust 宿主。
+- 主包 299,493 B，主 CSS 54,944 B；lazy chunks（含关系拓扑 CSS）合计 68,313 B；合计 422,750 B，无 scene 分包。v0–v3 增加了躯体地图、意象库、本机母题日记、关系触发点/计数、本机声音摘要与整体数据导出；BCI-1/2 增加了信号源接口、LSL 模拟器、本机事件时间轴与本机设备桥接契约；桌面壳层增加了 Tauri 2 三栏工作台与 Rust 宿主。
 - `pnpm measure:build` 记录体积；`pnpm check:symbolic-path` 守卫 320,000 B 预算。
 - 本地 headless：DOMContentLoaded 51 ms、load 51 ms、first paint/FCP 72 ms。
 - 完整 75 秒相遇与 180 秒空间帧采样完成；结果见 [R0 构建基线](baseline.md)。

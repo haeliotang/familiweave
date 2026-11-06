@@ -340,6 +340,8 @@ const en: Record<string, string> = {
   '信号摘要': 'Signal summaries',
   '撤回': 'Retract',
 
+  '空间进度': 'Space progress',
+
 }
 
 type LanguageContextValue = {

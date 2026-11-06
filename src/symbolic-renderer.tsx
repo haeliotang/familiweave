@@ -12,6 +12,11 @@ export function validateSymbolic(encounter: Encounter) {
   return undefined
 }
 
+function formatClock(totalSeconds: number) {
+  const safe = Math.max(0, Math.floor(totalSeconds))
+  return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, '0')}`
+}
+
 export function symbolicPhase(seconds: number, duration = 75, format: 'encounter' | 'space' = 'encounter'): InnerAction {
   if (format === 'space') return 'pause'
   const t = Math.max(0, Math.min(duration, seconds))
@@ -72,7 +77,8 @@ export function SymbolicRenderer({ encounter, replay }: WorldRendererProps) {
       <div className="symbolic-door" />
       <div className={`symbolic-figure figure-${plan.figure}`} />
       <div className="symbolic-fog" />
-      {!isSpace && <div className="symbolic-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>}
+      {!isSpace && <div className="symbolic-progress" role="progressbar" aria-label={t('空间进度')} aria-valuemin={0} aria-valuemax={plan.durationSec} aria-valuenow={Math.floor(seconds)}><span style={{ width: `${Math.min(100, seconds / plan.durationSec * 100)}%` }} /></div>}
+      {!isSpace && <span className="symbolic-time" aria-live="off">{formatClock(seconds)} / {formatClock(plan.durationSec)}</span>}
       <div className="symbolic-controls">
         <button className="quiet" onClick={() => setSeconds(value => Math.min(plan.durationSec, value + 8))}>{t('靠近一点')}</button>
         <button className="quiet" onClick={() => setPaused(value => !value)}>{paused ? t('继续停留') : t('停留')}</button>
