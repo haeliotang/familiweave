@@ -56,7 +56,7 @@
 
 ### R4：清理（主体完成）
 
-- `src/` 68 个文件、23 个测试文件、73 个测试；`server/`、`public/assets` 与旧文档已删除。
+- `src/` 78 个文件、28 个测试文件、131 个测试；`server/`、`public/assets` 与旧文档已删除。
 - 前端现在是纯本地 symbolic-only 应用。
 - 未使用依赖已清理：保留 React/Vite/Zod 与测试工具，移除 Fastify、pg、sharp、sherpa、Three.js 与 PGlite。
 
@@ -79,4 +79,4 @@ pnpm rust:test
 pnpm eval:validate docs/evaluation/experiment-log.example.json
 ```
 
-当前测试 73 项；无 HEIC / PostgreSQL / 模型下载依赖。R3 的真实设备、生产构建与交互压力仍未验证。
+当前测试 131 项；无 HEIC / PostgreSQL / 模型下载依赖。R3 的真实设备、生产构建与交互压力仍未验证。
