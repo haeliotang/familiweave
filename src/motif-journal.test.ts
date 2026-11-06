@@ -51,6 +51,14 @@ describe('local motif journal', () => {
     expect(loadMotifs(storage)[0].signals?.consent.localOnly).toBe(true)
   })
 
+  it('keeps optional derived symbolic parameters with the motif', () => {
+    const storage = memoryStorage()
+    const entries = addMotif(storage, { name: '符号', capture, symbolic: { format: 'encounter', motifs: ['door', 'corridor'], figure: 'shadow' } })
+    expect(entries[0].symbolic).toEqual({ format: 'encounter', motifs: ['door', 'corridor'], figure: 'shadow' })
+    expect(loadMotifs(storage)[0].symbolic?.figure).toBe('shadow')
+    expect(JSON.stringify(entries)).not.toMatch(/diagnos|interpretation|score/i)
+  })
+
   it('exports a portable local JSON record without interpretation', () => {
     const entries = addMotif(memoryStorage(), { name: '雨', capture, now: '2026-11-01T00:00:00Z' })
     const exported = JSON.parse(exportMotifs(entries))

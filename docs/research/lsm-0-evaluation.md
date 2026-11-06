@@ -87,7 +87,7 @@
 - **figure stability**：`symbolic.figure` 的众数占比；少于 2 个符号 session 时为 `null`。
 - **somatic~symbolic paired counts**：对 `(region, sensation, primaryMotif)` 做描述性计数，按 count、region、sensation、motif 排序；不做卡方、p 值、因果或临床推断。
 - 汇总只取有定义值的参与者中位数，并同时报告 `sessionsWithSymbolic` 计数。
-- 本机导出器不会合成 `symbolic`；需要上游采集/计划层显式提供，否则这些指标为 `null`。
+- 本机导出器从母题的 `symbolic` 字段读取符号空间参数；旧母题没有该字段时保持缺失，不合成。
 
 ### 汇总（跨参与者）
 

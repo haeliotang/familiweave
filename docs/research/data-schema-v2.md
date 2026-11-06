@@ -27,6 +27,7 @@
 - `field.links` **只由用户主动连接**，不是系统推断。
 - `signals` 只保存 session 摘要（时长、样本数、按 kind 计数），不保存原始信号。
   - 新会话为 `signal-session-v2`：`summary.bySource` 保存每个来源的首/末时间与最大间隔，`summary.quality` 保存总首/末时间、最大间隔、超过 1 秒的间隔数和平均样本/秒。旧的 `signal-session-v1` 仍可导入。
+- 母题可选保存 `symbolic`（`format` / `motifs` / `figure`），来自创建母题时生成的符号空间参数；用于本机 LSM-0 导出，不表示临床解释。
 - `captures` 只保存 `CaptureProvenance`（captureId、rendererKind、mimeType、时长、sha256、模型/提示哈希、SynthID、createdAt 和可选播放 URL），不保存媒体字节。
 - 不保存原始音频、原始神经数据、服务端账号或云同步。
 

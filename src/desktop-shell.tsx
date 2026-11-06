@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Encounter } from './encounter'
 import { createInnerCaptureEncounter } from './inner-encounter'
+import { innerPlanFromCapture } from './inner'
 import { SceneView } from './scene-loader'
 import { createMotif, loadMotifs, type MotifEntry } from './motif-journal'
 import { createRelationshipTrigger, loadRelationshipTriggers, type RelationshipInput, type RelationshipTrigger } from './relationship'
@@ -239,7 +240,8 @@ export function DesktopShell() {
     void saveLocalSnapshot({ motifs: nextMotifs, relationships: nextRelationships, field: nextField, signals: nextSignals, captures: nextCaptures })
   }
   const remember = (capture: Parameters<typeof createMotif>[0]['capture'], name: string, signals?: Parameters<typeof createMotif>[0]['signals']) => {
-    const entry = createMotif({ capture, name, signals })
+    const plan = innerPlanFromCapture(capture)
+    const entry = createMotif({ capture, name, signals, symbolic: { format: plan.format, motifs: plan.motifs, figure: plan.figure } })
     const next = [entry, ...motifs]
     setMotifs(next)
     setSelectedId(entry.id)

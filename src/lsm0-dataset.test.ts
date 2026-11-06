@@ -9,7 +9,7 @@ const dataset = (): LocalDataset => ({
   exportedAt: '2026-11-01T00:00:00Z',
   motifs: [
     { version: 'motif-v1', id: 'motif-1', createdAt: '2026-11-01T00:00:00Z', name: 'a', capture: { ...capture } },
-    { version: 'motif-v1', id: 'motif-2', createdAt: '2026-11-02T00:00:00Z', name: 'b', capture: { ...capture, intensity: 4 } },
+    { version: 'motif-v1', id: 'motif-2', createdAt: '2026-11-02T00:00:00Z', name: 'b', capture: { ...capture, intensity: 4 }, symbolic: { format: 'encounter' as const, motifs: ['door'], figure: 'shadow' } },
   ],
   relationships: [],
   signals: [],
@@ -24,6 +24,7 @@ describe('LSM-0 local dataset export', () => {
     expect(result.records).toHaveLength(2)
     expect(result.records[0]).toMatchObject({ participantId: 'P01', sessionId: 'motif-1', signals: { voiceRmsMean: 0.2, voicePauseRatio: 0.25 } })
     expect(result.records[1].signals).toBeUndefined()
+    expect(result.records[1].symbolic).toEqual({ format: 'encounter', motifs: ['door'], figure: 'shadow' })
     expect(result.warnings).toEqual([])
   })
 
