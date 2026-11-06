@@ -3,6 +3,7 @@ import { localDatasetFromSnapshot, parseLocalDataset, type LocalSnapshot } from 
 import { exportLocalTimeline } from './local-timeline'
 import { useLanguage } from './i18n'
 import { decryptBackup, encryptBackup, isSecureBackup } from './secure-backup'
+import { datasetToLsm0Sessions } from './lsm0-dataset'
 
 export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, onRetractCapture }: { snapshot: LocalSnapshot; onImport: (snapshot: LocalSnapshot) => void; onClear: () => void; onRetractSignal?: (id: string) => void; onRetractCapture?: (captureId: string) => void }) {
   const { t } = useLanguage()
@@ -30,6 +31,13 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
     } catch { setStatus(t('加密备份失败')) }
   }
   const exportTimeline = () => download(exportLocalTimeline(localDatasetFromSnapshot(snapshot)), 'familiweave-local-timeline.json')
+  const exportLsm0 = () => {
+    const participantId = window.prompt(t('输入匿名参与者编号（例如 P01）'))
+    if (!participantId) return
+    const result = datasetToLsm0Sessions(localDatasetFromSnapshot(snapshot), participantId)
+    download(JSON.stringify(result.records, null, 2), 'familiweave-lsm0-sessions.json')
+    setStatus(`${t('已导出 LSM-0 会话')} ${result.records.length} · ${t('警告')} ${result.warnings.length}`)
+  }
   const importFile = async (file: File | undefined) => {
     if (!file) return
     try {
@@ -74,6 +82,7 @@ export function LocalDataPanel({ snapshot, onImport, onClear, onRetractSignal, o
       <button type="button" className="quiet" onClick={exportAll}>{t('导出全部本机数据')}</button>
       <button type="button" className="quiet" onClick={() => void exportEncrypted()}>{t('导出加密备份')}</button>
       <button type="button" className="quiet" onClick={exportTimeline}>{t('导出本机时间轴')}</button>
+      <button type="button" className="quiet" onClick={exportLsm0}>{t('导出 LSM-0 会话')}</button>
       <button type="button" className="quiet" onClick={() => input.current?.click()}>{t('导入本机数据')}</button>
       <button type="button" className="quiet" onClick={() => { if (confirm(t('删除本机全部数据？此操作不可撤销。'))) onClear() }}>{t('删除全部本机数据')}</button>
       <input ref={input} type="file" accept="application/json,.json" hidden onChange={event => void importFile(event.target.files?.[0])} />

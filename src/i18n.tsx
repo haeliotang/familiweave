@@ -342,6 +342,11 @@ const en: Record<string, string> = {
 
   '空间进度': 'Space progress',
 
+  '输入匿名参与者编号（例如 P01）': 'Enter an anonymous participant ID (e.g. P01)',
+  '已导出 LSM-0 会话': 'Exported LSM-0 sessions',
+  '警告': 'warnings',
+  '导出 LSM-0 会话': 'Export LSM-0 sessions',
+
 }
 
 type LanguageContextValue = {

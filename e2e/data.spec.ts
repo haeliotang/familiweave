@@ -98,3 +98,17 @@ test('exports persisted capture provenance from the web fallback', async ({ page
   await page.locator('.capture-list').getByRole('button', { name: 'Retract' }).click()
   await expect(page.locator('.capture-list')).toHaveCount(0)
 })
+
+test('exports an LSM-0 fixture from local motifs', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Load demo field' }).click()
+  await page.getByRole('button', { name: 'Local & settings' }).click()
+  page.once('dialog', dialog => dialog.accept('P01'))
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export LSM-0 sessions' }).click()
+  const download = await downloadPromise
+  const text = await readFile((await download.path())!, 'utf8')
+  const records = JSON.parse(text) as Array<{ version: string; participantId: string; somatic: unknown }>
+  expect(records).toHaveLength(2)
+  expect(records[0]).toMatchObject({ version: 'lsm0-session-v1', participantId: 'P01' })
+})

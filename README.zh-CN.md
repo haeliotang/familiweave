@@ -129,7 +129,7 @@ Familiweave 的方向不是替代语言，而是补上语言之前的入口：**
 当前 `main`：
 
 - 72 项 Vitest 单元/集成测试
-- 20 项 Playwright 浏览器 E2E
+- 21 项 Playwright 浏览器 E2E
 - 6 项 Rust 宿主测试
 - 明暗主题 WCAG A/AA（结构 + 对比度）
 - 主 JS 约 293 KB，重组件 lazy load
