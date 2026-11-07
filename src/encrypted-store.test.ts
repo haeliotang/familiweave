@@ -45,6 +45,8 @@ describe('encrypted local state', () => {
     const key = await deriveDataKey('2468', record.salt, record.iterations)
     const payload = await encryptLocalSnapshot(snapshot, record, key)
     await expect(decryptLocalSnapshot(payload, '0000')).rejects.toThrow()
-    await expect(decryptLocalSnapshot({ ...payload, ciphertext: payload.ciphertext.replace(/^./, 'A') }, '2468')).rejects.toThrow()
+    const first = payload.ciphertext[0]
+    const tampered = `${first === 'A' ? 'B' : 'A'}${payload.ciphertext.slice(1)}`
+    await expect(decryptLocalSnapshot({ ...payload, ciphertext: tampered }, '2468')).rejects.toThrow()
   })
 })
