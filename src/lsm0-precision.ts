@@ -82,12 +82,12 @@ function percentile(sorted: number[], p: number): number {
   return lower === upper ? sorted[lower] : sorted[lower] + (sorted[upper] - sorted[lower]) * (index - lower)
 }
 
-function interval(bounds: Array<{ low: number; high: number }>, target: number): { meanWidth: number | null; coverage: number | null } {
-  const usable = bounds.filter(bound => Number.isFinite(bound.low) && Number.isFinite(bound.high))
+function interval(bounds: Array<{ low: number; high: number; target: number }>): { meanWidth: number | null; coverage: number | null } {
+  const usable = bounds.filter(bound => Number.isFinite(bound.low) && Number.isFinite(bound.high) && Number.isFinite(bound.target))
   if (!usable.length) return { meanWidth: null, coverage: null }
   return {
     meanWidth: usable.reduce((sum, bound) => sum + Math.max(0, bound.high - bound.low), 0) / usable.length,
-    coverage: usable.filter(bound => bound.low <= target && target <= bound.high).length / usable.length,
+    coverage: usable.filter(bound => bound.low <= bound.target && bound.target <= bound.high).length / usable.length,
   }
 }
 
@@ -109,9 +109,10 @@ function bootstrapRho(xs: Array<number | null>, ys: Array<number | null>, random
       // Non-circular moving-block bootstrap over the ORIGINAL session positions,
       // preserving missing positions rather than collapsing them.
       const starts = Math.max(1, n - blockLength + 1)
-      for (let b = 0; b < Math.ceil(n / blockLength); b += 1) {
+      let position = 0
+      while (position < n) {
         const start = Math.floor(random() * starts)
-        for (let offset = 0; offset < blockLength; offset += 1) {
+        for (let offset = 0; offset < blockLength && position < n; offset += 1, position += 1) {
           const index = start + offset
           if (index >= n || xs[index] === null || ys[index] === null) continue
           bx.push(xs[index]!); by.push(ys[index]!)
@@ -125,31 +126,66 @@ function bootstrapRho(xs: Array<number | null>, ys: Array<number | null>, random
   return out
 }
 
-/** Independent Monte Carlo target for the population Spearman correlation. */
-export function estimatePopulationSpearman(scenario: PrecisionScenario, draws = 50_000): number | null {
-  const random = lcg(91_337 + scenario.participants * 31 + scenario.sessions * 17)
+/** Independent Monte Carlo target for a given coupling coefficient. */
+export function estimatePopulationSpearmanForCoupling(coupling: number, scenario: PrecisionScenario, draws = 20_000): number | null {
+  const clamped = Math.max(-0.95, Math.min(0.95, coupling))
+  const random = lcg(91_337 + Math.round(clamped * 10_000) * 31 + scenario.participants * 17 + scenario.sessions * 7)
   const xs: number[] = []
   const ys: number[] = []
   for (let index = 0; index < draws; index += 1) {
     const latent = normal(random)
     xs.push(latent + scenario.signalNoise * normal(random))
-    ys.push(scenario.latentCoupling * latent + Math.sqrt(Math.max(0, 1 - scenario.latentCoupling ** 2)) * normal(random) + scenario.reportNoise * normal(random))
+    ys.push(clamped * latent + Math.sqrt(Math.max(0, 1 - clamped ** 2)) * normal(random) + scenario.reportNoise * normal(random))
   }
   return spearmanRho(xs, ys)
+}
+
+/** Independent Monte Carlo target for the scenario's central latent coupling. */
+export function estimatePopulationSpearman(scenario: PrecisionScenario, draws = 50_000): number | null {
+  return estimatePopulationSpearmanForCoupling(scenario.latentCoupling, scenario, draws)
+}
+
+interface TargetGridEntry { coupling: number; rho: number | null }
+
+function targetGrid(scenario: PrecisionScenario): TargetGridEntry[] {
+  if (scenario.participantEffectSd === 0) return [{ coupling: scenario.latentCoupling, rho: estimatePopulationSpearman(scenario, 50_000) }]
+  return Array.from({ length: 41 }, (_, index) => {
+    const coupling = -0.95 + index * (1.9 / 40)
+    return { coupling, rho: estimatePopulationSpearmanForCoupling(coupling, scenario, 20_000) }
+  })
+}
+
+function trueTargetForCoupling(grid: TargetGridEntry[], coupling: number): number | null {
+  const usable = grid.filter((entry): entry is { coupling: number; rho: number } => entry.rho !== null).sort((a, b) => a.coupling - b.coupling)
+  if (!usable.length) return null
+  if (coupling <= usable[0].coupling) return usable[0].rho
+  if (coupling >= usable[usable.length - 1].coupling) return usable[usable.length - 1].rho
+  for (let index = 1; index < usable.length; index += 1) {
+    const right = usable[index]
+    const left = usable[index - 1]
+    if (coupling <= right.coupling) {
+      const fraction = (coupling - left.coupling) / (right.coupling - left.coupling)
+      return left.rho + (right.rho - left.rho) * fraction
+    }
+  }
+  return usable[usable.length - 1].rho
 }
 
 function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<PrecisionOptions, 'seed' | 'replications' | 'bootstrapReplicates' | 'blockLength'>>): PrecisionScenarioResult {
   const random = lcg(options.seed + scenario.participants * 1009 + scenario.sessions * 9176)
   const observed: number[] = []
-  const ordinaryCis: Array<{ low: number; high: number }> = []
-  const blockCis: Array<{ low: number; high: number }> = []
+  const ordinaryCis: Array<{ low: number; high: number; target: number }> = []
+  const blockCis: Array<{ low: number; high: number; target: number }> = []
+  const targetGridEntries = targetGrid(scenario)
+  const trueTargets: number[] = []
   let evaluable = 0
   let attempted = 0
   for (let replication = 0; replication < options.replications; replication += 1) {
     for (let participant = 0; participant < scenario.participants; participant += 1) {
       attempted += 1
       let latent = normal(random)
-      const coupling = scenario.latentCoupling + scenario.participantEffectSd * normal(random)
+      const coupling = Math.max(-0.95, Math.min(0.95, scenario.latentCoupling + scenario.participantEffectSd * normal(random)))
+      const trueTarget = trueTargetForCoupling(targetGridEntries, coupling)
       const xs: Array<number | null> = []
       const ys: Array<number | null> = []
       for (let session = 0; session < scenario.sessions; session += 1) {
@@ -160,18 +196,19 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
       }
       const pairs = xs.map((x, index) => x === null || ys[index] === null ? null : [x, ys[index]!] as const).filter((pair): pair is readonly [number, number] => pair !== null)
       const rho = pairs.length >= 4 ? spearmanRho(pairs.map(pair => pair[0]), pairs.map(pair => pair[1])) : null
-      if (rho === null) continue
+      if (rho === null || trueTarget === null) continue
       evaluable += 1
+      trueTargets.push(trueTarget)
       observed.push(rho)
       const ordinary = bootstrapRho(xs, ys, random, options.bootstrapReplicates, options.blockLength, false).sort((a, b) => a - b)
       const block = bootstrapRho(xs, ys, random, options.bootstrapReplicates, options.blockLength, true).sort((a, b) => a - b)
-      if (ordinary.length) ordinaryCis.push({ low: percentile(ordinary, 0.025), high: percentile(ordinary, 0.975) })
-      if (block.length) blockCis.push({ low: percentile(block, 0.025), high: percentile(block, 0.975) })
+      if (ordinary.length) ordinaryCis.push({ low: percentile(ordinary, 0.025), high: percentile(ordinary, 0.975), target: trueTarget })
+      if (block.length) blockCis.push({ low: percentile(block, 0.025), high: percentile(block, 0.975), target: trueTarget })
     }
   }
   const mean = observed.length ? observed.reduce((a, b) => a + b, 0) / observed.length : null
   const variance = observed.length > 1 ? observed.reduce((sum, value) => sum + (value - (mean ?? 0)) ** 2, 0) / (observed.length - 1) : null
-  const population = estimatePopulationSpearman(scenario, 100_000)
+  const population = trueTargets.length ? trueTargets.reduce((a, b) => a + b, 0) / trueTargets.length : estimatePopulationSpearman(scenario, 50_000)
   return {
     ...scenario,
     populationSpearman: population,
@@ -180,8 +217,8 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
     meanObservedRho: mean,
     observedRhoSd: variance === null ? null : Math.sqrt(variance),
     trueBetweenParticipantSd: scenario.participantEffectSd,
-    ordinary: { method: 'ordinary_bootstrap', ...interval(ordinaryCis, population ?? scenario.latentCoupling) },
-    movingBlock: { method: 'moving_block_bootstrap', ...interval(blockCis, population ?? scenario.latentCoupling) },
+    ordinary: { method: 'ordinary_bootstrap', ...interval(ordinaryCis) },
+    movingBlock: { method: 'moving_block_bootstrap', ...interval(blockCis) },
   }
 }
 

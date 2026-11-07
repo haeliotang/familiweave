@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { grantLocalSignalConsent } from './somatic-signal'
-import { dedupeSignalSamples, mergeSignalTraces, SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalTrace } from './signal-source'
+import { dedupeSignalSamples, mergeSignalTraces, reconcileSignalSamples, SimulatedSignalSource, summarizeTimeline, traceToTimeline, type SignalTrace } from './signal-source'
 
 const consent = grantLocalSignalConsent('2026-11-01T00:00:00Z')
 
@@ -40,5 +40,22 @@ describe('signal timeline deduplication', () => {
       { tMs: 100, kind: 'heart_rate' as const, value: 61, sourceId: 'a' },
     ]
     expect(dedupeSignalSamples([...samples].reverse())).toEqual([samples[0], samples[2]])
+  })
+})
+
+describe('signal reconciliation identity', () => {
+  it('marks conflicting payloads with the same stream identity instead of treating them as new observations', () => {
+    const base = { tMs: 1000, kind: 'heart_rate' as const, sourceId: 'device', streamId: 'stream-1', seq: 7 }
+    const result = reconcileSignalSamples([
+      { ...base, value: 70 },
+      { ...base, value: 71 },
+    ])
+    expect(result.conflicts).toHaveLength(1)
+    expect(result.conflicts[0]).toMatchObject({ reason: 'same_identity_different_payload' })
+  })
+
+  it('uses exact content deduplication as the documented fallback when no sequence identity exists', () => {
+    const sample = { tMs: 1000, kind: 'eda' as const, value: 2.1, sourceId: 'device' }
+    expect(reconcileSignalSamples([sample, { ...sample }])).toMatchObject({ samples: [sample], conflicts: [] })
   })
 })

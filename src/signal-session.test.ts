@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSignalSession, isSignalSession, removeSignalSession } from './signal-session'
+import { createSignalSession, isSignalSession, loadSignalSessions, removeSignalSession, saveSignalSessions, signalSessionStorageKey } from './signal-session'
 import type { SignalTimeline } from './signal-source'
 
 const timeline: SignalTimeline = {
@@ -36,5 +36,23 @@ describe('signal session retraction', () => {
     const first = createSignalSession(timeline, '2026-11-01T00:00:16.000Z', 'session-1')
     const second = createSignalSession(timeline, '2026-11-01T00:01:16.000Z', 'session-2')
     expect(removeSignalSession([first, second], 'session-1')).toEqual([second])
+  })
+})
+
+describe('signal session persistence and retraction', () => {
+  it('leaves no session after save, retract, save and reload', () => {
+    const storage = new Map<string, string>()
+    const adapter = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => { storage.set(key, value) },
+      removeItem: (key: string) => { storage.delete(key) },
+    }
+    const session = createSignalSession(timeline, '2026-11-01T00:00:16.000Z', 'persisted-session')
+    saveSignalSessions(adapter, [session])
+    expect(loadSignalSessions(adapter)).toHaveLength(1)
+    const remaining = removeSignalSession(loadSignalSessions(adapter), session.id)
+    saveSignalSessions(adapter, remaining)
+    expect(loadSignalSessions(adapter)).toEqual([])
+    expect(storage.get(signalSessionStorageKey)).toBe('[]')
   })
 })

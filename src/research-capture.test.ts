@@ -45,6 +45,7 @@ describe('research capture schema', () => {
     expect(researchCaptureSessionSchema.safeParse({ ...base, capture: { ...base.capture, features: [{ ...base.capture.features[0], derivedFrom: ['missing'] }] } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, consent: { ...base.consent, grantedAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, consent: { ...base.consent, withdrawalAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, consent: { ...base.consent, withdrawalAt: '2026-11-06T12:00:00.000Z' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'completed' as const, requestedAt: '2026-11-08T00:00:00.000Z', completedAt: '2026-11-07T00:00:00.000Z', method: 'x' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'completed' as const, completedAt: '2026-11-09T00:00:00.000Z', method: 'x' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'not_requested' as const, requestedAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)

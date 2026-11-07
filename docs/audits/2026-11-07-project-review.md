@@ -5,7 +5,7 @@ This is an engineering/security/release review, not a clinical or legal audit. T
 
 ## Health baseline
 
-- Vitest: 167 passed (after remediation)
+- Vitest: 172 passed (after remediation)
 - Playwright: 24 passed (after remediation)
 - Rust ops: 10 passed
 - Rust desktop: 8 passed (after remediation)

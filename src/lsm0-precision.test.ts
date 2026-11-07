@@ -19,6 +19,20 @@ describe('LSM-0 precision simulation', () => {
     expect(target).not.toBe(defaultPrecisionScenarios[0].latentCoupling)
   })
 
+  it('uses participant-specific true targets when heterogeneity is enabled', () => {
+    const scenario = { ...defaultPrecisionScenarios[0], participantEffectSd: 0.2 }
+    const report = simulatePrecision({ replications: 5, bootstrapReplicates: 5, scenarios: [scenario] })
+    expect(report.scenarios[0].trueBetweenParticipantSd).toBe(0.2)
+    expect(report.scenarios[0].ordinary.coverage).not.toBeNull()
+    expect(report.scenarios[0].movingBlock.coverage).not.toBeNull()
+  })
+
+  it('handles session counts that are not divisible by the block length', () => {
+    const scenario = { ...defaultPrecisionScenarios[0], sessions: 8 }
+    const report = simulatePrecision({ replications: 5, bootstrapReplicates: 5, blockLength: 3, scenarios: [scenario] })
+    expect(report.scenarios[0].movingBlock.meanWidth).not.toBeNull()
+  })
+
   it('flags the temporal-dependence limitation and never emits p-values', () => {
     const report = simulatePrecision({ replications: 5, bootstrapReplicates: 5, scenarios: [defaultPrecisionScenarios[0]] })
     expect(report.limitations.join(' ')).toContain('temporal dependence')

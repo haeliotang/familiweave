@@ -39,6 +39,7 @@
 - [ ] 删除请求不早于采集/撤回
 - [ ] 删除完成不早于删除请求
 - [ ] completed 状态必须有 requestedAt、完成时间和方法
+- [ ] 同一 stream/seq 不同载荷必须标记冲突，不得静默新增
 - [ ] features_only 不得携带 raw 元信息
 - [ ] 物理通道名唯一；pseudonym 长度/编码受校验
 
@@ -46,7 +47,9 @@
 
 - [ ] `pnpm lsm0:precision` 可重复运行
 - [ ] 报告包含普通 bootstrap 与 moving-block bootstrap
-- [ ] 报告包含 population Spearman、CI 宽度和覆盖率
+- [ ] 报告包含 participant-specific population target、CI 宽度和覆盖率
+- [ ] 异质性场景按每位参与者自身 target 计算 coverage
+- [ ] moving-block 重采样长度严格等于 n
 - [ ] 普通 bootstrap 与 non-circular moving-block 的差异被明确标注
 - [ ] 报告明确时间依赖/缺失/生成模型限制
 - [ ] protocol 不把 12×8 当成已验证样本量

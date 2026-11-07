@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import WebSocket from 'ws'
-import { dedupeSignalSamples } from './signal-source'
+import { dedupeSignalSamples, reconcileSignalSamples } from './signal-source'
 import { createSignalSession, removeSignalSession } from './signal-session'
 
 const port = 19000 + Math.floor(Math.random() * 1000)
@@ -99,18 +99,22 @@ describe('SIL bridge reconnect and session boundary', () => {
       { kind: 'heart_rate' as const, value: packetA.value, tMs: packetA.tMs, sourceId: packetA.sourceId },
       ...(packetB.samples ?? []).map(sample => ({ ...sample, sourceId: packetB.sourceId })),
     ]
-    const samples = dedupeSignalSamples(received)
+    const reconciled = reconcileSignalSamples(received)
+    const samples = reconciled.samples
     expect(samples).toHaveLength(2)
+    expect(reconciled.conflicts).toEqual([])
+    const sources = [...new Set(samples.map(sample => sample.sourceId))]
     const timeline = {
       version: 'signal-timeline-v1' as const,
       startedAt: '2026-01-01T00:00:00.000Z',
       endedAt: '2026-01-01T00:00:01.000Z',
       samples,
-      sources: ['device'],
+      sources,
       simulated: true,
     }
     const session = createSignalSession(timeline, '2026-01-01T00:00:01.000Z', 'sil-bridge-session')
     expect(session.summary.sampleCount).toBe(2)
+    expect(session.summary.bySource?.[0]).toMatchObject({ sourceId: sources[0], sampleCount: 2 })
     expect(removeSignalSession([session], session.id)).toEqual([])
   }, 10_000)
 })

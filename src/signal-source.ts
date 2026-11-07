@@ -78,6 +78,53 @@ export function dedupeSignalSamples(samples: readonly SignalSample[]): SignalSam
     })
 }
 
+export interface SignalConflict {
+  identity: string
+  reason: 'same_identity_different_payload'
+  samples: SignalSample[]
+}
+
+export interface SignalReconciliation {
+  samples: SignalSample[]
+  conflicts: SignalConflict[]
+}
+
+function stableSignalIdentity(sample: SignalSample): string | null {
+  if (!sample.streamId || !Number.isInteger(sample.seq)) return null
+  return `${sample.sourceId}\u0000${sample.streamId}\u0000${sample.seq}`
+}
+
+function contentKey(sample: SignalSample): string {
+  return `${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
+}
+
+/**
+ * Reconcile replay/reconnect samples.
+ *
+ * - Exact duplicates are removed.
+ * - With a stable streamId+seq identity, a second sample carrying different
+ *   content is a conflict, not a new independent observation.
+ * - Without stable identity, exact content equality is the documented
+ *   degraded fallback; callers must state that limitation.
+ */
+export function reconcileSignalSamples(samples: readonly SignalSample[]): SignalReconciliation {
+  const unique = dedupeSignalSamples(samples)
+  const conflicts: SignalConflict[] = []
+  const byIdentity = new Map<string, SignalSample[]>()
+  for (const sample of unique) {
+    const identity = stableSignalIdentity(sample)
+    if (!identity) continue
+    const group = byIdentity.get(identity)
+    if (group) group.push(sample)
+    else byIdentity.set(identity, [sample])
+  }
+  for (const [identity, group] of byIdentity) {
+    const contents = new Set(group.map(contentKey))
+    if (contents.size > 1) conflicts.push({ identity: identity.replaceAll('\u0000', '/'), reason: 'same_identity_different_payload', samples: group })
+  }
+  return { samples: unique, conflicts }
+}
+
 export function traceToTimeline(trace: SignalTrace): SignalTimeline {
   return {
     version: 'signal-timeline-v1',

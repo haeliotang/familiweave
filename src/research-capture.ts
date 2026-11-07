@@ -105,6 +105,7 @@ export const researchCaptureSessionSchema = z.object({
   }
   const withdrawal = value.consent.withdrawalAt ? Date.parse(value.consent.withdrawalAt) : null
   if (withdrawal !== null && withdrawal < granted) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consent', 'withdrawalAt'], message: 'withdrawal cannot precede consent' })
+  if (withdrawal !== null && withdrawal < collected) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consent', 'withdrawalAt'], message: 'collection cannot occur after withdrawal' })
   if (withdrawal !== null && value.deletion.status === 'not_requested') {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'status'], message: 'withdrawn consent requires a deletion request or completion' })
   }

@@ -15,6 +15,8 @@
 - `src/bci3-bridge.test.ts` → `forwards a stdin sample to authenticated clients`
 - `src/bci3-bridge.test.ts` → `dedupes a sample repeated after reconnect and keeps an explicit retraction boundary`
 - `src/device-signal-source.test.ts` → `auto-reconnects, keeps source identity and deduplicates replay samples`
+- `src/signal-session.test.ts` → `leaves no session after save, retract, save and reload`
+- `src/signal-source.test.ts` → conflicting same-identity payload is flagged
 - `src/sil-harness.test.ts` → 6 deterministic scenarios
 
 已修正：
@@ -29,12 +31,14 @@
 - 应用整体重启
 - 持久化删除后重新加载的端到端验证
 - 真实设备时钟漂移
+- Tauri 应用整体重启
+- 持久化删除后重新加载（本轮只覆盖 signal session 的 save/retract/reload）
 
 ### B. Capture schema — 部分通过
 
 已完成证据：
 
-- `src/research-capture.test.ts`（5 tests）
+- `src/research-capture.test.ts`（5 tests；含撤回/采集顺序）
 - 物理通道 `physicalKind` 与派生特征 `derivedFrom` 分离
 - 物理通道名称唯一性
 - `features_only` 不得携带 raw format/bytes/sha256
@@ -54,13 +58,13 @@
 
 已完成证据：
 
-- `src/lsm0-precision.test.ts`（3 tests）
+- `src/lsm0-precision.test.ts`（5 tests；含异质性与块长度边界）
 - `pnpm lsm0:precision`
-- `src/lsm0-precision.ts` 的 `estimatePopulationSpearman()`
-- coverage 使用 population Spearman，而不是 `latentCoupling`
+- `src/lsm0-precision.ts` 的 `estimatePopulationSpearmanForCoupling()` 与 participant-specific target grid
+- coverage 使用每位参与者自身的 population target；homogeneous 场景退化为单一 target
 - 普通 bootstrap 与 non-circular moving-block bootstrap 并列
 - 缺失 session 保留原始位置（null mask）
-- 报告 observed SD 与 generator true effect SD 分开
+- 报告 observed SD 与 generator true effect SD 分开；moving-block 块长度严格等于 n
 - 6 个 SIL 场景与 precision 检查已接入 CI
 
 仍未完成：
