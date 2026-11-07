@@ -54,6 +54,8 @@ Read the full positioning and literature brief:
 - [Consciousness, subconscious and plasticity brief](docs/research/consciousness-and-plasticity-brief.md)
 - [Next research milestones (Gate 1–4)](docs/research/next-milestones.md)
 - [Gate 2A/2B checklist](docs/research/gate-2-checklist.md)
+- [Gate 2 pre-hardware hardening](docs/research/gate-2-prehardware.md)
+- [LSM-0 precision simulation](docs/research/lsm-0-precision.md)
 - [LSM-0 protocol v1](docs/research/lsm-0-protocol-v1.md)
 - [Preregistration skeleton](docs/research/preregistration-skeleton.md)
 - [Research capture schema](docs/research/research-capture-schema.md)

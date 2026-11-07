@@ -58,7 +58,7 @@ export const silScenarios: SilScenarioInput[] = [
     lines: sampleLines(),
     jitterMs: 20,
     seed: 7,
-    expected: { parsedSamples: 10, rejectedLines: 0, deliveredSamples: 10, maxGapMs: null, gapsOverOneSecond: 0 },
+    expected: { parsedSamples: 10, rejectedLines: 0, deliveredSamples: 10, maxGapMs: 1000, gapsOverOneSecond: 0 },
   },
   {
     id: 'drop-every-third',
@@ -129,7 +129,7 @@ export function runSilScenario(scenario: SilScenarioInput): SilResult {
     check('parsedSamples', scenario.expected.parsedSamples, parsed.samples.length),
     check('rejectedLines', scenario.expected.rejectedLines, parsed.rejected),
     check('deliveredSamples', scenario.expected.deliveredSamples, deliveredSamples.length),
-    ...(scenario.expected.maxGapMs === null ? [] : [check('maxGapMs', scenario.expected.maxGapMs, session.summary.quality?.maxGapMs ?? null)]),
+    check('maxGapMs', scenario.expected.maxGapMs, session.summary.quality?.maxGapMs ?? null),
     check('gapsOverOneSecond', scenario.expected.gapsOverOneSecond, session.summary.quality?.gapsOverOneSecond ?? 0),
   ]
   return {

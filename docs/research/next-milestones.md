@@ -269,7 +269,7 @@ I(Y;S\mid X)=0
 - 产品默认不保存原始信号；只有摘要。
 - 没有独立复现。
 - v0.1.3 尚未发布；签名/公证未完成。
-- SIL harness 已实现（6 个确定性场景；**不是 HIL**）。
+- SIL harness 已实现（6 个确定性场景 + bridge 重连/去重/session 边界集成测试；**不是 HIL**）。
 - protocol/prereg/checklist/research capture schema 已有审阅稿，但未伦理批准、未预注册、未采集真实数据。
 
 因此当前不能回答“前语言心理结构是否稳定”，只能回答“测量管线是否值得进一步验证”。
@@ -292,8 +292,10 @@ I(Y;S\mid X)=0
 1. **冻结的 LSM-0 protocol v1**：假设、主要终点、特征、对照、分析、排除规则、样本量/精度依据。见 [lsm-0-protocol-v1.md](lsm-0-protocol-v1.md)。
 2. **Preregistration skeleton**：OSF/机构平台的字段骨架，未看过数据前固定。见 [preregistration-skeleton.md](preregistration-skeleton.md)。
 3. **Gate 2A/2B checklist**：设备/固件/时钟/丢包/重连/撤回/原始数据/特征复算/阳性对照。见 [gate-2-checklist.md](gate-2-checklist.md)。
-4. **SIL 测试框架**：确定性故障注入、预期输出、自动断言；真实设备接入后升级 HIL。已实现 `pnpm sil:test`（`src/sil-harness.ts`），当前 6 个场景。
+4. **SIL 测试框架**：确定性故障注入、预期输出、自动断言；真实设备接入后升级 HIL。已实现 `pnpm sil:test`（`src/sil-harness.ts`）与 bridge 重连/去重/session 边界集成测试。
 5. **Research capture schema**：设备与固件出处、时钟、原始信号或可重算数据、特征版本、质量标记、同意范围、留存期限、加密访问、撤回/删除记录。见 [research-capture-schema.md](research-capture-schema.md)。
+6. **Precision simulation**：`pnpm lsm0:precision`，比较普通/移动块 bootstrap，输出可审查 JSON。见 [lsm-0-precision.md](lsm-0-precision.md)。
+7. **Gate 2 pre-hardware hardening acceptance**：见 [gate-2-prehardware.md](gate-2-prehardware.md)。
 
 ### 研究数据的隐私边界
 

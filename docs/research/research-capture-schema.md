@@ -16,8 +16,9 @@
 - `participantCode`：匿名代码，不是姓名
 - `sessionId`
 - `collectedAt`
-- 设备：厂商、型号、硬件 revision（可选）、固件、SDK、序列号 SHA-256、通道
+- 设备：厂商、型号、硬件 revision（可选）、固件、SDK、**密钥化/随机 research device pseudonym**（不直接存序列号哈希）、**物理采集通道**（EEG/ECG/PPG/EDA/respiration/audio/other）
 - 时钟：来源、设备时间戳、主机时间戳、offset
+- 派生特征：名称、值、单位、**derivedFrom 物理通道名**、质量
 - 同意：范围（raw_signal / features_only）、版本、时间、撤回时间
 - 采集：raw 格式/哈希/字节数（仅在 raw_signal 同意下）、样本数、特征版本、特征、质量
 - 留存：截止时间、访问方式、政策
@@ -27,7 +28,11 @@
 
 - `raw_signal` 同意必须有 raw 格式、字节数、SHA-256。
 - `features_only` 同意不得存 raw。
-- 删除完成必须有 completedAt。
+- 派生特征必须引用存在的物理通道；不能把 `heart_rate` 当物理通道。
+- 设备标识必须使用 `hmac-sha256` 或 `random-research-id` + key version；不直接哈希可枚举序列号。
+- 同意时间必须早于采集；留存必须晚于采集；撤回不得早于同意。
+- 撤回后必须有删除请求或完成；删除请求不得早于采集/撤回；完成不得早于请求。
+- 删除完成必须有 completedAt 和方法。
 - 不存明文设备序列号；只存 SHA-256。
 - 不能为了复现而默认永久保存原始信号；也不能把不可复算摘要当作研究可复现数据。
 - 原始数据必须加密访问、明确留存期限、支持撤回/删除。

@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import WebSocket from 'ws'
+import { dedupeSignalSamples } from './signal-source'
+import { createSignalSession, removeSignalSession } from './signal-session'
 
 const port = 19000 + Math.floor(Math.random() * 1000)
 let bridge: ChildProcessWithoutNullStreams
@@ -66,5 +68,48 @@ describe('BCI-3 local bridge', () => {
     const health = await fetch(`http://127.0.0.1:${port}/health`).then(response => response.json())
     expect(health).toMatchObject({ ok: true, forwarded: 1 })
     expect(health.received).toBeGreaterThanOrEqual(1)
+  }, 10_000)
+})
+
+describe('SIL bridge reconnect and session boundary', () => {
+  it('dedupes a sample repeated after reconnect and keeps an explicit retraction boundary', async () => {
+    const first = await connect()
+    const firstHello = next(first)
+    first.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'test-token' }))
+    await firstHello
+    const firstSample = next(first)
+    bridge.stdin.write(JSON.stringify({ type: 'sample', kind: 'heart_rate', value: 70, tMs: 0 }) + '\n')
+    const packetA = await firstSample as { sourceId: string; kind: string; value: number; tMs: number }
+    first.close()
+
+    const second = await connect()
+    const secondHello = next(second)
+    second.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'test-token' }))
+    await secondHello
+    const secondSample = next(second)
+    bridge.stdin.write(JSON.stringify({ type: 'samples', sourceId: 'device', samples: [
+      { kind: 'heart_rate', value: 70, tMs: 0 },
+      { kind: 'heart_rate', value: 71, tMs: 1000 },
+    ] }) + '\n')
+    const packetB = await secondSample as { samples: Array<{ kind: 'heart_rate'; value: number; tMs: number }>; sourceId: string }
+    second.close()
+
+    const received = [
+      { kind: 'heart_rate' as const, value: packetA.value, tMs: packetA.tMs },
+      ...(packetB.samples ?? []),
+    ]
+    const samples = dedupeSignalSamples(received.map(sample => ({ ...sample, sourceId: 'device' })))
+    expect(samples).toHaveLength(2)
+    const timeline = {
+      version: 'signal-timeline-v1' as const,
+      startedAt: '2026-01-01T00:00:00.000Z',
+      endedAt: '2026-01-01T00:00:01.000Z',
+      samples,
+      sources: ['device'],
+      simulated: false,
+    }
+    const session = createSignalSession(timeline, '2026-01-01T00:00:01.000Z', 'sil-bridge-session')
+    expect(session.summary.sampleCount).toBe(2)
+    expect(removeSignalSession([session], session.id)).toEqual([])
   }, 10_000)
 })

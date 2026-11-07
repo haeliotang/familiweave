@@ -30,7 +30,8 @@
     "lsm0:export": "tsx scripts/lsm0-export.ts",
     "bci:replay": "tsx scripts/bci3-replay.ts",
     "sil:test": "tsx scripts/sil-harness.ts",
-    "sil:report": "tsx scripts/sil-harness.ts --out artifacts/sil-report.json"
+    "sil:report": "tsx scripts/sil-harness.ts --out artifacts/sil-report.json",
+    "lsm0:precision": "tsx scripts/lsm0-precision.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

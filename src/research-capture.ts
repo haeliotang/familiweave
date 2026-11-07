@@ -16,10 +16,15 @@ export const researchCaptureSessionSchema = z.object({
     hardwareRevision: z.string().min(1).optional(),
     firmware: z.string().min(1),
     sdkVersion: z.string().min(1),
-    serialHash: z.string().regex(/^[a-f0-9]{64}$/),
+    devicePseudonym: z.object({
+      value: z.string().min(1),
+      scheme: z.enum(['hmac-sha256', 'random-research-id']),
+      keyVersion: z.string().min(1),
+    }),
     channels: z.array(z.object({
       name: z.string().min(1),
-      kind: z.enum(['heart_rate', 'eda', 'breath_phase', 'voice_energy', 'body_event', 'imagery_event', 'relationship_event']),
+      physicalKind: z.enum(['eeg', 'ecg', 'ppg', 'eda', 'respiration', 'audio', 'other']),
+      sampleRateHz: z.number().positive().optional(),
       unit: z.string().optional(),
     })).min(1),
   }),
@@ -45,6 +50,7 @@ export const researchCaptureSessionSchema = z.object({
       name: z.string().min(1),
       value: z.number().finite(),
       unit: z.string().optional(),
+      derivedFrom: z.array(z.string().min(1)).min(1),
       quality: z.enum(['good', 'suspect', 'rejected']),
     })).default([]),
     quality: z.object({
@@ -73,9 +79,35 @@ export const researchCaptureSessionSchema = z.object({
   } else if (value.capture.rawFormat !== 'none') {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['capture', 'rawFormat'], message: 'features_only consent cannot store raw signal' })
   }
-  if (value.deletion.status === 'completed' && !value.deletion.completedAt) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion'], message: 'completed deletion requires completedAt' })
+  const collected = Date.parse(value.collectedAt)
+  const granted = Date.parse(value.consent.grantedAt)
+  if (granted > collected) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consent', 'grantedAt'], message: 'consent cannot be granted after collection' })
+  if (Date.parse(value.retention.until) <= collected) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['retention', 'until'], message: 'retention must extend beyond collection' })
+  if (value.clock.source === 'device' && value.clock.deviceEpochMs === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['clock', 'deviceEpochMs'], message: 'device clock source requires deviceEpochMs' })
   }
+  for (const feature of value.capture.features) {
+    for (const source of feature.derivedFrom) {
+      if (!value.device.channels.some(channel => channel.name === source)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['capture', 'features'], message: `derivedFrom references unknown channel: ${source}` })
+      }
+    }
+  }
+  const withdrawal = value.consent.withdrawalAt ? Date.parse(value.consent.withdrawalAt) : null
+  if (withdrawal !== null && withdrawal < granted) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consent', 'withdrawalAt'], message: 'withdrawal cannot precede consent' })
+  if (withdrawal !== null && value.deletion.status === 'not_requested') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'status'], message: 'withdrawn consent requires a deletion request or completion' })
+  }
+  const requested = value.deletion.requestedAt ? Date.parse(value.deletion.requestedAt) : null
+  const completed = value.deletion.completedAt ? Date.parse(value.deletion.completedAt) : null
+  if (value.deletion.status === 'requested' && requested === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'requestedAt'], message: 'requested deletion requires requestedAt' })
+  if (value.deletion.status === 'completed') {
+    if (completed === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'completedAt'], message: 'completed deletion requires completedAt' })
+    if (!value.deletion.method) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'method'], message: 'completed deletion requires method' })
+  }
+  if (requested !== null && requested < collected) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'requestedAt'], message: 'deletion cannot precede collection' })
+  if (requested !== null && withdrawal !== null && requested < withdrawal) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'requestedAt'], message: 'deletion request cannot precede withdrawal' })
+  if (completed !== null && requested !== null && completed < requested) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'completedAt'], message: 'deletion completion cannot precede request' })
 })
 
 export type ResearchCaptureSession = z.infer<typeof researchCaptureSessionSchema>

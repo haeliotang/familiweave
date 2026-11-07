@@ -25,6 +25,7 @@ jobs:
       - run: pnpm audit --audit-level high
       - run: pnpm test
       - run: pnpm sil:test
+      - run: pnpm lsm0:precision --replicates 50 --bootstrap 50
       - run: pnpm build
 
 
