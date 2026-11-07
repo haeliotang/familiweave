@@ -87,18 +87,19 @@ describe('SIL bridge reconnect and session boundary', () => {
     second.send(JSON.stringify({ type: 'hello', client: 'tacitweave', token: 'test-token' }))
     await secondHello
     const secondSample = next(second)
-    bridge.stdin.write(JSON.stringify({ type: 'samples', sourceId: 'device', samples: [
+    bridge.stdin.write(JSON.stringify({ type: 'samples', samples: [
       { kind: 'heart_rate', value: 70, tMs: 0 },
       { kind: 'heart_rate', value: 71, tMs: 1000 },
     ] }) + '\n')
     const packetB = await secondSample as { samples: Array<{ kind: 'heart_rate'; value: number; tMs: number }>; sourceId: string }
     second.close()
 
+    expect(packetA.sourceId).toBe(packetB.sourceId)
     const received = [
-      { kind: 'heart_rate' as const, value: packetA.value, tMs: packetA.tMs },
-      ...(packetB.samples ?? []),
+      { kind: 'heart_rate' as const, value: packetA.value, tMs: packetA.tMs, sourceId: packetA.sourceId },
+      ...(packetB.samples ?? []).map(sample => ({ ...sample, sourceId: packetB.sourceId })),
     ]
-    const samples = dedupeSignalSamples(received.map(sample => ({ ...sample, sourceId: 'device' })))
+    const samples = dedupeSignalSamples(received)
     expect(samples).toHaveLength(2)
     const timeline = {
       version: 'signal-timeline-v1' as const,
@@ -106,7 +107,7 @@ describe('SIL bridge reconnect and session boundary', () => {
       endedAt: '2026-01-01T00:00:01.000Z',
       samples,
       sources: ['device'],
-      simulated: false,
+      simulated: true,
     }
     const session = createSignalSession(timeline, '2026-01-01T00:00:01.000Z', 'sil-bridge-session')
     expect(session.summary.sampleCount).toBe(2)

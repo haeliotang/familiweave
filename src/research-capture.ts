@@ -76,8 +76,18 @@ export const researchCaptureSessionSchema = z.object({
     if (!value.capture.rawSha256 || !value.capture.rawBytes || value.capture.rawFormat === 'none') {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['capture'], message: 'raw_signal consent requires raw format, bytes and sha256' })
     }
-  } else if (value.capture.rawFormat !== 'none') {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['capture', 'rawFormat'], message: 'features_only consent cannot store raw signal' })
+  } else if (value.capture.rawFormat !== 'none' || value.capture.rawSha256 !== undefined || value.capture.rawBytes !== undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['capture'], message: 'features_only consent cannot carry raw format, bytes or sha256' })
+  }
+  const channelNames = value.device.channels.map(channel => channel.name)
+  if (new Set(channelNames).size !== channelNames.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['device', 'channels'], message: 'physical channel names must be unique' })
+  }
+  if (value.device.devicePseudonym.scheme === 'hmac-sha256' && !/^[a-f0-9]{64}$/.test(value.device.devicePseudonym.value)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['device', 'devicePseudonym', 'value'], message: 'hmac-sha256 pseudonym must be 64 lowercase hex characters' })
+  }
+  if (value.device.devicePseudonym.scheme === 'random-research-id' && !/^[A-Za-z0-9_-]{8,128}$/.test(value.device.devicePseudonym.value)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['device', 'devicePseudonym', 'value'], message: 'random research id must be 8-128 safe characters' })
   }
   const collected = Date.parse(value.collectedAt)
   const granted = Date.parse(value.consent.grantedAt)
@@ -101,7 +111,14 @@ export const researchCaptureSessionSchema = z.object({
   const requested = value.deletion.requestedAt ? Date.parse(value.deletion.requestedAt) : null
   const completed = value.deletion.completedAt ? Date.parse(value.deletion.completedAt) : null
   if (value.deletion.status === 'requested' && requested === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'requestedAt'], message: 'requested deletion requires requestedAt' })
+  if (value.deletion.status === 'requested' && (completed !== null || value.deletion.method !== undefined)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion'], message: 'requested deletion cannot carry completion fields' })
+  }
+  if (value.deletion.status === 'not_requested' && (requested !== null || completed !== null || value.deletion.method !== undefined)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion'], message: 'not_requested deletion cannot carry request/completion fields' })
+  }
   if (value.deletion.status === 'completed') {
+    if (requested === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'requestedAt'], message: 'completed deletion requires requestedAt' })
     if (completed === null) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'completedAt'], message: 'completed deletion requires completedAt' })
     if (!value.deletion.method) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['deletion', 'method'], message: 'completed deletion requires method' })
   }

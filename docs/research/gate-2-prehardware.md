@@ -1,6 +1,6 @@
 # Gate 2 pre-hardware hardening
 
-日期：2026-11-07。状态：真实设备接入前的工程里程碑。
+日期：2026-11-07。状态：真实设备接入前的工程里程碑。逐项证据见 [gate-2-prehardware-report.md](gate-2-prehardware-report.md)。
 
 ## 目标
 
@@ -21,8 +21,8 @@
 - [ ] token 认证成功/失败
 - [ ] sample/samples 转发
 - [ ] 断开后重连
-- [ ] 重连后重复样本去重
-- [ ] session 边界生成
+- [ ] 重连后重复样本去重（保留原始 sourceId/streamId/seq 身份）
+- [ ] session 边界生成；SIL session 必须标记 simulated
 - [ ] 显式撤回/删除后无残留 session
 - [ ] 缺失时间戳使用主机到达时间
 - [ ] 测试失败时给出明确断言
@@ -38,13 +38,16 @@
 - [ ] 撤回后必须有删除请求/完成
 - [ ] 删除请求不早于采集/撤回
 - [ ] 删除完成不早于删除请求
-- [ ] completed 状态必须有完成时间和方法
+- [ ] completed 状态必须有 requestedAt、完成时间和方法
+- [ ] features_only 不得携带 raw 元信息
+- [ ] 物理通道名唯一；pseudonym 长度/编码受校验
 
 ### C. 统计精度
 
 - [ ] `pnpm lsm0:precision` 可重复运行
 - [ ] 报告包含普通 bootstrap 与 moving-block bootstrap
-- [ ] 报告包含 CI 宽度和覆盖率
+- [ ] 报告包含 population Spearman、CI 宽度和覆盖率
+- [ ] 普通 bootstrap 与 non-circular moving-block 的差异被明确标注
 - [ ] 报告明确时间依赖/缺失/生成模型限制
 - [ ] protocol 不把 12×8 当成已验证样本量
 

@@ -28,10 +28,12 @@
 
 - `raw_signal` 同意必须有 raw 格式、字节数、SHA-256。
 - `features_only` 同意不得存 raw。
-- 派生特征必须引用存在的物理通道；不能把 `heart_rate` 当物理通道。
-- 设备标识必须使用 `hmac-sha256` 或 `random-research-id` + key version；不直接哈希可枚举序列号。
+- 派生特征必须引用存在的物理通道；不能把 `heart_rate` 当物理通道；物理通道名必须唯一。
+- 设备标识必须使用 `hmac-sha256`（64 hex）或 `random-research-id`（8–128 safe chars）+ key version；不直接哈希可枚举序列号。
 - 同意时间必须早于采集；留存必须晚于采集；撤回不得早于同意。
 - 撤回后必须有删除请求或完成；删除请求不得早于采集/撤回；完成不得早于请求。
+- `features_only` 连 raw 格式、raw bytes、raw sha256 元信息都不得携带。
+- `completed` 状态必须同时有 `requestedAt`、`completedAt` 和 `method`。
 - 删除完成必须有 completedAt 和方法。
 - 不存明文设备序列号；只存 SHA-256。
 - 不能为了复现而默认永久保存原始信号；也不能把不可复算摘要当作研究可复现数据。

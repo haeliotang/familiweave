@@ -1,0 +1,92 @@
+# Gate 2 pre-hardware acceptance report
+
+日期：2026-11-07。状态：**PARTIAL — CORRECTIONS APPLIED; RE-REVIEW REQUIRED**。
+
+本报告对应审查基线 `7b145d2` 之后的修正。
+它不把 SIL 通过等同于 Gate 2A，也不把 schema 单测等同于研究采集已实现。
+
+## 验收域
+
+### A. Bridge SIL — 部分通过
+
+已完成证据：
+
+- `src/bci3-bridge.test.ts` → `rejects a bad token and accepts a valid hello`
+- `src/bci3-bridge.test.ts` → `forwards a stdin sample to authenticated clients`
+- `src/bci3-bridge.test.ts` → `dedupes a sample repeated after reconnect and keeps an explicit retraction boundary`
+- `src/device-signal-source.test.ts` → `auto-reconnects, keeps source identity and deduplicates replay samples`
+- `src/sil-harness.test.ts` → 6 deterministic scenarios
+
+已修正：
+
+- 建链测试保留 bridge 原始 `sourceId`，不再人工统一来源
+- `SignalSample` 支持 `streamId` / `seq`，并纳入去重身份
+- 自动重连客户端路径由 fake WebSocket 覆盖
+- SIL session 明确 `simulated: true`
+
+仍未完成：
+
+- 应用整体重启
+- 持久化删除后重新加载的端到端验证
+- 真实设备时钟漂移
+
+### B. Capture schema — 部分通过
+
+已完成证据：
+
+- `src/research-capture.test.ts`（5 tests）
+- 物理通道 `physicalKind` 与派生特征 `derivedFrom` 分离
+- 物理通道名称唯一性
+- `features_only` 不得携带 raw format/bytes/sha256
+- `raw_signal` 必须携带 raw provenance
+- 设备 pseudonym 的 scheme/编码/长度约束
+- 同意/采集/留存/撤回/删除的时间顺序
+- `not_requested` / `requested` / `completed` 状态字段组合约束
+- `completed` 必须有 `requestedAt`、`completedAt`、`method`
+
+仍未完成：
+
+- 研究数据存储、加密访问、撤回联动
+- 真实设备采集 UI
+- 伦理批准后的字段冻结
+
+### C. Precision simulation — 修正后待方法学复核
+
+已完成证据：
+
+- `src/lsm0-precision.test.ts`（3 tests）
+- `pnpm lsm0:precision`
+- `src/lsm0-precision.ts` 的 `estimatePopulationSpearman()`
+- coverage 使用 population Spearman，而不是 `latentCoupling`
+- 普通 bootstrap 与 non-circular moving-block bootstrap 并列
+- 缺失 session 保留原始位置（null mask）
+- 报告 observed SD 与 generator true effect SD 分开
+- 6 个 SIL 场景与 precision 检查已接入 CI
+
+仍未完成：
+
+- 方法学复核
+- 缺失机制敏感性模拟
+- 块长度/区间方法的选择依据
+- 基于 precision report 的样本量冻结
+
+### D. 产品/研究边界 — 契约成立，执行未验证
+
+- 产品摘要与 research capture schema 分离
+- 研究采集存储未实现
+- 不声称已具备真实研究采集能力
+
+## 仍为未通过
+
+- Gate 2A HIL：无真实设备
+- Gate 2B：无真实测量可靠性证据
+- Gate 3A/3B：无伦理批准数据/独立复现
+- v0.1.3：未发布
+
+## 结论
+
+`7b145d2` 的实现基线保留；修正后的状态是：
+
+> **PARTIAL — CORRECTIONS APPLIED; RE-REVIEW REQUIRED**
+
+不得签署为“Gate 2 pre-hardware 无条件通过”。

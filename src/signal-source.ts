@@ -9,6 +9,10 @@ export interface SignalSample {
   value?: number
   unit?: string
   label?: string
+  /** Stable stream identity for reconnect-aware deduplication. */
+  streamId?: string
+  /** Monotonic sequence within a stream, if the device supplies it. */
+  seq?: number
   sourceId: string
 }
 
@@ -54,7 +58,7 @@ function assertLocalConsent(consent: SignalConsent) {
 }
 
 function sampleKey(sample: SignalSample) {
-  return `${sample.sourceId}\u0000${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
+  return `${sample.sourceId}\u0000${sample.streamId ?? ''}\u0000${sample.seq ?? ''}\u0000${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
 }
 
 /** Sort and remove exact duplicate samples, which can occur after a bridge replay/reconnect. */

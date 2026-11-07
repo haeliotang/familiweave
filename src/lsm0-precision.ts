@@ -11,13 +11,15 @@ import { spearmanRho } from './lsm0-eval'
 export interface PrecisionScenario {
   participants: number
   sessions: number
-  /** Target within-person association used by the data generator. */
-  targetRho: number
+  /** Generator coefficient; NOT the population Spearman correlation. */
+  latentCoupling: number
   /** AR(1) persistence of the latent session state. */
   autocorrelation: number
   signalNoise: number
   reportNoise: number
   missingRate: number
+  /** SD of participant-specific true coupling; 0 means a homogeneous generator. */
+  participantEffectSd: number
 }
 
 export interface PrecisionInterval {
@@ -29,8 +31,13 @@ export interface PrecisionInterval {
 export interface PrecisionScenarioResult extends PrecisionScenario {
   replications: number
   evaluableParticipantRate: number
+  /** Population Spearman target, estimated by independent Monte Carlo. */
+  populationSpearman: number | null
   meanObservedRho: number | null
-  betweenParticipantSd: number | null
+  /** SD of observed estimates, not an estimate of true effect heterogeneity. */
+  observedRhoSd: number | null
+  /** The generator's participant-effect SD; not estimated from this run. */
+  trueBetweenParticipantSd: number
   ordinary: PrecisionInterval
   movingBlock: PrecisionInterval
 }
@@ -84,31 +91,51 @@ function interval(bounds: Array<{ low: number; high: number }>, target: number):
   }
 }
 
-function bootstrapRho(xs: number[], ys: number[], random: () => number, replicates: number, blockLength: number, block: boolean): number[] {
+function bootstrapRho(xs: Array<number | null>, ys: Array<number | null>, random: () => number, replicates: number, blockLength: number, block: boolean): number[] {
   const n = xs.length
   const out: number[] = []
   for (let replicate = 0; replicate < replicates; replicate += 1) {
     const bx: number[] = []
     const by: number[] = []
     if (!block) {
-      for (let index = 0; index < n; index += 1) {
-        const pick = Math.floor(random() * n)
-        bx.push(xs[pick]); by.push(ys[pick])
+      // Ordinary bootstrap: resample observed pairs only.
+      const observed = xs.map((value, index) => value === null || ys[index] === null ? null : [value, ys[index]!] as const).filter((value): value is readonly [number, number] => value !== null)
+      if (!observed.length) continue
+      for (let index = 0; index < observed.length; index += 1) {
+        const pick = Math.floor(random() * observed.length)
+        bx.push(observed[pick][0]); by.push(observed[pick][1])
       }
     } else {
-      const blocks = Math.ceil(n / blockLength)
-      for (let b = 0; b < blocks; b += 1) {
-        const start = Math.floor(random() * n)
+      // Non-circular moving-block bootstrap over the ORIGINAL session positions,
+      // preserving missing positions rather than collapsing them.
+      const starts = Math.max(1, n - blockLength + 1)
+      for (let b = 0; b < Math.ceil(n / blockLength); b += 1) {
+        const start = Math.floor(random() * starts)
         for (let offset = 0; offset < blockLength; offset += 1) {
-          const index = (start + offset) % n
-          bx.push(xs[index]); by.push(ys[index])
+          const index = start + offset
+          if (index >= n || xs[index] === null || ys[index] === null) continue
+          bx.push(xs[index]!); by.push(ys[index]!)
         }
       }
     }
+    if (bx.length < 4) continue
     const rho = spearmanRho(bx, by)
     if (rho !== null) out.push(rho)
   }
   return out
+}
+
+/** Independent Monte Carlo target for the population Spearman correlation. */
+export function estimatePopulationSpearman(scenario: PrecisionScenario, draws = 50_000): number | null {
+  const random = lcg(91_337 + scenario.participants * 31 + scenario.sessions * 17)
+  const xs: number[] = []
+  const ys: number[] = []
+  for (let index = 0; index < draws; index += 1) {
+    const latent = normal(random)
+    xs.push(latent + scenario.signalNoise * normal(random))
+    ys.push(scenario.latentCoupling * latent + Math.sqrt(Math.max(0, 1 - scenario.latentCoupling ** 2)) * normal(random) + scenario.reportNoise * normal(random))
+  }
+  return spearmanRho(xs, ys)
 }
 
 function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<PrecisionOptions, 'seed' | 'replications' | 'bootstrapReplicates' | 'blockLength'>>): PrecisionScenarioResult {
@@ -122,15 +149,17 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
     for (let participant = 0; participant < scenario.participants; participant += 1) {
       attempted += 1
       let latent = normal(random)
-      const xs: number[] = []
-      const ys: number[] = []
+      const coupling = scenario.latentCoupling + scenario.participantEffectSd * normal(random)
+      const xs: Array<number | null> = []
+      const ys: Array<number | null> = []
       for (let session = 0; session < scenario.sessions; session += 1) {
         if (session > 0) latent = scenario.autocorrelation * latent + Math.sqrt(Math.max(0, 1 - scenario.autocorrelation ** 2)) * normal(random)
         const x = latent + scenario.signalNoise * normal(random)
-        const y = scenario.targetRho * latent + Math.sqrt(Math.max(0, 1 - scenario.targetRho ** 2)) * normal(random) + scenario.reportNoise * normal(random)
-        if (random() >= scenario.missingRate) { xs.push(x); ys.push(y) }
+        const y = coupling * latent + Math.sqrt(Math.max(0, 1 - coupling ** 2)) * normal(random) + scenario.reportNoise * normal(random)
+        if (random() >= scenario.missingRate) { xs.push(x); ys.push(y) } else { xs.push(null); ys.push(null) }
       }
-      const rho = xs.length >= 4 ? spearmanRho(xs, ys) : null
+      const pairs = xs.map((x, index) => x === null || ys[index] === null ? null : [x, ys[index]!] as const).filter((pair): pair is readonly [number, number] => pair !== null)
+      const rho = pairs.length >= 4 ? spearmanRho(pairs.map(pair => pair[0]), pairs.map(pair => pair[1])) : null
       if (rho === null) continue
       evaluable += 1
       observed.push(rho)
@@ -142,23 +171,26 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
   }
   const mean = observed.length ? observed.reduce((a, b) => a + b, 0) / observed.length : null
   const variance = observed.length > 1 ? observed.reduce((sum, value) => sum + (value - (mean ?? 0)) ** 2, 0) / (observed.length - 1) : null
+  const population = estimatePopulationSpearman(scenario, 100_000)
   return {
     ...scenario,
+    populationSpearman: population,
     replications: options.replications,
     evaluableParticipantRate: attempted ? evaluable / attempted : 0,
     meanObservedRho: mean,
-    betweenParticipantSd: variance === null ? null : Math.sqrt(variance),
-    ordinary: { method: 'ordinary_bootstrap', ...interval(ordinaryCis, scenario.targetRho) },
-    movingBlock: { method: 'moving_block_bootstrap', ...interval(blockCis, scenario.targetRho) },
+    observedRhoSd: variance === null ? null : Math.sqrt(variance),
+    trueBetweenParticipantSd: scenario.participantEffectSd,
+    ordinary: { method: 'ordinary_bootstrap', ...interval(ordinaryCis, population ?? scenario.latentCoupling) },
+    movingBlock: { method: 'moving_block_bootstrap', ...interval(blockCis, population ?? scenario.latentCoupling) },
   }
 }
 
 export const defaultPrecisionScenarios: PrecisionScenario[] = [
-  { participants: 12, sessions: 8, targetRho: 0.4, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
-  { participants: 16, sessions: 8, targetRho: 0.4, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
-  { participants: 12, sessions: 12, targetRho: 0.4, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
-  { participants: 16, sessions: 12, targetRho: 0.4, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
-  { participants: 20, sessions: 12, targetRho: 0.4, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
+  { participants: 12, sessions: 8, latentCoupling: 0.4, participantEffectSd: 0, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
+  { participants: 16, sessions: 8, latentCoupling: 0.4, participantEffectSd: 0, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
+  { participants: 12, sessions: 12, latentCoupling: 0.4, participantEffectSd: 0, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
+  { participants: 16, sessions: 12, latentCoupling: 0.4, participantEffectSd: 0, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
+  { participants: 20, sessions: 12, latentCoupling: 0.4, participantEffectSd: 0, autocorrelation: 0.3, signalNoise: 0.7, reportNoise: 0.7, missingRate: 0.1 },
 ]
 
 export function simulatePrecision(options: PrecisionOptions = {}): PrecisionReport {
@@ -189,11 +221,11 @@ export function formatPrecisionReport(report: PrecisionReport): string {
   const lines = [
     `LSM-0 precision simulation (${report.version})`,
     `seed ${report.seed}; replications ${report.scenarios[0]?.replications ?? 0}; bootstrap ${report.bootstrapReplicates}; block ${report.blockLength}`,
-    'N x S | mean rho | between-participant SD | ordinary width (coverage) | block width (coverage) | evaluable',
+    'N x S | population rho | mean rho | observed SD | true effect SD | ordinary width (coverage) | block width (coverage) | evaluable',
   ]
   for (const scenario of report.scenarios) {
     const metric = (value: number | null) => value === null ? 'n/a' : value.toFixed(3)
-    lines.push(`${scenario.participants} x ${scenario.sessions} | ${metric(scenario.meanObservedRho)} | ${metric(scenario.betweenParticipantSd)} | ${metric(scenario.ordinary.meanWidth)} (${metric(scenario.ordinary.coverage)}) | ${metric(scenario.movingBlock.meanWidth)} (${metric(scenario.movingBlock.coverage)}) | ${scenario.evaluableParticipantRate.toFixed(2)}`)
+    lines.push(`${scenario.participants} x ${scenario.sessions} | ${metric(scenario.populationSpearman)} | ${metric(scenario.meanObservedRho)} | ${metric(scenario.observedRhoSd)} | ${metric(scenario.trueBetweenParticipantSd)} | ${metric(scenario.ordinary.meanWidth)} (${metric(scenario.ordinary.coverage)}) | ${metric(scenario.movingBlock.meanWidth)} (${metric(scenario.movingBlock.coverage)}) | ${scenario.evaluableParticipantRate.toFixed(2)}`)
   }
   lines.push('Descriptive simulation only; no p-values or clinical claims.')
   return lines.join('\n')

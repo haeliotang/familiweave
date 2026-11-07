@@ -8,7 +8,7 @@ const base = {
   collectedAt: '2026-11-07T00:00:00.000Z',
   device: {
     manufacturer: 'OpenBCI', model: 'Cyton', firmware: '3.0.0', sdkVersion: '1.0.0',
-    devicePseudonym: { value: 'dev_01', scheme: 'hmac-sha256' as const, keyVersion: 'v1' },
+    devicePseudonym: { value: 'a'.repeat(64), scheme: 'hmac-sha256' as const, keyVersion: 'v1' },
     channels: [{ name: 'ch1', physicalKind: 'ecg' as const, sampleRateHz: 250, unit: 'mV' }],
   },
   clock: { source: 'device' as const, deviceEpochMs: 0, hostEpochMs: 0, offsetMs: 0 },
@@ -35,6 +35,8 @@ describe('research capture schema', () => {
 
   it('rejects raw bytes under features-only consent and missing device firmware', () => {
     expect(researchCaptureSessionSchema.safeParse({ ...base, capture: { ...base.capture, rawFormat: 'jsonl' as const } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, capture: { ...base.capture, rawSha256: 'b'.repeat(64) } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, capture: { ...base.capture, rawBytes: 100 } }).success).toBe(false)
     const { firmware: _firmware, ...device } = base.device
     expect(researchCaptureSessionSchema.safeParse({ ...base, device }).success).toBe(false)
   })
@@ -44,6 +46,11 @@ describe('research capture schema', () => {
     expect(researchCaptureSessionSchema.safeParse({ ...base, consent: { ...base.consent, grantedAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, consent: { ...base.consent, withdrawalAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)
     expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'completed' as const, requestedAt: '2026-11-08T00:00:00.000Z', completedAt: '2026-11-07T00:00:00.000Z', method: 'x' } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'completed' as const, completedAt: '2026-11-09T00:00:00.000Z', method: 'x' } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'not_requested' as const, requestedAt: '2026-11-08T00:00:00.000Z' } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, deletion: { status: 'requested' as const, requestedAt: '2026-11-08T00:00:00.000Z', completedAt: '2026-11-09T00:00:00.000Z' } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, device: { ...base.device, channels: [base.device.channels[0], base.device.channels[0]] } }).success).toBe(false)
+    expect(researchCaptureSessionSchema.safeParse({ ...base, device: { ...base.device, devicePseudonym: { ...base.device.devicePseudonym, value: 'short' } } }).success).toBe(false)
   })
 
   it('accepts a completed deletion with an explicit method and ordering', () => {

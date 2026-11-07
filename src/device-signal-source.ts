@@ -17,7 +17,7 @@ export interface BridgePacket {
   value?: number
   unit?: string
   label?: string
-  samples?: Array<{ tMs?: number; seq?: number; kind: SignalKind; value?: number; unit?: string; label?: string }>
+  samples?: Array<{ tMs?: number; seq?: number; streamId?: string; kind: SignalKind; value?: number; unit?: string; label?: string }>
   message?: string
 }
 
@@ -36,17 +36,19 @@ export function parseBridgePacket(packet: unknown, receivedAtMs: number, sourceI
   if (!packet || typeof packet !== 'object') return []
   const data = packet as BridgePacket
   if (data.type !== 'sample' && data.type !== 'samples') return []
-  const raw: Array<{ tMs?: number; kind?: SignalKind; value?: number; unit?: string; label?: string }> = data.type === 'sample'
-    ? [{ tMs: data.tMs, kind: data.kind, value: data.value, unit: data.unit, label: data.label }]
+  const raw: Array<{ tMs?: number; seq?: number; streamId?: string; kind?: SignalKind; value?: number; unit?: string; label?: string }> = data.type === 'sample'
+    ? [{ tMs: data.tMs, seq: data.seq, streamId: data.streamId, kind: data.kind, value: data.value, unit: data.unit, label: data.label }]
     : (data.samples ?? [])
   return raw
-    .filter((sample): sample is { tMs?: number; seq?: number; kind: SignalKind; value?: number; unit?: string; label?: string } => Boolean(sample.kind && signalKinds.includes(sample.kind)))
+    .filter((sample): sample is { tMs?: number; seq?: number; streamId?: string; kind: SignalKind; value?: number; unit?: string; label?: string } => Boolean(sample.kind && signalKinds.includes(sample.kind)))
     .map(sample => ({
       tMs: typeof sample.tMs === 'number' && Number.isFinite(sample.tMs) && sample.tMs >= 0 ? sample.tMs : receivedAtMs,
       kind: sample.kind,
       ...(typeof sample.value === 'number' && Number.isFinite(sample.value) ? { value: sample.value } : {}),
       ...(typeof sample.unit === 'string' ? { unit: sample.unit } : {}),
       ...(typeof sample.label === 'string' ? { label: sample.label } : {}),
+      ...(typeof sample.seq === 'number' && Number.isInteger(sample.seq) && sample.seq >= 0 ? { seq: sample.seq } : {}),
+      ...(typeof sample.streamId === 'string' && sample.streamId.length > 0 ? { streamId: sample.streamId } : {}),
       sourceId,
     }))
 }

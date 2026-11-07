@@ -57,6 +57,7 @@ Tacitweave 研究的是一个比“读取深层潜意识”更窄、更可检验
 - [下一阶段研究里程碑（Gate 1–4）](docs/research/next-milestones.md)
 - [Gate 2A/2B 检查清单](docs/research/gate-2-checklist.md)
 - [Gate 2 pre-hardware 加固](docs/research/gate-2-prehardware.md)
+- [Gate 2 pre-hardware 验收报告](docs/research/gate-2-prehardware-report.md)
 - [LSM-0 精度模拟](docs/research/lsm-0-precision.md)
 - [LSM-0 protocol v1](docs/research/lsm-0-protocol-v1.md)
 - [预注册骨架](docs/research/preregistration-skeleton.md)
