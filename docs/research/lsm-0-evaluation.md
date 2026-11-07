@@ -154,6 +154,15 @@ pnpm lsm0:baseline --in /tmp/lsm0-fixture.json
 - 导出器只做格式转换，不推断参与者身份、同意或临床有效性；`participantId` 由调用者显式提供。
 
 
+## 研究前先读
+
+- [Gate 2A/2B checklist](gate-2-checklist.md)
+- [LSM-0 protocol v1](lsm-0-protocol-v1.md)
+- [Preregistration skeleton](preregistration-skeleton.md)
+- [Research capture schema](research-capture-schema.md)
+
+LSM-0 的人类数据采集必须等 Gate 2B、伦理批准和预注册，不得用产品摘要直接替代研究原始数据。
+
 ## 理论定位（2026-11-06）
 
 LSM-0 不是“潜意识读取”实验，也不是意识理论的判决实验。它是一个**理论中立的描述性基线**，用于检验：

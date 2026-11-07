@@ -24,6 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level high
       - run: pnpm test
+      - run: pnpm sil:test
       - run: pnpm build
 
 
