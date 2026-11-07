@@ -56,6 +56,7 @@ Read the full positioning and literature brief:
 - [Gate 2A/2B checklist](docs/research/gate-2-checklist.md)
 - [Gate 2 pre-hardware hardening](docs/research/gate-2-prehardware.md)
 - [Gate 2 pre-hardware acceptance report](docs/research/gate-2-prehardware-report.md)
+- [Gate 2A Cyton bench plan](docs/research/gate-2a-cyton-bench-plan.md)
 - [LSM-0 precision simulation](docs/research/lsm-0-precision.md)
 - [Device signal identity contract](docs/research/device-identity-contract.md)
 - [LSM-0 protocol v1](docs/research/lsm-0-protocol-v1.md)

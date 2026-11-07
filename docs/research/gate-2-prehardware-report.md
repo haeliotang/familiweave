@@ -2,7 +2,7 @@
 
 日期：2026-11-07。状态：**PARTIAL — CORRECTIONS APPLIED; RE-REVIEW REQUIRED**。
 
-本报告对应审查基线 `7b145d2` 之后的修正。
+本报告对应审查基线 `7b145d2` 之后的修正；来源标记实际由 `37e5edb` 引入，`8f8bdeb` 仅修复密文篡改测试的随机性。
 它不把 SIL 通过等同于 Gate 2A，也不把 schema 单测等同于研究采集已实现。
 
 ## 验收域
@@ -17,6 +17,7 @@
 - `src/device-signal-source.test.ts` → `auto-reconnects, keeps source identity and deduplicates replay samples`
 - `src/device-signal-source.test.ts` → `marks a bridge that does not declare hardware origin as simulated`
 - `SignalTrace` / `SignalTimeline` / `SignalSession` carry optional `origin`, `devicePseudonym`, `adapterVersion`
+- `origin: hardware` 是适配器自声明，不是硬件真实性证明；HIL 需绑定固件、适配器版本和实测日志
 - `src/signal-session.test.ts` → `leaves no session after save, retract, save and reload`
 - `src/signal-source.test.ts` → `traceToTimeline()` blocks a conflicting identity; different channels at one frame are independent
 - `src/signal-source.test.ts` → exact content dedupe fallback
