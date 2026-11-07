@@ -10,6 +10,7 @@ const en: Record<string, string> = {
   '关系瞬间': 'Relationship moments',
   '可选信号': 'Optional signals',
   '设置': 'Settings',
+  '信号身份冲突，未生成摘要。': 'Signal identity conflict; no summary was created.',
   '本机设置': 'Local settings',
   '可选信号与设备桥接是研究工具，不会进入象征空间。': 'Optional signals and the device bridge are research tools; they do not enter the symbolic space.',
   '数据、应用锁与研究工具都在这里；所有记录默认留在本机。': 'Data, app lock and research tools live here; all records stay local by default.',

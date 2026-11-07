@@ -20,11 +20,12 @@ pnpm lsm0:precision --replicates 200 --bootstrap 100 --block 3 --out artifacts/l
 报告包含：
 
 - 每个场景的参与者数 × session 数
-- **population Spearman**（由独立 Monte Carlo 估计，不是 `latentCoupling`）
+- **population Spearman**（Gaussian 生成器的解析真值；Monte Carlo 仅作交叉验证）
 - 异质性场景下每位参与者的**自身真实参数**；coverage 按参与者自己的 target 计算
 - 平均观测 rho
 - 观测估计 SD（不等于真实参与者效应异质性）
-- 异质性场景使用 participant-specific target grid 插值；homogeneous 场景仍用单一 target
+- 异质性场景使用每位参与者 coupling 的解析 target；homogeneous 场景自然退化为单一 target
+- 解析式：`rho_P = c / sqrt((1+sx²)(1+sy²))`，`rho_S = (6/pi) asin(rho_P/2)`
 - 真实参与者效应 SD（生成器参数）
 - 普通 bootstrap 平均 CI 宽度与覆盖率（对 population Spearman）
 - non-circular moving-block bootstrap 平均 CI 宽度与覆盖率
@@ -35,7 +36,7 @@ pnpm lsm0:precision --replicates 200 --bootstrap 100 --block 3 --out artifacts/l
 - 模拟假设不是实证估计。
 - 生成模型是简化 AR(1)，不代表真实生理或自报结构。
 - 普通 bootstrap 按构造忽略时间依赖，只作为对照；正式协议必须优先考虑保留时间结构的方法。
-- moving-block 使用原始 session 位置与缺失掩码，非循环回绕；块重采样长度严格等于 n，不会因为 ceil(n/block) 多出位置；缺失机制仍需敏感性模拟。
+- moving-block 使用原始 session 位置与缺失掩码，非循环回绕；`movingBlockIndices()` 保证恰好 n 个位置，并可由单元测试直接检查；缺失机制仍需敏感性模拟。
 - 报告不提供 p 值、临床结论或模型选择。
 - 不能根据一次模拟“证明”样本量足够；必须做敏感性分析并在预注册中固定。
 

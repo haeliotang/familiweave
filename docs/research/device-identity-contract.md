@@ -14,13 +14,15 @@
 
 1. `sourceId`：稳定的 bridge/设备来源标识；不能由接收时间重新生成。
 2. `streamId`：设备或 bridge 的稳定 stream epoch；设备重启后应变化，不能复用。
-3. `seq`：stream 内的单调 sequence；重连重放保留原 seq。
+3. `seq`：stream 内的单调 sequence；默认是 **sample-level**（每个通道样本一个 seq），重连重放保留原 seq。
 4. 内容相等：只有在没有 `streamId + seq` 时才作为降级的精确内容去重。
 
 ## 规则
 
-- `sourceId + streamId + seq` 相同且内容相同 → 去重。
+- `sourceId + streamId + seq + channel/kind` 相同且内容相同 → 去重。
 - 同一身份、内容不同 → **冲突**，不得静默当作新样本。
+- 同一帧 seq、不同 channel/kind → 独立样本，不是冲突。
+- 如果设备提供的是 frame-level seq，适配器必须把它映射为 channel-specific identity，不能让多通道共享同一个 sample identity。
 - 不同 `sourceId` 或不同 `streamId` → 独立样本。
 - 设备重启后 seq 重置：必须换新 `streamId`，否则会被视为冲突。
 - 没有 sequence 的设备：只能精确内容去重，并在质量报告中声明限制。
@@ -32,7 +34,7 @@
 - `dedupeSignalSamples()`：精确重复去重。
 - `reconcileSignalSamples()`：返回 `{ samples, conflicts }`；同身份不同载荷标记 `same_identity_different_payload`。
 
-当前实现不会自动解决冲突，只显式标记；采集/导入路径应拒绝或隔离冲突，而不是静默合并。
+当前实现不会自动解决冲突，只显式标记；`traceToTimeline()` / `mergeSignalTraces()` 已把冲突作为强制门禁，抛 `signal_identity_conflict`，采集路径不会生成含有冲突的摘要。
 
 ## 未验证
 

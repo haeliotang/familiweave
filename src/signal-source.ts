@@ -11,8 +11,10 @@ export interface SignalSample {
   label?: string
   /** Stable stream identity for reconnect-aware deduplication. */
   streamId?: string
-  /** Monotonic sequence within a stream, if the device supplies it. */
+  /** Monotonic sequence within a stream, if the device supplies it; scope is sample-level within stream. */
   seq?: number
+  /** Physical/logical channel name when multiple channels share a sequence. */
+  channel?: string
   sourceId: string
 }
 
@@ -58,7 +60,7 @@ function assertLocalConsent(consent: SignalConsent) {
 }
 
 function sampleKey(sample: SignalSample) {
-  return `${sample.sourceId}\u0000${sample.streamId ?? ''}\u0000${sample.seq ?? ''}\u0000${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
+  return `${sample.sourceId}\u0000${sample.streamId ?? ''}\u0000${sample.seq ?? ''}\u0000${sample.channel ?? sample.kind}\u0000${sample.tMs}\u0000${sample.kind}\u0000${sample.value ?? ''}\u0000${sample.unit ?? ''}\u0000${sample.label ?? ''}`
 }
 
 /** Sort and remove exact duplicate samples, which can occur after a bridge replay/reconnect. */
@@ -91,7 +93,7 @@ export interface SignalReconciliation {
 
 function stableSignalIdentity(sample: SignalSample): string | null {
   if (!sample.streamId || !Number.isInteger(sample.seq)) return null
-  return `${sample.sourceId}\u0000${sample.streamId}\u0000${sample.seq}`
+  return `${sample.sourceId}\u0000${sample.streamId}\u0000${sample.seq}\u0000${sample.channel ?? sample.kind}`
 }
 
 function contentKey(sample: SignalSample): string {
@@ -126,12 +128,14 @@ export function reconcileSignalSamples(samples: readonly SignalSample[]): Signal
 }
 
 export function traceToTimeline(trace: SignalTrace): SignalTimeline {
+  const reconciled = reconcileSignalSamples(trace.samples)
+  if (reconciled.conflicts.length) throw new Error('signal_identity_conflict')
   return {
     version: 'signal-timeline-v1',
     startedAt: trace.startedAt,
     endedAt: trace.endedAt,
-    samples: dedupeSignalSamples(trace.samples),
-    sources: [trace.sourceId],
+    samples: reconciled.samples,
+    sources: [...new Set(reconciled.samples.map(sample => sample.sourceId))],
     simulated: trace.simulated,
   }
 }
@@ -144,16 +148,17 @@ export function mergeSignalTraces(traces: SignalTrace[]): SignalTimeline {
     const offset = Date.parse(trace.startedAt) - start
     return trace.samples.map(sample => ({ ...sample, tMs: sample.tMs + offset }))
   })
+  const reconciled = reconcileSignalSamples(samples)
+  if (reconciled.conflicts.length) throw new Error('signal_identity_conflict')
   return {
     version: 'signal-timeline-v1',
     startedAt: new Date(start).toISOString(),
     endedAt: new Date(end).toISOString(),
-    samples: dedupeSignalSamples(samples),
-    sources: [...new Set(traces.map(trace => trace.sourceId))],
+    samples: reconciled.samples,
+    sources: [...new Set(reconciled.samples.map(sample => sample.sourceId))],
     simulated: traces.some(trace => trace.simulated),
   }
 }
-
 /**
  * Deterministic LSL-like simulator. It is deliberately labelled simulated and
  * must never be presented as physiological data from a person.

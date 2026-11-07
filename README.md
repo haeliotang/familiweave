@@ -170,7 +170,7 @@ As of the latest `main`:
 - 21 Playwright browser E2E scenarios
 - 6 Rust host tests
 - WCAG A/AA structural and contrast checks in light/dark themes
-- main JS bundle about 311 KB, with heavy views lazy-loaded
+- main JS bundle about 312 KB, with heavy views lazy-loaded
 - macOS app bundle about 10.45 MiB before packaging; `pnpm package:macos` strips to about 8.4 MiB / ~3.4 MB zip, ad-hoc signed
 - Linux/Windows release builds plus startup smoke in CI
 - GitHub Actions checks: Symbolic space, Rust operational and Browser E2E

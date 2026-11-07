@@ -108,15 +108,9 @@ function bootstrapRho(xs: Array<number | null>, ys: Array<number | null>, random
     } else {
       // Non-circular moving-block bootstrap over the ORIGINAL session positions,
       // preserving missing positions rather than collapsing them.
-      const starts = Math.max(1, n - blockLength + 1)
-      let position = 0
-      while (position < n) {
-        const start = Math.floor(random() * starts)
-        for (let offset = 0; offset < blockLength && position < n; offset += 1, position += 1) {
-          const index = start + offset
-          if (index >= n || xs[index] === null || ys[index] === null) continue
-          bx.push(xs[index]!); by.push(ys[index]!)
-        }
+      for (const index of movingBlockIndices(n, blockLength, random)) {
+        if (xs[index] === null || ys[index] === null) continue
+        bx.push(xs[index]!); by.push(ys[index]!)
       }
     }
     if (bx.length < 4) continue
@@ -126,7 +120,23 @@ function bootstrapRho(xs: Array<number | null>, ys: Array<number | null>, random
   return out
 }
 
-/** Independent Monte Carlo target for a given coupling coefficient. */
+/**
+ * Analytic population Spearman target for the Gaussian generator:
+ * rho_P = c / sqrt((1 + sx^2)(1 + sy^2));
+ * rho_S = (6/pi) asin(rho_P / 2).
+ */
+export function analyticPopulationSpearman(coupling: number, scenario: PrecisionScenario): number {
+  const clamped = Math.max(-0.95, Math.min(0.95, coupling))
+  const pearson = clamped / Math.sqrt((1 + scenario.signalNoise ** 2) * (1 + scenario.reportNoise ** 2))
+  return (6 / Math.PI) * Math.asin(Math.max(-1, Math.min(1, pearson / 2)))
+}
+
+/** Monte Carlo cross-check for the analytic target (not used as the primary target). */
+export function estimatePopulationSpearmanMonteCarlo(scenario: PrecisionScenario, draws = 50_000): number | null {
+  return estimatePopulationSpearmanForCoupling(scenario.latentCoupling, scenario, draws)
+}
+
+/** Monte Carlo cross-check for a given coupling coefficient. */
 export function estimatePopulationSpearmanForCoupling(coupling: number, scenario: PrecisionScenario, draws = 20_000): number | null {
   const clamped = Math.max(-0.95, Math.min(0.95, coupling))
   const random = lcg(91_337 + Math.round(clamped * 10_000) * 31 + scenario.participants * 17 + scenario.sessions * 7)
@@ -140,35 +150,25 @@ export function estimatePopulationSpearmanForCoupling(coupling: number, scenario
   return spearmanRho(xs, ys)
 }
 
-/** Independent Monte Carlo target for the scenario's central latent coupling. */
-export function estimatePopulationSpearman(scenario: PrecisionScenario, draws = 50_000): number | null {
-  return estimatePopulationSpearmanForCoupling(scenario.latentCoupling, scenario, draws)
+/** Backwards-compatible name for the analytic target. */
+export function estimatePopulationSpearman(scenario: PrecisionScenario): number | null {
+  return analyticPopulationSpearman(scenario.latentCoupling, scenario)
 }
 
-interface TargetGridEntry { coupling: number; rho: number | null }
-
-function targetGrid(scenario: PrecisionScenario): TargetGridEntry[] {
-  if (scenario.participantEffectSd === 0) return [{ coupling: scenario.latentCoupling, rho: estimatePopulationSpearman(scenario, 50_000) }]
-  return Array.from({ length: 41 }, (_, index) => {
-    const coupling = -0.95 + index * (1.9 / 40)
-    return { coupling, rho: estimatePopulationSpearmanForCoupling(coupling, scenario, 20_000) }
-  })
-}
-
-function trueTargetForCoupling(grid: TargetGridEntry[], coupling: number): number | null {
-  const usable = grid.filter((entry): entry is { coupling: number; rho: number } => entry.rho !== null).sort((a, b) => a.coupling - b.coupling)
-  if (!usable.length) return null
-  if (coupling <= usable[0].coupling) return usable[0].rho
-  if (coupling >= usable[usable.length - 1].coupling) return usable[usable.length - 1].rho
-  for (let index = 1; index < usable.length; index += 1) {
-    const right = usable[index]
-    const left = usable[index - 1]
-    if (coupling <= right.coupling) {
-      const fraction = (coupling - left.coupling) / (right.coupling - left.coupling)
-      return left.rho + (right.rho - left.rho) * fraction
+/** Testable non-circular moving-block index generator; always returns exactly n positions. */
+export function movingBlockIndices(n: number, blockLength: number, random: () => number): number[] {
+  if (!Number.isInteger(n) || n <= 0) return []
+  if (!Number.isInteger(blockLength) || blockLength <= 0) throw new Error('block_length_must_be_positive_integer')
+  const starts = Math.max(1, n - blockLength + 1)
+  const indices: number[] = []
+  while (indices.length < n) {
+    const start = Math.floor(random() * starts)
+    for (let offset = 0; offset < blockLength && indices.length < n; offset += 1) {
+      const index = start + offset
+      if (index < n) indices.push(index)
     }
   }
-  return usable[usable.length - 1].rho
+  return indices
 }
 
 function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<PrecisionOptions, 'seed' | 'replications' | 'bootstrapReplicates' | 'blockLength'>>): PrecisionScenarioResult {
@@ -176,7 +176,6 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
   const observed: number[] = []
   const ordinaryCis: Array<{ low: number; high: number; target: number }> = []
   const blockCis: Array<{ low: number; high: number; target: number }> = []
-  const targetGridEntries = targetGrid(scenario)
   const trueTargets: number[] = []
   let evaluable = 0
   let attempted = 0
@@ -185,7 +184,7 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
       attempted += 1
       let latent = normal(random)
       const coupling = Math.max(-0.95, Math.min(0.95, scenario.latentCoupling + scenario.participantEffectSd * normal(random)))
-      const trueTarget = trueTargetForCoupling(targetGridEntries, coupling)
+      const trueTarget = analyticPopulationSpearman(coupling, scenario)
       const xs: Array<number | null> = []
       const ys: Array<number | null> = []
       for (let session = 0; session < scenario.sessions; session += 1) {
@@ -208,7 +207,7 @@ function simulateScenario(scenario: PrecisionScenario, options: Required<Pick<Pr
   }
   const mean = observed.length ? observed.reduce((a, b) => a + b, 0) / observed.length : null
   const variance = observed.length > 1 ? observed.reduce((sum, value) => sum + (value - (mean ?? 0)) ** 2, 0) / (observed.length - 1) : null
-  const population = trueTargets.length ? trueTargets.reduce((a, b) => a + b, 0) / trueTargets.length : estimatePopulationSpearman(scenario, 50_000)
+  const population = trueTargets.length ? trueTargets.reduce((a, b) => a + b, 0) / trueTargets.length : analyticPopulationSpearman(scenario.latentCoupling, scenario)
   return {
     ...scenario,
     populationSpearman: population,

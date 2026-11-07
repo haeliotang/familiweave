@@ -16,12 +16,14 @@
 - `src/bci3-bridge.test.ts` → `dedupes a sample repeated after reconnect and keeps an explicit retraction boundary`
 - `src/device-signal-source.test.ts` → `auto-reconnects, keeps source identity and deduplicates replay samples`
 - `src/signal-session.test.ts` → `leaves no session after save, retract, save and reload`
-- `src/signal-source.test.ts` → conflicting same-identity payload is flagged
+- `src/signal-source.test.ts` → `traceToTimeline()` blocks a conflicting identity; different channels at one frame are independent
+- `src/signal-source.test.ts` → exact content dedupe fallback
 - `src/sil-harness.test.ts` → 6 deterministic scenarios
 
 已修正：
 
 - 建链测试保留 bridge 原始 `sourceId`，不再人工统一来源
+- `traceToTimeline()` / `mergeSignalTraces()` 已接入冲突门禁；冲突时抛 `signal_identity_conflict`
 - `SignalSample` 支持 `streamId` / `seq`，并纳入去重身份
 - 自动重连客户端路径由 fake WebSocket 覆盖
 - SIL session 明确 `simulated: true`
@@ -31,8 +33,8 @@
 - 应用整体重启
 - 持久化删除后重新加载的端到端验证
 - 真实设备时钟漂移
-- Tauri 应用整体重启
-- 持久化删除后重新加载（本轮只覆盖 signal session 的 save/retract/reload）
+
+> SignalSession 存储适配层的保存—撤回—重载已验证；Tauri 应用重启、其他存储副本清理及研究数据库的端到端删除尚未验证。
 
 ### B. Capture schema — 部分通过
 
@@ -60,11 +62,11 @@
 
 - `src/lsm0-precision.test.ts`（5 tests；含异质性与块长度边界）
 - `pnpm lsm0:precision`
-- `src/lsm0-precision.ts` 的 `estimatePopulationSpearmanForCoupling()` 与 participant-specific target grid
-- coverage 使用每位参与者自身的 population target；homogeneous 场景退化为单一 target
+- `src/lsm0-precision.ts` 的解析 `analyticPopulationSpearman()` 与 participant-specific targets
+- coverage 使用每位参与者自身的解析 population target；Monte Carlo 独立交叉验证；homogeneous 场景退化为单一 target
 - 普通 bootstrap 与 non-circular moving-block bootstrap 并列
 - 缺失 session 保留原始位置（null mask）
-- 报告 observed SD 与 generator true effect SD 分开；moving-block 块长度严格等于 n
+- 报告 observed SD 与 generator true effect SD 分开；moving-block 使用 `movingBlockIndices()` 严格取 n 个位置
 - 6 个 SIL 场景与 precision 检查已接入 CI
 
 仍未完成：

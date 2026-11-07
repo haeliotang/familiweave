@@ -40,6 +40,8 @@
 - [ ] 删除完成不早于删除请求
 - [ ] completed 状态必须有 requestedAt、完成时间和方法
 - [ ] 同一 stream/seq 不同载荷必须标记冲突，不得静默新增
+- [ ] 冲突必须阻断 `traceToTimeline()` / `mergeSignalTraces()`
+- [ ] frame-level seq 必须映射为 channel-specific identity
 - [ ] features_only 不得携带 raw 元信息
 - [ ] 物理通道名唯一；pseudonym 长度/编码受校验
 

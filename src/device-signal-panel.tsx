@@ -31,7 +31,9 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
       setLastSession(session)
       setHealth(source.current?.health() ?? null)
       onSession?.(session)
-    } catch { /* no trace */ }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'signal_identity_conflict') setMessage(t('信号身份冲突，未生成摘要。'))
+    }
     source.current = null
     setState('stopped')
   }

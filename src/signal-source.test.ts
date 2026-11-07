@@ -59,3 +59,33 @@ describe('signal reconciliation identity', () => {
     expect(reconcileSignalSamples([sample, { ...sample }])).toMatchObject({ samples: [sample], conflicts: [] })
   })
 })
+
+describe('signal identity gate', () => {
+  const base = { tMs: 1000, sourceId: 'device', streamId: 'stream-1', seq: 9 }
+  it('blocks traceToTimeline when the same identity carries conflicting payloads', () => {
+    const trace: SignalTrace = {
+      version: 'signal-trace-v1', sourceId: 'device', startedAt: '2026-11-01T00:00:00.000Z', endedAt: '2026-11-01T00:00:01.000Z',
+      consent, simulated: false,
+      samples: [{ ...base, kind: 'heart_rate', value: 70 }, { ...base, kind: 'heart_rate', value: 71 }],
+    }
+    expect(() => traceToTimeline(trace)).toThrow('signal_identity_conflict')
+  })
+
+  it('allows same frame sequence on different channels', () => {
+    const trace: SignalTrace = {
+      version: 'signal-trace-v1', sourceId: 'device', startedAt: '2026-11-01T00:00:00.000Z', endedAt: '2026-11-01T00:00:01.000Z',
+      consent, simulated: false,
+      samples: [{ ...base, kind: 'heart_rate', channel: 'ecg', value: 70 }, { ...base, kind: 'eda', channel: 'eda', value: 2.1 }],
+    }
+    expect(traceToTimeline(trace).samples).toHaveLength(2)
+  })
+
+  it('treats different channels at the same sequence as independent samples', () => {
+    const { conflicts, samples } = reconcileSignalSamples([
+      { ...base, kind: 'heart_rate', channel: 'ecg-1', value: 70 },
+      { ...base, kind: 'heart_rate', channel: 'ecg-2', value: 71 },
+    ])
+    expect(conflicts).toHaveLength(0)
+    expect(samples).toHaveLength(2)
+  })
+})

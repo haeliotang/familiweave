@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defaultPrecisionScenarios, estimatePopulationSpearman, formatPrecisionReport, simulatePrecision } from './lsm0-precision'
+import { defaultPrecisionScenarios, estimatePopulationSpearman, estimatePopulationSpearmanMonteCarlo, formatPrecisionReport, movingBlockIndices, simulatePrecision } from './lsm0-precision'
 
 describe('LSM-0 precision simulation', () => {
   it('is deterministic and reports both interval methods', () => {
@@ -12,11 +12,14 @@ describe('LSM-0 precision simulation', () => {
   })
 
   it('uses a population Spearman target rather than the latent coupling coefficient', () => {
-    const target = estimatePopulationSpearman(defaultPrecisionScenarios[0], 20_000)
+    const target = estimatePopulationSpearman(defaultPrecisionScenarios[0])
+    const monteCarlo = estimatePopulationSpearmanMonteCarlo(defaultPrecisionScenarios[0], 20_000)
     expect(target).not.toBeNull()
     expect(target).toBeGreaterThan(0.15)
     expect(target).toBeLessThan(0.35)
     expect(target).not.toBe(defaultPrecisionScenarios[0].latentCoupling)
+    expect(monteCarlo).not.toBeNull()
+    expect(Math.abs((target ?? 0) - (monteCarlo ?? 0))).toBeLessThan(0.02)
   })
 
   it('uses participant-specific true targets when heterogeneity is enabled', () => {
@@ -31,6 +34,9 @@ describe('LSM-0 precision simulation', () => {
     const scenario = { ...defaultPrecisionScenarios[0], sessions: 8 }
     const report = simulatePrecision({ replications: 5, bootstrapReplicates: 5, blockLength: 3, scenarios: [scenario] })
     expect(report.scenarios[0].movingBlock.meanWidth).not.toBeNull()
+    const indices = movingBlockIndices(8, 3, () => 0.5)
+    expect(indices).toHaveLength(8)
+    expect(indices.every(index => index >= 0 && index < 8)).toBe(true)
   })
 
   it('flags the temporal-dependence limitation and never emits p-values', () => {
