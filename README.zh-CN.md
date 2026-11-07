@@ -54,6 +54,7 @@ Tacitweave 研究的是一个比“读取深层潜意识”更窄、更可检验
 
 - [理论定位](docs/research/theory-positioning.md)
 - [意识、潜意识与可塑性文献简报](docs/research/consciousness-and-plasticity-brief.md)
+- [下一阶段研究里程碑（Gate 1–4）](docs/research/next-milestones.md)
 
 ## 1. 为什么是脑机接口，而不是又一个聊天框
 
@@ -317,6 +318,7 @@ GitHub Actions 的 `Desktop builds` workflow 会构建 Windows NSIS 与 Linux Ap
 - [Consent and withdrawal](docs/research/consent-and-withdrawal.md)
 - [LSM-0 evaluation protocol](docs/research/lsm-0-evaluation.md)
 - [意识、潜意识与可塑性文献简报](docs/research/consciousness-and-plasticity-brief.md)
+- [下一阶段研究里程碑（Gate 1–4）](docs/research/next-milestones.md)
 - LSM-0 离线基线：`pnpm lsm0:baseline --in <fixture.jsonl>`；本机导出 `pnpm lsm0:export`
 - [自动更新方案](docs/updater-plan.md)：updater key/endpoint 方案与清单生成器
 - [Release signing](docs/release-signing.md)
