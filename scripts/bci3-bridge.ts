@@ -11,8 +11,13 @@ const valueAfter = (flag: string) => {
 const port = Number(valueAfter('--port') ?? 8765)
 const token = valueAfter('--token') ?? randomBytes(18).toString('base64url')
 const sampleRateHz = Number(valueAfter('--rate') ?? 1)
+const origin = valueAfter('--origin') ?? 'unknown'
+const devicePseudonym = valueAfter('--device-pseudonym')
+const adapterVersion = valueAfter('--adapter-version')
+const streamId = valueAfter('--stream-id')
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('invalid --port')
 if (!Number.isFinite(sampleRateHz) || sampleRateHz <= 0) throw new Error('invalid --rate')
+if (!['simulated', 'hardware', 'unknown'].includes(origin)) throw new Error('invalid --origin')
 
 function tokenMatches(expected: string, received: unknown) {
   if (typeof received !== 'string') return false
@@ -81,6 +86,10 @@ wss.on('connection', (socket, request) => {
     send(socket, {
       type: 'hello',
       sourceId: 'bci-3-bridge',
+      origin,
+      ...(devicePseudonym ? { devicePseudonym } : {}),
+      ...(adapterVersion ? { adapterVersion } : {}),
+      ...(streamId ? { streamId } : {}),
       kinds: [...signalKinds],
       sampleRateHz,
     })
@@ -93,6 +102,7 @@ server.listen(port, '127.0.0.1', () => {
   console.log(`Tacitweave BCI-3 local bridge listening on ws://127.0.0.1:${port}/bci`)
   console.log(`Token: ${token}`)
   console.log('Health: http://127.0.0.1:' + port + '/health')
+  console.log(`Declared origin: ${origin} (use --origin hardware only for a verified adapter).`)
   console.log('Pipe JSONL sample/samples packets via stdin; no raw samples are stored by this process.')
 console.log(`Declared source rate: ${sampleRateHz} Hz (override with --rate).`)
 })

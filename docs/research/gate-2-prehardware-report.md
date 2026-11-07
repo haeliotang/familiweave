@@ -15,6 +15,8 @@
 - `src/bci3-bridge.test.ts` → `forwards a stdin sample to authenticated clients`
 - `src/bci3-bridge.test.ts` → `dedupes a sample repeated after reconnect and keeps an explicit retraction boundary`
 - `src/device-signal-source.test.ts` → `auto-reconnects, keeps source identity and deduplicates replay samples`
+- `src/device-signal-source.test.ts` → `marks a bridge that does not declare hardware origin as simulated`
+- `SignalTrace` / `SignalTimeline` / `SignalSession` carry optional `origin`, `devicePseudonym`, `adapterVersion`
 - `src/signal-session.test.ts` → `leaves no session after save, retract, save and reload`
 - `src/signal-source.test.ts` → `traceToTimeline()` blocks a conflicting identity; different channels at one frame are independent
 - `src/signal-source.test.ts` → exact content dedupe fallback
@@ -26,13 +28,14 @@
 - `traceToTimeline()` / `mergeSignalTraces()` 已接入冲突门禁；冲突时抛 `signal_identity_conflict`
 - `SignalSample` 支持 `streamId` / `seq`，并纳入去重身份
 - 自动重连客户端路径由 fake WebSocket 覆盖
-- SIL session 明确 `simulated: true`
+- SIL session 明确 `simulated: true`；bridge 必须显式 `--origin hardware` 才标记硬件
 
 仍未完成：
 
 - 应用整体重启
 - 持久化删除后重新加载的端到端验证
 - 真实设备时钟漂移
+- 真实适配器 origin/pseudonym/adapterVersion 的 HIL 验证
 
 > SignalSession 存储适配层的保存—撤回—重载已验证；Tauri 应用重启、其他存储副本清理及研究数据库的端到端删除尚未验证。
 

@@ -1,4 +1,4 @@
-import { summarizeTimeline, type SignalKind, type SignalTimeline } from './signal-source'
+import { summarizeTimeline, type SignalKind, type SignalOrigin, type SignalTimeline } from './signal-source'
 
 export interface SignalSessionSourceSummary {
   sourceId: string
@@ -24,6 +24,9 @@ export interface SignalSession {
   endedAt: string
   sourceIds: string[]
   simulated: boolean
+  origin?: SignalOrigin
+  devicePseudonym?: string
+  adapterVersion?: string
   summary: {
     durationSec: number
     sampleCount: number
@@ -63,6 +66,9 @@ export function createSignalSession(timeline: SignalTimeline, now = new Date().t
     endedAt: timeline.endedAt,
     sourceIds: [...timeline.sources],
     simulated: timeline.simulated,
+    ...(timeline.origin ? { origin: timeline.origin } : {}),
+    ...(timeline.devicePseudonym ? { devicePseudonym: timeline.devicePseudonym } : {}),
+    ...(timeline.adapterVersion ? { adapterVersion: timeline.adapterVersion } : {}),
     summary: { durationSec: summary.durationSec, sampleCount: summary.sampleCount, byKind: summary.byKind, bySource, quality },
   }
 }

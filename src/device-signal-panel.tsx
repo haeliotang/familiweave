@@ -73,6 +73,7 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
   }
 
   const summary = timeline ? summarizeTimeline(timeline) : null
+  const originLabel = timeline?.origin === 'hardware' ? t('硬件') : timeline?.origin === 'simulated' ? t('模拟') : t('未验证')
   const retract = () => {
     if (!lastSession) return
     onRetract?.(lastSession.id)
@@ -101,6 +102,7 @@ export function DeviceSignalPanel({ onSession, onRetract }: { onSession?: (sessi
     <div className="signal-readout">
       <span>{t('状态')}：{stateLabel}</span>
       <span>{t('样本')}：{timeline ? summary?.sampleCount ?? 0 : samples.length}</span>
+      {timeline && <span>{t('来源标记')}：{originLabel}</span>}
       {message && <span role="status">{t('错误')}：{message}</span>}
     </div>
     {health && <p className="note">{t('重连')} {health.reconnects} · {t('拒绝')} {health.rejected} · {t('最大间隔')} {health.maxGapMs ?? '—'} ms · {t('抖动')} {health.jitterPercent ?? '—'}%</p>}

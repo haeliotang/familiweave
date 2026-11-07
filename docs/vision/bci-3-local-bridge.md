@@ -17,7 +17,7 @@
 ```sh
 pnpm bci:bridge --port 8765
 # 或固定 token：
-pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
+pnpm bci:bridge --port 8765 --token local-dev-token --rate 1 --origin simulated
 ```
 
 然后在应用「信号实验台 → BCI-2 设备桥接」中填写地址与 token。
@@ -53,7 +53,7 @@ pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
 
 ```sh
 pnpm bci:replay --in recording.jsonl --jitter-ms 20 --drop-every 50 \
-  | pnpm bci:bridge --port 8765 --token local-dev-token --rate 1
+  | pnpm bci:bridge --port 8765 --token local-dev-token --rate 1 --origin simulated
 ```
 
 - 录制行格式：`{"tMs":100,"kind":"heart_rate","value":66}`
@@ -63,7 +63,15 @@ pnpm bci:replay --in recording.jsonl --jitter-ms 20 --drop-every 50 \
 ## 真实设备参考适配器
 
 - `scripts/lsl_bridge.example.py`：pylsl → WebSocket 的参考实现。
-- `scripts/brainflow_bridge.example.py`：BrainFlow / OpenBCI → JSONL stdin 的参考实现，需 `pip install brainflow`，通过 `| pnpm bci:bridge` 管道送入。
+- `scripts/brainflow_bridge.example.py`：BrainFlow / OpenBCI → JSONL stdin 的参考实现，需 `pip install brainflow`，通过 `| pnpm bci:bridge --origin simulated` 管道送入。
+
+真实设备适配器必须显式声明：
+
+```bash
+pnpm bci:bridge --origin hardware --device-pseudonym <pseudonym> --adapter-version <version> --stream-id <epoch>
+```
+
+`--origin` 默认 `unknown`；未知来源在应用内按模拟/未验证处理，不能因为 WebSocket 已连接就当作硬件。
 
 两者都**未在真实硬件上验收**；适配器只发送派生样本，不能代替设备 SDK 的错误处理、采样率核对、同意与撤回流程。真实采集前必须记录设备型号、固件、通道映射和失败处理。
 

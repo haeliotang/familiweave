@@ -23,6 +23,8 @@
 - [ ] 断开后重连
 - [ ] 重连后重复样本去重（保留原始 sourceId/streamId/seq 身份）
 - [ ] session 边界生成；SIL session 必须标记 simulated
+- [ ] bridge 未声明 hardware origin 时，trace 必须按 simulated/unknown 保守标记
+- [ ] 真实适配器声明 origin/devicePseudonym/adapterVersion/streamId
 - [ ] 显式撤回/删除后无残留 session
 - [ ] 缺失时间戳使用主机到达时间
 - [ ] 测试失败时给出明确断言

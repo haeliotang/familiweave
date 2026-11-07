@@ -1,5 +1,5 @@
 import { isSignalConsent, type SignalConsent } from './somatic-signal'
-import type { SignalKind, SignalSample, SignalSource, SignalSourceCapabilities, SignalTrace } from './signal-source'
+import type { SignalKind, SignalOrigin, SignalSample, SignalSource, SignalSourceCapabilities, SignalTrace } from './signal-source'
 
 export type DeviceSourceState = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'stopped' | 'error'
 
@@ -12,6 +12,9 @@ export interface BridgePacket {
   sampleRateHz?: number
   seq?: number
   streamId?: string
+  origin?: SignalOrigin
+  devicePseudonym?: string
+  adapterVersion?: string
   tMs?: number
   kind?: SignalKind
   value?: number
@@ -97,6 +100,10 @@ export class WebSocketSignalSource implements SignalSource {
   private sampleTimes: number[] = []
   private rejected = 0
   private reconnects = 0
+  private origin: SignalOrigin = 'unknown'
+  private devicePseudonym: string | undefined
+  private adapterVersion: string | undefined
+  private streamId: string | undefined
 
   constructor(private readonly url: string, private readonly token: string, private readonly onState?: (state: DeviceSourceState, message?: string) => void) {
     if (!isLocalBridgeUrl(url)) throw new Error('local_bridge_url_required')
@@ -112,6 +119,10 @@ export class WebSocketSignalSource implements SignalSource {
     this.rejected = 0
     this.reconnects = 0
     this.reconnectAttempts = 0
+    this.origin = 'unknown'
+    this.devicePseudonym = undefined
+    this.adapterVersion = undefined
+    this.streamId = undefined
     this.stopped = false
     this.clearReconnect()
     this.open()
@@ -146,6 +157,10 @@ export class WebSocketSignalSource implements SignalSource {
         const packet = JSON.parse(String(event.data)) as BridgePacket
         if (packet.type === 'hello') {
           if (typeof packet.sampleRateHz === 'number' && Number.isFinite(packet.sampleRateHz) && packet.sampleRateHz > 0) this.expectedIntervalMs = 1000 / packet.sampleRateHz
+          this.origin = packet.origin === 'hardware' || packet.origin === 'simulated' ? packet.origin : packet.origin === 'unknown' ? 'unknown' : 'unknown'
+          if (typeof packet.devicePseudonym === 'string' && packet.devicePseudonym.length > 0) this.devicePseudonym = packet.devicePseudonym
+          if (typeof packet.adapterVersion === 'string' && packet.adapterVersion.length > 0) this.adapterVersion = packet.adapterVersion
+          if (typeof packet.streamId === 'string' && packet.streamId.length > 0) this.streamId = packet.streamId
           return
         }
         if (packet.type === 'error') { this.onState?.('error', packet.message ?? 'bridge_error'); return }
@@ -210,7 +225,11 @@ export class WebSocketSignalSource implements SignalSource {
       endedAt: new Date().toISOString(),
       consent: this.consent,
       samples: [...this.samples],
-      simulated: false,
+      simulated: this.origin !== 'hardware',
+      ...(this.origin ? { origin: this.origin } : {}),
+      ...(this.devicePseudonym ? { devicePseudonym: this.devicePseudonym } : {}),
+      ...(this.adapterVersion ? { adapterVersion: this.adapterVersion } : {}),
+      ...(this.streamId ? { streamId: this.streamId } : {}),
     }
   }
 

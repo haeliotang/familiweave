@@ -1,5 +1,7 @@
 import { isSignalConsent, type SignalConsent } from './somatic-signal'
 
+export type SignalOrigin = 'simulated' | 'hardware' | 'unknown'
+
 export type SignalKind = 'heart_rate' | 'eda' | 'breath_phase' | 'voice_energy' | 'body_event' | 'imagery_event' | 'relationship_event'
 
 export interface SignalSample {
@@ -35,6 +37,11 @@ export interface SignalTrace {
   consent: SignalConsent
   samples: SignalSample[]
   simulated: boolean
+  /** Conservative provenance; unknown is not hardware. */
+  origin?: SignalOrigin
+  devicePseudonym?: string
+  adapterVersion?: string
+  streamId?: string
 }
 
 export interface SignalSource {
@@ -53,6 +60,10 @@ export interface SignalTimeline {
   samples: SignalSample[]
   sources: string[]
   simulated: boolean
+  origin?: SignalOrigin
+  devicePseudonym?: string
+  adapterVersion?: string
+  streamId?: string
 }
 
 function assertLocalConsent(consent: SignalConsent) {
@@ -136,7 +147,11 @@ export function traceToTimeline(trace: SignalTrace): SignalTimeline {
     endedAt: trace.endedAt,
     samples: reconciled.samples,
     sources: [...new Set(reconciled.samples.map(sample => sample.sourceId))],
-    simulated: trace.simulated,
+    simulated: trace.origin ? trace.origin !== 'hardware' : trace.simulated,
+    ...(trace.origin ? { origin: trace.origin } : {}),
+    ...(trace.devicePseudonym ? { devicePseudonym: trace.devicePseudonym } : {}),
+    ...(trace.adapterVersion ? { adapterVersion: trace.adapterVersion } : {}),
+    ...(trace.streamId ? { streamId: trace.streamId } : {}),
   }
 }
 
@@ -156,7 +171,11 @@ export function mergeSignalTraces(traces: SignalTrace[]): SignalTimeline {
     endedAt: new Date(end).toISOString(),
     samples: reconciled.samples,
     sources: [...new Set(reconciled.samples.map(sample => sample.sourceId))],
-    simulated: traces.some(trace => trace.simulated),
+    simulated: traces.some(trace => trace.simulated) || traces.some(trace => trace.origin !== 'hardware'),
+    origin: traces.every(trace => trace.origin === 'hardware') ? 'hardware' : traces.some(trace => trace.origin === 'simulated') ? 'simulated' : 'unknown',
+    ...(traces.find(trace => trace.devicePseudonym)?.devicePseudonym ? { devicePseudonym: traces.find(trace => trace.devicePseudonym)!.devicePseudonym } : {}),
+    ...(traces.find(trace => trace.adapterVersion)?.adapterVersion ? { adapterVersion: traces.find(trace => trace.adapterVersion)!.adapterVersion } : {}),
+    ...(traces.find(trace => trace.streamId)?.streamId ? { streamId: traces.find(trace => trace.streamId)!.streamId } : {}),
   }
 }
 /**

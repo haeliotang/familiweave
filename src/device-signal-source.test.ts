@@ -71,18 +71,33 @@ describe('WebSocketSignalSource reconnect path', () => {
     source.start(consent)
     const first = FakeSocket.instances[0]
     first.open()
-    first.message({ type: 'hello', sampleRateHz: 1 })
+    first.message({ type: 'hello', sampleRateHz: 1, origin: 'hardware', devicePseudonym: 'dev-1', adapterVersion: 'adapter-1' })
     first.message({ type: 'samples', sourceId: 'device-A', samples: [{ kind: 'heart_rate', value: 70, tMs: 0, seq: 1, streamId: 'stream-1' }] })
     first.close()
     await vi.advanceTimersByTimeAsync(300)
     const second = FakeSocket.instances[1]
     second.open()
-    second.message({ type: 'hello', sampleRateHz: 1 })
+    second.message({ type: 'hello', sampleRateHz: 1, origin: 'hardware', devicePseudonym: 'dev-1', adapterVersion: 'adapter-1' })
     second.message({ type: 'samples', sourceId: 'device-A', samples: [{ kind: 'heart_rate', value: 70, tMs: 0, seq: 1, streamId: 'stream-1' }] })
     const trace = source.stop()
     expect(source.health().reconnects).toBe(1)
+    expect(trace).toMatchObject({ origin: 'hardware', simulated: false, devicePseudonym: 'dev-1', adapterVersion: 'adapter-1' })
     expect(trace.samples).toHaveLength(2)
     expect(trace.samples[0]).toMatchObject({ streamId: 'stream-1', seq: 1, sourceId: 'device-A' })
     expect(dedupeSignalSamples(trace.samples)).toHaveLength(1)
+  })
+})
+
+
+describe('signal provenance', () => {
+  it('marks a bridge that does not declare hardware origin as simulated', () => {
+    const source = new WebSocketSignalSource('ws://127.0.0.1:8765', 'token')
+    source.start(consent)
+    const socket = FakeSocket.instances[0]
+    socket.open()
+    socket.message({ type: 'hello', sampleRateHz: 1 })
+    socket.message({ type: 'sample', kind: 'heart_rate', value: 60, tMs: 0 })
+    const trace = source.stop()
+    expect(trace).toMatchObject({ origin: 'unknown', simulated: true })
   })
 })
